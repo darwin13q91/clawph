@@ -961,6 +961,113 @@ async function handleRequest(req, res) {
     return;
   }
 
+  // Paper trading endpoints
+  if (pathname === '/api/paper-trades') {
+    if (req.method === 'GET') {
+      // Load paper trades from file
+      const tradesPath = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'data', 'paper_trades.json');
+      let trades = [];
+      let stats = { total_trades: 0, closed_trades: 0, win_rate: 0, total_pnl: 0 };
+      
+      try {
+        if (fs.existsSync(tradesPath)) {
+          const content = fs.readFileSync(tradesPath, 'utf8');
+          trades = JSON.parse(content);
+          
+          // Calculate stats
+          const closed = trades.filter(t => t.status === 'CLOSED');
+          const wins = closed.filter(t => (t.pnl || 0) > 0);
+          const totalPnl = closed.reduce((sum, t) => sum + (t.pnl || 0), 0);
+          
+          stats = {
+            total_trades: trades.length,
+            closed_trades: closed.length,
+            open_trades: trades.filter(t => t.status === 'OPEN').length,
+            win_rate: closed.length > 0 ? Math.round((wins.length / closed.length) * 100) : 0,
+            total_pnl: Math.round(totalPnl * 100) / 100,
+            avg_pnl: closed.length > 0 ? Math.round((totalPnl / closed.length) * 100) / 100 : 0,
+          };
+        }
+      } catch (err) {
+        console.warn('Could not read paper trades:', err.message);
+      }
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        trades: trades.slice(-20).reverse(), // Last 20, newest first
+        stats: stats,
+      }));
+      return;
+    }
+    
+    if (req.method === 'POST') {
+      // Create new paper trade
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', () => {
+        try {
+          const data = JSON.parse(body);
+          
+          // Simple validation
+          if (!data.market_question || !data.direction || !data.entry_price) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Missing required fields' }));
+            return;
+          }
+          
+          // Load existing trades
+          const tradesPath = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'data', 'paper_trades.json');
+          let trades = [];
+          try {
+            if (fs.existsSync(tradesPath)) {
+              trades = JSON.parse(fs.readFileSync(tradesPath, 'utf8'));
+            }
+          } catch (e) {
+            trades = [];
+          }
+          
+          // Create trade record
+          const shares = data.shares || 1;
+          const positionSize = Math.round(shares * data.entry_price * 100) / 100;
+          const isYes = data.direction.toUpperCase() === 'YES';
+          
+          const trade = {
+            id: `paper_${Date.now()}`,
+            market_id: data.market_id || `market_${Date.now()}`,
+            market_question: data.market_question,
+            direction: data.direction.toUpperCase(),
+            entry_price: Math.round(data.entry_price * 10000) / 10000,
+            shares: shares,
+            position_size: positionSize,
+            potential_profit: Math.round(shares * (isYes ? (1.0 - data.entry_price) : data.entry_price) * 100) / 100,
+            potential_loss: positionSize,
+            reasoning: data.reasoning || '',
+            status: 'OPEN',
+            exit_price: null,
+            pnl: null,
+            created_at: new Date().toISOString(),
+            closed_at: null,
+          };
+          
+          trades.push(trade);
+          fs.writeFileSync(tradesPath, JSON.stringify(trades, null, 2));
+          
+          res.writeHead(201, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ 
+            success: true, 
+            trade: trade,
+            message: `Paper trade logged: ${trade.direction} ${trade.shares} shares at $${trade.entry_price}`
+          }));
+        } catch (err) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: err.message }));
+        }
+      });
+      return;
+    }
+  }
+
   // Serve index.html for root
   if (pathname === '/') {
     serveStaticFile(res, path.join(__dirname, '..', 'public', 'index.html'), 'text/html');

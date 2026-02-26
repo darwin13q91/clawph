@@ -905,6 +905,83 @@
             </div>
         </section>
 
+        <!-- Paper Trading Tracker -->
+        <section class="section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h2 class="section-title" style="margin: 0;">Paper Trading Journal</h2>
+                <span class="badge badge-success" id="paperStatsBadge" style="font-size: 11px;">0 Trades</span>
+            </div>
+            
+            <!-- Stats Row -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px;">
+                <div style="background: var(--bg-elevated); padding: 12px; border-radius: 6px; text-align: center;">
+                    <div style="font-size: 20px; font-weight: 700; color: var(--text-primary);" id="paperTotalTrades">0</div>
+                    <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase;">Total Trades</div>
+                </div>
+                <div style="background: var(--bg-elevated); padding: 12px; border-radius: 6px; text-align: center;">
+                    <div style="font-size: 20px; font-weight: 700; color: var(--text-primary);" id="paperWinRate">0%</div>
+                    <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase;">Win Rate</div>
+                </div>
+                <div style="background: var(--bg-elevated); padding: 12px; border-radius: 6px; text-align: center;">
+                    <div style="font-size: 20px; font-weight: 700; color: var(--text-primary);" id="paperTotalPnL">$0</div>
+                    <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase;">Total P&L</div>
+                </div>
+                <div style="background: var(--bg-elevated); padding: 12px; border-radius: 6px; text-align: center;">
+                    <div style="font-size: 20px; font-weight: 700; color: var(--text-primary);" id="paperAvgPnL">$0</div>
+                    <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase;">Avg P&L</div>
+                </div>
+            </div>
+            
+            <!-- Trade Form -->
+            <div style="background: var(--bg-elevated); padding: 16px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 16px;">
+                <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; text-transform: uppercase;">Log New Paper Trade</div>
+                
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+                    <input type="text" id="ptMarket" placeholder="Market question..." 
+                        style="background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px 12px; border-radius: 4px; font-size: 13px;">
+                    
+                    <select id="ptDirection" 
+                        style="background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px 12px; border-radius: 4px; font-size: 13px;">
+                        <option value="YES">BUY YES</option>
+                        <option value="NO">BUY NO</option>
+                    </select>
+                    
+                    <input type="number" id="ptPrice" placeholder="Price ($)" step="0.01" min="0.01" max="0.99" 
+                        style="background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px 12px; border-radius: 4px; font-size: 13px;">
+                    
+                    <input type="number" id="ptShares" placeholder="Shares" min="1" value="1" 
+                        style="background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px 12px; border-radius: 4px; font-size: 13px;">
+                </div>
+                
+                <input type="text" id="ptReason" placeholder="Reasoning (why this trade?)..." 
+                    style="width: 100%; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px 12px; border-radius: 4px; font-size: 13px; margin-bottom: 12px;">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-size: 11px; color: var(--text-muted);">
+                        Position: <span id="ptPositionSize" style="color: var(--text-primary); font-weight: 600;">$0</span>
+                        <span style="margin: 0 8px;">|</span>
+                        Potential Profit: <span id="ptPotentialProfit" style="color: var(--accent-success);">$0</span>
+                    </div>
+                    <button onclick="logPaperTrade()" 
+                        style="background: var(--accent-primary); color: white; border: none; padding: 8px 20px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer;">
+                        Log Paper Trade
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Recent Trades -->
+            <div style="background: var(--bg-elevated); border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden;">
+                <div style="padding: 12px 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase;">
+                    Recent Trades
+                </div>
+                <div id="paperTradesList" style="max-height: 300px; overflow-y: auto;">
+                    <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">
+                        No trades yet. Start paper trading above!
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Live Logs -->
         <section class="section">
             <h2 class="section-title">Live Logs</h2>
@@ -1283,6 +1360,157 @@
             loadPolymarket();
             setInterval(loadPolymarket, 5 * 60 * 1000); // Every 5 minutes
         });
+
+        // ==================== PAPER TRADING ====================
+
+        // Update position calculations when inputs change
+        document.addEventListener('DOMContentLoaded', () => {
+            const priceInput = document.getElementById('ptPrice');
+            const sharesInput = document.getElementById('ptShares');
+            const directionInput = document.getElementById('ptDirection');
+            
+            [priceInput, sharesInput, directionInput].forEach(el => {
+                el?.addEventListener('input', updatePaperTradeCalc);
+            });
+            
+            // Load existing trades
+            loadPaperTrades();
+        });
+
+        function updatePaperTradeCalc() {
+            const price = parseFloat(document.getElementById('ptPrice').value) || 0;
+            const shares = parseInt(document.getElementById('ptShares').value) || 0;
+            const direction = document.getElementById('ptDirection').value;
+            
+            const positionSize = price * shares;
+            const potentialProfit = direction === 'YES' 
+                ? shares * (1.0 - price) 
+                : shares * price;
+            
+            document.getElementById('ptPositionSize').textContent = `$${positionSize.toFixed(2)}`;
+            document.getElementById('ptPotentialProfit').textContent = `$${potentialProfit.toFixed(2)}`;
+        }
+
+        async function logPaperTrade() {
+            const market = document.getElementById('ptMarket').value.trim();
+            const direction = document.getElementById('ptDirection').value;
+            const price = parseFloat(document.getElementById('ptPrice').value);
+            const shares = parseInt(document.getElementById('ptShares').value);
+            const reason = document.getElementById('ptReason').value.trim();
+            
+            // Validation
+            if (!market) {
+                alert('Please enter a market question');
+                return;
+            }
+            if (!price || price < 0.01 || price > 0.99) {
+                alert('Please enter a valid price (0.01 - 0.99)');
+                return;
+            }
+            if (!shares || shares < 1) {
+                alert('Please enter at least 1 share');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/paper-trades', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        market_question: market,
+                        direction: direction,
+                        entry_price: price,
+                        shares: shares,
+                        reasoning: reason,
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Clear form
+                    document.getElementById('ptMarket').value = '';
+                    document.getElementById('ptPrice').value = '';
+                    document.getElementById('ptShares').value = '1';
+                    document.getElementById('ptReason').value = '';
+                    updatePaperTradeCalc();
+                    
+                    // Reload trades
+                    loadPaperTrades();
+                    
+                    // Show success
+                    alert(`✅ Paper trade logged!\n${direction} ${shares} shares at $${price.toFixed(2)}`);
+                } else {
+                    alert('Error: ' + (data.error || 'Unknown error'));
+                }
+            } catch (err) {
+                alert('Failed to log trade: ' + err.message);
+            }
+        }
+
+        async function loadPaperTrades() {
+            try {
+                const response = await fetch('/api/paper-trades');
+                const data = await response.json();
+                
+                // Update stats
+                const stats = data.stats || {};
+                document.getElementById('paperTotalTrades').textContent = stats.total_trades || 0;
+                document.getElementById('paperWinRate').textContent = (stats.win_rate || 0) + '%';
+                document.getElementById('paperStatsBadge').textContent = `${stats.total_trades || 0} Trades`;
+                
+                const totalPnL = stats.total_pnl || 0;
+                const avgPnL = stats.avg_pnl || 0;
+                
+                document.getElementById('paperTotalPnL').textContent = (totalPnL >= 0 ? '+' : '') + '$' + totalPnL.toFixed(2);
+                document.getElementById('paperTotalPnL').style.color = totalPnL >= 0 ? 'var(--accent-success)' : 'var(--accent-danger)';
+                
+                document.getElementById('paperAvgPnL').textContent = (avgPnL >= 0 ? '+' : '') + '$' + avgPnL.toFixed(2);
+                document.getElementById('paperAvgPnL').style.color = avgPnL >= 0 ? 'var(--accent-success)' : 'var(--accent-danger)';
+                
+                // Render trades list
+                const tradesList = document.getElementById('paperTradesList');
+                const trades = data.trades || [];
+                
+                if (trades.length === 0) {
+                    tradesList.innerHTML = `
+                        <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">
+                            No trades yet. Start paper trading above!
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '';
+                trades.forEach(trade => {
+                    const pnl = trade.pnl;
+                    const pnlColor = pnl === null ? 'var(--text-muted)' : (pnl >= 0 ? 'var(--accent-success)' : 'var(--accent-danger)');
+                    const pnlText = pnl === null ? 'OPEN' : ((pnl >= 0 ? '+' : '') + '$' + pnl.toFixed(2));
+                    const statusBadge = trade.status === 'OPEN' 
+                        ? '<span style="background: var(--accent-info); color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px;">OPEN</span>'
+                        : '<span style="background: var(--bg-primary); color: var(--text-secondary); padding: 2px 8px; border-radius: 4px; font-size: 10px;">CLOSED</span>';
+                    
+                    html += `
+                        <div style="padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); font-size: 12px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <span style="font-weight: 600; color: var(--text-primary);">${escapeHtml(trade.market_question.substring(0, 50))}${trade.market_question.length > 50 ? '...' : ''}</span>
+                                ${statusBadge}
+                            </div>
+                            <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
+                                <span>${trade.direction} ${trade.shares} shares @ $${trade.entry_price.toFixed(2)}</span>
+                                <span style="color: ${pnlColor}; font-weight: 600;">${pnlText}</span>
+                            </div>
+                            ${trade.reasoning ? `<div style="margin-top: 6px; color: var(--text-muted); font-size: 11px; font-style: italic;">"${escapeHtml(trade.reasoning)}"</div>` : ''}
+                        </div>
+                    `;
+                });
+                
+                tradesList.innerHTML = html;
+                
+            } catch (err) {
+                console.error('Failed to load paper trades:', err);
+            }
+        }
 
         // ==================== LIVE LOGS ====================
 
