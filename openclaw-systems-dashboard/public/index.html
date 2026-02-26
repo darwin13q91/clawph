@@ -544,6 +544,194 @@
             color: var(--accent-danger);
         }
 
+        /* Live Logs Section */
+        .logs-container {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .logs-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+
+        .logs-toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logs-toolbar label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .logs-toolbar select,
+        .logs-toolbar input[type="text"] {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: var(--font-mono);
+        }
+
+        .logs-toolbar input[type="text"] {
+            min-width: 150px;
+        }
+
+        .logs-toolbar input[type="text"]::placeholder {
+            color: var(--text-muted);
+        }
+
+        .logs-toolbar button {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .logs-toolbar button:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .logs-toolbar button.active {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .logs-toolbar button.paused {
+            background: var(--accent-warning);
+            color: white;
+            border-color: var(--accent-warning);
+        }
+
+        .logs-content {
+            height: 400px;
+            overflow-y: auto;
+            padding: 0;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            line-height: 1.5;
+            background: var(--bg-primary);
+        }
+
+        .log-entry {
+            display: flex;
+            gap: 12px;
+            padding: 6px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-2px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .log-entry:hover {
+            background: var(--bg-secondary);
+        }
+
+        .log-time {
+            color: var(--text-muted);
+            min-width: 160px;
+            flex-shrink: 0;
+        }
+
+        .log-level {
+            min-width: 50px;
+            text-align: center;
+            padding: 1px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .log-level.debug {
+            background: rgba(139, 139, 154, 0.15);
+            color: var(--text-secondary);
+        }
+
+        .log-level.info {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-info);
+        }
+
+        .log-level.warn {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-warning);
+        }
+
+        .log-level.error {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-danger);
+        }
+
+        .log-source {
+            color: var(--text-muted);
+            min-width: 100px;
+            flex-shrink: 0;
+        }
+
+        .log-message {
+            color: var(--text-primary);
+            word-break: break-all;
+            flex: 1;
+        }
+
+        .logs-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+
+        .logs-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-success);
+            animation: pulse 2s infinite;
+        }
+
+        .logs-status-dot.disconnected {
+            background: var(--accent-danger);
+            animation: none;
+        }
+
+        .logs-status-dot.paused {
+            background: var(--accent-warning);
+            animation: none;
+        }
+
+        .logs-empty {
+            padding: 60px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .card {
@@ -574,6 +762,28 @@
             
             .pipeline-arrow {
                 transform: rotate(90deg);
+            }
+
+            .logs-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .logs-toolbar-group {
+                justify-content: space-between;
+            }
+
+            .logs-content {
+                height: 300px;
+            }
+
+            .log-entry {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .log-time {
+                min-width: auto;
             }
         }
     </style>
@@ -662,6 +872,43 @@
             <h2 class="section-title">Key Features</h2>
             <div class="features-grid" id="featuresGrid">
                 <!-- Features injected here -->
+            </div>
+        </section>
+
+        <!-- Live Logs -->
+        <section class="section">
+            <h2 class="section-title">Live Logs</h2>
+            <div class="logs-container">
+                <div class="logs-toolbar">
+                    <div class="logs-toolbar-group">
+                        <label>Level:</label>
+                        <select id="logLevelFilter" onchange="updateLogFilter()">
+                            <option value="all">All</option>
+                            <option value="error">Error</option>
+                            <option value="warn">Warning</option>
+                            <option value="info">Info</option>
+                            <option value="debug">Debug</option>
+                        </select>
+                    </div>
+                    <div class="logs-toolbar-group">
+                        <label>Search:</label>
+                        <input type="text" id="logSearch" placeholder="Filter messages..." oninput="updateLogFilter()">
+                    </div>
+                    <div class="logs-toolbar-group">
+                        <button id="pauseBtn" onclick="togglePause()">
+                            <span id="pauseIcon">⏸</span>
+                            <span id="pauseText">Pause</span>
+                        </button>
+                        <button onclick="clearLogs()">Clear</button>
+                    </div>
+                    <div class="logs-status">
+                        <span class="logs-status-dot" id="logsStatusDot"></span>
+                        <span id="logsStatusText">Connecting...</span>
+                    </div>
+                </div>
+                <div class="logs-content" id="logsContent">
+                    <div class="logs-empty">Connecting to log stream...</div>
+                </div>
             </div>
         </section>
 
@@ -894,6 +1141,275 @@
                 return date.toLocaleString();
             } catch {
                 return isoString;
+            }
+        }
+
+        // ==================== LIVE LOGS ====================
+
+        const LOGS_CONFIG = {
+            MAX_ENTRIES: 500,
+            RECONNECT_DELAY: 3000,
+        };
+
+        let logsEventSource = null;
+        let logsPaused = false;
+        let logsBuffer = [];
+        let logsFilter = {
+            level: 'all',
+            search: '',
+        };
+
+        // Initialize logs on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            connectLogStream();
+        });
+
+        function connectLogStream() {
+            if (logsEventSource) {
+                logsEventSource.close();
+            }
+
+            const level = document.getElementById('logLevelFilter').value;
+            const url = `/api/logs/stream?level=${encodeURIComponent(level)}`;
+
+            updateLogsStatus('connecting', 'Connecting...');
+
+            try {
+                logsEventSource = new EventSource(url);
+
+                logsEventSource.onopen = () => {
+                    updateLogsStatus('connected', 'Live');
+                    // Clear initial loading message
+                    const content = document.getElementById('logsContent');
+                    if (content.querySelector('.logs-empty')) {
+                        content.innerHTML = '';
+                    }
+                };
+
+                logsEventSource.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        handleLogMessage(data);
+                    } catch (err) {
+                        console.error('Failed to parse log message:', err);
+                    }
+                };
+
+                logsEventSource.onerror = () => {
+                    updateLogsStatus('disconnected', 'Disconnected');
+                    // Auto-reconnect after delay
+                    setTimeout(connectLogStream, LOGS_CONFIG.RECONNECT_DELAY);
+                };
+            } catch (err) {
+                console.error('Failed to connect to log stream:', err);
+                updateLogsStatus('disconnected', 'Failed');
+                // Fallback to polling
+                startLogPolling();
+            }
+        }
+
+        function startLogPolling() {
+            // Fallback: poll the logs API every 5 seconds
+            async function poll() {
+                try {
+                    const level = document.getElementById('logLevelFilter').value;
+                    const response = await fetch(`/api/logs?lines=100&level=${encodeURIComponent(level)}`);
+                    const data = await response.json();
+
+                    if (data.logs && data.logs.length > 0) {
+                        updateLogsStatus('connected', 'Polling');
+                        // Only add new logs (simple dedup by timestamp+message)
+                        const existingKeys = new Set(logsBuffer.map(l => `${l.timestamp}-${l.message}`));
+                        const newLogs = data.logs.filter(l => !existingKeys.has(`${l.timestamp}-${l.message}`));
+
+                        if (newLogs.length > 0) {
+                            logsBuffer.push(...newLogs);
+                            trimLogsBuffer();
+                            if (!logsPaused) {
+                                renderLogs();
+                            }
+                        }
+                    }
+                } catch (err) {
+                    updateLogsStatus('disconnected', 'Polling failed');
+                }
+            }
+
+            poll();
+            setInterval(poll, 5000);
+        }
+
+        function handleLogMessage(data) {
+            if (data.type === 'connected') {
+                return;
+            }
+
+            if (data.type === 'log' && data.data) {
+                logsBuffer.push(data.data);
+                trimLogsBuffer();
+
+                if (!logsPaused) {
+                    appendLogEntry(data.data);
+                    autoScrollLogs();
+                }
+            } else if (data.type === 'error') {
+                console.error('Log stream error:', data.message);
+            }
+        }
+
+        function trimLogsBuffer() {
+            if (logsBuffer.length > LOGS_CONFIG.MAX_ENTRIES) {
+                logsBuffer = logsBuffer.slice(-LOGS_CONFIG.MAX_ENTRIES);
+            }
+        }
+
+        function appendLogEntry(log) {
+            const container = document.getElementById('logsContent');
+
+            // Check if this log passes the current filter
+            if (!passesLogFilter(log)) {
+                return;
+            }
+
+            // Remove empty message if present
+            const emptyMsg = container.querySelector('.logs-empty');
+            if (emptyMsg) {
+                emptyMsg.remove();
+            }
+
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `
+                <span class="log-time">${escapeHtml(formatLogTime(log.timestamp))}</span>
+                <span class="log-level ${escapeHtml(log.level || 'info')}">${escapeHtml(log.level || 'info')}</span>
+                <span class="log-source">${escapeHtml(log.source || 'openclaw')}</span>
+                <span class="log-message">${escapeHtml(log.message)}</span>
+            `;
+
+            container.appendChild(entry);
+
+            // Trim DOM if too many entries
+            while (container.children.length > LOGS_CONFIG.MAX_ENTRIES) {
+                container.removeChild(container.firstChild);
+            }
+        }
+
+        function renderLogs() {
+            const container = document.getElementById('logsContent');
+            const filtered = logsBuffer.filter(passesLogFilter);
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="logs-empty">No logs match the current filter</div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(log => `
+                <div class="log-entry">
+                    <span class="log-time">${escapeHtml(formatLogTime(log.timestamp))}</span>
+                    <span class="log-level ${escapeHtml(log.level || 'info')}">${escapeHtml(log.level || 'info')}</span>
+                    <span class="log-source">${escapeHtml(log.source || 'openclaw')}</span>
+                    <span class="log-message">${escapeHtml(log.message)}</span>
+                </div>
+            `).join('');
+
+            autoScrollLogs();
+        }
+
+        function passesLogFilter(log) {
+            // Level filter
+            const levelFilter = document.getElementById('logLevelFilter').value;
+            if (levelFilter !== 'all' && (log.level || 'info').toLowerCase() !== levelFilter) {
+                return false;
+            }
+
+            // Search filter
+            const searchTerm = document.getElementById('logSearch').value.toLowerCase();
+            if (searchTerm) {
+                const message = (log.message || '').toLowerCase();
+                const source = (log.source || '').toLowerCase();
+                if (!message.includes(searchTerm) && !source.includes(searchTerm)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        function updateLogFilter() {
+            // When filter changes, re-render existing buffer
+            renderLogs();
+
+            // If level changed, reconnect stream with new filter
+            const level = document.getElementById('logLevelFilter').value;
+            if (level !== logsFilter.level) {
+                logsFilter.level = level;
+                connectLogStream();
+            }
+
+            logsFilter.search = document.getElementById('logSearch').value;
+        }
+
+        function togglePause() {
+            logsPaused = !logsPaused;
+            const btn = document.getElementById('pauseBtn');
+            const icon = document.getElementById('pauseIcon');
+            const text = document.getElementById('pauseText');
+
+            if (logsPaused) {
+                btn.classList.add('paused');
+                icon.textContent = '▶';
+                text.textContent = 'Resume';
+                updateLogsStatus('paused', 'Paused');
+            } else {
+                btn.classList.remove('paused');
+                icon.textContent = '⏸';
+                text.textContent = 'Pause';
+                updateLogsStatus('connected', 'Live');
+                renderLogs(); // Re-render to show any buffered logs
+            }
+        }
+
+        function clearLogs() {
+            logsBuffer = [];
+            document.getElementById('logsContent').innerHTML = '<div class="logs-empty">Logs cleared. Waiting for new entries...</div>';
+        }
+
+        function updateLogsStatus(state, text) {
+            const dot = document.getElementById('logsStatusDot');
+            const label = document.getElementById('logsStatusText');
+
+            dot.className = 'logs-status-dot';
+            if (state === 'connected') {
+                dot.style.background = 'var(--accent-success)';
+            } else if (state === 'disconnected') {
+                dot.classList.add('disconnected');
+            } else if (state === 'paused') {
+                dot.classList.add('paused');
+            } else if (state === 'connecting') {
+                dot.style.background = 'var(--accent-warning)';
+            }
+
+            label.textContent = text;
+        }
+
+        function autoScrollLogs() {
+            const container = document.getElementById('logsContent');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function formatLogTime(timestamp) {
+            if (!timestamp) return '—';
+            try {
+                const date = new Date(timestamp);
+                // Format: HH:MM:SS.mmm
+                return date.toLocaleTimeString('en-US', {
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                }) + '.' + String(date.getMilliseconds()).padStart(3, '0');
+            } catch {
+                return String(timestamp);
             }
         }
     </script>
