@@ -929,6 +929,38 @@ async function handleRequest(req, res) {
     return;
   }
 
+  // Polymarket scanner endpoint
+  if (pathname === '/api/polymarket') {
+    try {
+      // Read cached scan results if available
+      const scanPath = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'data', 'scan.json');
+      let scanData = { opportunities: [], scanned_at: null };
+      
+      try {
+        if (fs.existsSync(scanPath)) {
+          const content = fs.readFileSync(scanPath, 'utf8');
+          scanData = JSON.parse(content);
+        }
+      } catch (err) {
+        console.warn('Could not read scan data:', err.message);
+      }
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        paperTrading: true,
+        count: scanData.count || scanData.opportunities?.length || 0,
+        scannedAt: scanData.scanned_at,
+        opportunities: scanData.opportunities || [],
+        disclaimer: 'Paper trading only - no real trades',
+      }));
+    } catch (error) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: error.message }));
+    }
+    return;
+  }
+
   // Serve index.html for root
   if (pathname === '/') {
     serveStaticFile(res, path.join(__dirname, '..', 'public', 'index.html'), 'text/html');

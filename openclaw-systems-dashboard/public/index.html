@@ -875,6 +875,36 @@
             </div>
         </section>
 
+        <!-- Polymarket Paper Trading Scanner -->
+        <section class="section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h2 class="section-title" style="margin: 0;">Polymarket Scanner</h2>
+                <span class="badge badge-warning" style="font-size: 11px;">🧪 Paper Trading</span>
+            </div>
+            
+            <div class="status-list" id="polyStatus">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading market data...
+                </div>
+            </div>
+            
+            <div style="margin-top: 16px; padding: 12px; background: var(--bg-elevated); border-radius: 6px; border: 1px solid var(--border-color);">
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">
+                    <span>Top Opportunities (by volume)</span>
+                    <span id="polyLastUpdate">--</span>
+                </div>
+                <div id="polyOpportunities" style="font-family: var(--font-mono); font-size: 12px;">
+                    <div style="color: var(--text-muted);">Waiting for scan data...</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 12px; font-size: 11px; color: var(--text-muted); text-align: center;">
+                ⚠️ Paper trading only — no real trades executed • 
+                <a href="#" onclick="refreshPolymarket(); return false;" style="color: var(--accent-primary);">Refresh Now</a>
+            </div>
+        </section>
+
         <!-- Live Logs -->
         <section class="section">
             <h2 class="section-title">Live Logs</h2>
@@ -1143,6 +1173,116 @@
                 return isoString;
             }
         }
+
+        // ==================== POLYMARKET SCANNER ====================
+
+        async function loadPolymarket() {
+            try {
+                const response = await fetch('/api/polymarket');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                renderPolymarket(data);
+            } catch (error) {
+                console.error('Failed to load Polymarket data:', error);
+                document.getElementById('polyStatus').innerHTML = `
+                    <div class="error-state">
+                        <p>Failed to load market data</p>
+                        <p style="font-size: 12px; color: var(--text-muted);">${escapeHtml(error.message)}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderPolymarket(data) {
+            const statusContainer = document.getElementById('polyStatus');
+            const oppsContainer = document.getElementById('polyOpportunities');
+            const lastUpdate = document.getElementById('polyLastUpdate');
+            
+            // Update status
+            if (data.count === 0) {
+                statusContainer.innerHTML = `
+                    <div class="status-item">
+                        <div class="status-item-left">
+                            <span class="status-icon offline"></span>
+                            <span>No opportunities found</span>
+                        </div>
+                        <span class="badge badge-primary">Scan Running</span>
+                    </div>
+                `;
+            } else {
+                statusContainer.innerHTML = `
+                    <div class="status-item">
+                        <div class="status-item-left">
+                            <span class="status-icon online"></span>
+                            <span>${data.count} markets found</span>
+                        </div>
+                        <span class="badge badge-success">Active</span>
+                    </div>
+                `;
+            }
+            
+            // Update timestamp
+            if (data.scannedAt) {
+                const date = new Date(data.scannedAt);
+                lastUpdate.textContent = `Updated: ${date.toLocaleTimeString()}`;
+            }
+            
+            // Render opportunities table
+            const opps = data.opportunities || [];
+            if (opps.length === 0) {
+                oppsContainer.innerHTML = '<div style="color: var(--text-muted);">No scan data available yet. First run may take a few minutes.</div>';
+                return;
+            }
+            
+            // Build table
+            let html = `
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="color: var(--text-secondary); font-size: 11px; text-align: left; border-bottom: 1px solid var(--border-color);">
+                            <th style="padding: 8px 4px;">Market</th>
+                            <th style="padding: 8px 4px; text-align: right;">YES</th>
+                            <th style="padding: 8px 4px; text-align: right;">Volume</th>
+                            <th style="padding: 8px 4px; text-align: right;">Days</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            opps.slice(0, 10).forEach(opp => {
+                const question = opp.question.length > 40 ? opp.question.substring(0, 40) + '...' : opp.question;
+                html += `
+                    <tr style="border-bottom: 1px solid var(--border-subtle);">
+                        <td style="padding: 8px 4px; color: var(--text-primary);" title="${escapeHtml(opp.question)}">${escapeHtml(question)}</td>
+                        <td style="padding: 8px 4px; text-align: right; color: var(--accent-primary);">$${opp.yes_price.toFixed(2)}</td>
+                        <td style="padding: 8px 4px; text-align: right; color: var(--text-secondary);">$${opp.volume.toLocaleString()}</td>
+                        <td style="padding: 8px 4px; text-align: right; color: var(--text-muted);">${opp.days_left}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            oppsContainer.innerHTML = html;
+        }
+
+        function refreshPolymarket() {
+            const container = document.getElementById('polyStatus');
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Refreshing...
+                </div>
+            `;
+            loadPolymarket();
+        }
+
+        // Load Polymarket data on page load and every 5 minutes
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPolymarket();
+            setInterval(loadPolymarket, 5 * 60 * 1000); // Every 5 minutes
+        });
 
         // ==================== LIVE LOGS ====================
 
