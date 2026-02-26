@@ -1,0 +1,36 @@
+{
+  "models": [
+    {
+      "id": "claude-opus-4",
+      "name": "Claude Opus 4",
+      "alias": "opus",
+      "role": "Primary Agent",
+      "badge": "Paid",
+      "isPrimary": true
+    },
+    {
+      "id": "gpt-4o",
+      "name": "GPT-4o",
+      "alias": "gpt",
+      "role": "Coding Specialist",
+      "badge": "Paid",
+      "isPrimary": false
+    },
+    {
+      "id": "kimi-k2p5",
+      "name": "Kimi K2.5",
+      "alias": "kimi",
+      "role": "Long Context",
+      "badge": "Free",
+      "isPrimary": false
+    },
+    {
+      "id": "deepseek-chat",
+      "name": "DeepSeek Chat",
+      "alias": "deepseek",
+      "role": "Reasoning",
+      "badge": "Free",
+      "isPrimary": false
+    }
+  ]
+}

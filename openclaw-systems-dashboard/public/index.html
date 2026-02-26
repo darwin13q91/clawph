@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenClaw Systems Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --bg-card: #16161d;
+            --bg-elevated: #1e1e28;
+            --border-color: #2a2a35;
+            --border-subtle: #1f1f28;
+            --text-primary: #f0f0f5;
+            --text-secondary: #8b8b9a;
+            --text-muted: #5a5a6a;
+            --accent-primary: #6366f1;
+            --accent-success: #22c55e;
+            --accent-warning: #f59e0b;
+            --accent-danger: #ef4444;
+            --accent-info: #3b82f6;
+            --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        /* Card Container - 1080px max */
+        .card {
+            max-width: 1080px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            min-height: 100vh;
+            border-left: 1px solid var(--border-subtle);
+            border-right: 1px solid var(--border-subtle);
+        }
+
+        /* Header */
+        .header {
+            padding: 32px 40px 24px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-success);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-dot.stale {
+            background: var(--accent-warning);
+            animation: none;
+        }
+
+        .status-dot.error {
+            background: var(--accent-danger);
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .last-updated {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border-subtle);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .stat-tile {
+            background: var(--bg-card);
+            padding: 24px 32px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+            margin-bottom: 8px;
+            font-family: var(--font-mono);
+        }
+
+        .stat-value.degraded {
+            color: var(--accent-warning);
+        }
+
+        .stat-value.down {
+            color: var(--accent-danger);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Section Styles */
+        .section {
+            padding: 32px 40px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 24px;
+        }
+
+        /* Model Grid */
+        .model-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .model-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .model-card:hover {
+            border-color: var(--border-color);
+            background: #252530;
+        }
+
+        .model-card.primary {
+            border-color: var(--accent-primary);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, transparent 100%);
+        }
+
+        .model-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .model-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .model-alias {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent-primary);
+            background: rgba(99, 102, 241, 0.15);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+        }
+
+        .model-role {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .model-badge {
+            font-size: 11px;
+            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .model-badge.paid {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--accent-success);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .model-badge.oauth {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-info);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .model-badge.local {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent-warning);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        /* Cron List */
+        .cron-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .cron-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+
+        .cron-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .cron-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            min-width: 180px;
+        }
+
+        .cron-schedule {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            background: var(--bg-primary);
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        .cron-status {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 5px 12px;
+            border-radius: 4px;
+        }
+
+        .cron-status.active {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--accent-success);
+        }
+
+        .cron-status.disabled {
+            background: var(--bg-primary);
+            color: var(--text-muted);
+        }
+
+        .cron-status.failed {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-danger);
+        }
+
+        .cron-status.unknown {
+            background: rgba(139, 139, 154, 0.15);
+            color: var(--text-secondary);
+        }
+
+        .cron-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Pipeline */
+        .pipeline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 8px 0;
+        }
+
+        .pipeline-node {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .pipeline-node::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .pipeline-node.ok::before {
+            background: var(--accent-success);
+        }
+
+        .pipeline-node.degraded::before {
+            background: var(--accent-warning);
+        }
+
+        .pipeline-node.down::before {
+            background: var(--accent-danger);
+        }
+
+        .pipeline-node.unknown::before {
+            background: var(--text-muted);
+        }
+
+        .pipeline-arrow {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Channel Row */
+        .channel-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .channel-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .channel-chip::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .channel-chip.active {
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .channel-chip.active::before {
+            background: var(--accent-success);
+        }
+
+        .channel-chip.degraded {
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .channel-chip.degraded::before {
+            background: var(--accent-warning);
+        }
+
+        .channel-chip.down {
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .channel-chip.down::before {
+            background: var(--accent-danger);
+        }
+
+        .channel-chip.unknown {
+            border-color: var(--border-color);
+        }
+
+        .channel-chip.unknown::before {
+            background: var(--text-muted);
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .feature-item::before {
+            content: '○';
+            color: var(--text-muted);
+            font-size: 10px;
+        }
+
+        .feature-item.detected {
+            color: var(--text-primary);
+            border-color: rgba(34, 197, 94, 0.2);
+        }
+
+        .feature-item.detected::before {
+            content: '●';
+            color: var(--accent-success);
+        }
+
+        /* Footer */
+        .footer {
+            padding: 24px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: var(--text-primary);
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 60px 40px;
+            color: var(--text-muted);
+        }
+
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error State */
+        .error-state {
+            padding: 40px;
+            text-align: center;
+            color: var(--accent-danger);
+        }
+
+        .error-state h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .error-state p {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Health Banner */
+        .health-banner {
+            padding: 12px 40px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .health-banner.ok {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--accent-success);
+        }
+
+        .health-banner.warn {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent-warning);
+        }
+
+        .health-banner.down {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-danger);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .card {
+                max-width: 100%;
+                border: none;
+            }
+            
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .section {
+                padding: 24px 20px;
+            }
+            
+            .header {
+                padding: 24px 20px;
+            }
+            
+            .pipeline {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .pipeline-arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card" id="dashboard">
+        <!-- Header -->
+        <header class="header">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <h1>OpenClaw</h1>
+                    <div class="header-subtitle">
+                        <span id="agentName">[AGENT_NAME]</span>
+                        <span>— Personal AI Agent — Full Configuration Overview</span>
+                    </div>
+                </div>
+                <div class="status-indicator">
+                    <span class="status-dot" id="connectionStatus"></span>
+                    <span class="last-updated" id="lastUpdated">Loading...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Health Banner -->
+        <div class="health-banner ok" id="healthBanner" style="display: none;">
+            <span id="healthMessage">System operational</span>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row">
+            <div class="stat-tile">
+                <div class="stat-value" id="statModels">—</div>
+                <div class="stat-label">AI Models</div>
+            </div>
+            <div class="stat-tile">
+                <div class="stat-value" id="statCron">—</div>
+                <div class="stat-label">Cron Jobs</div>
+            </div>
+            <div class="stat-tile">
+                <div class="stat-value" id="statChannels">—</div>
+                <div class="stat-label">Channels</div>
+            </div>
+            <div class="stat-tile">
+                <div class="stat-value" id="statSession">—</div>
+                <div class="stat-label">Session Life</div>
+            </div>
+        </div>
+
+        <!-- AI Model Stack -->
+        <section class="section">
+            <h2 class="section-title">AI Model Stack</h2>
+            <div class="model-grid" id="modelGrid">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    Loading models...
+                </div>
+            </div>
+        </section>
+
+        <!-- Automated Cron Jobs -->
+        <section class="section">
+            <h2 class="section-title">Automated Cron Jobs</h2>
+            <div class="cron-list" id="cronList">
+                <div class="loading">Loading cron jobs...</div>
+            </div>
+        </section>
+
+        <!-- Real-Time Gmail Pipeline -->
+        <section class="section">
+            <h2 class="section-title">Real-Time Gmail Pipeline</h2>
+            <div class="pipeline" id="pipeline">
+                <!-- Pipeline nodes injected here -->
+            </div>
+        </section>
+
+        <!-- Communication Channels -->
+        <section class="section">
+            <h2 class="section-title">Communication Channels</h2>
+            <div class="channel-row" id="channelRow">
+                <!-- Channel chips injected here -->
+            </div>
+        </section>
+
+        <!-- Key Features -->
+        <section class="section">
+            <h2 class="section-title">Key Features</h2>
+            <div class="features-grid" id="featuresGrid">
+                <!-- Features injected here -->
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span id="hardwareInfo">· H/W - MAC MINI M4 ·</span>
+            <a href="https://openclaw.ai" target="_blank" rel="noopener">openclaw.ai</a>
+        </footer>
+    </div>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            API_URL: '/api/summary',
+            REFRESH_INTERVAL: 15000, // 15 seconds
+            MAX_BACKOFF: 120000, // 2 minutes
+            RETRY_MULTIPLIER: 2,
+        };
+
+        // State
+        let currentBackoff = CONFIG.REFRESH_INTERVAL;
+        let refreshTimer = null;
+        let lastSuccessTime = null;
+        let isStale = false;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboard();
+            startAutoRefresh();
+        });
+
+        function startAutoRefresh() {
+            if (refreshTimer) clearInterval(refreshTimer);
+            refreshTimer = setInterval(loadDashboard, currentBackoff);
+        }
+
+        async function loadDashboard() {
+            try {
+                const response = await fetch(CONFIG.API_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                renderDashboard(data);
+                
+                // Success: reset backoff
+                lastSuccessTime = Date.now();
+                isStale = false;
+                currentBackoff = CONFIG.REFRESH_INTERVAL;
+                startAutoRefresh();
+                updateConnectionStatus(true);
+                
+            } catch (error) {
+                console.error('Failed to load dashboard:', error);
+                isStale = true;
+                updateConnectionStatus(false);
+                
+                // Exponential backoff
+                currentBackoff = Math.min(currentBackoff * CONFIG.RETRY_MULTIPLIER, CONFIG.MAX_BACKOFF);
+                startAutoRefresh();
+            }
+        }
+
+        function updateConnectionStatus(connected) {
+            const dot = document.getElementById('connectionStatus');
+            const lastUpdated = document.getElementById('lastUpdated');
+            
+            if (connected) {
+                dot.className = 'status-dot';
+                lastUpdated.textContent = new Date().toLocaleTimeString();
+            } else {
+                dot.className = 'status-dot error';
+                lastUpdated.textContent = 'Stale';
+            }
+        }
+
+        function renderDashboard(data) {
+            // Header
+            document.getElementById('agentName').textContent = data.agentName || '[AGENT_NAME]';
+            
+            // Stats
+            document.getElementById('statModels').textContent = data.stats?.modelsCount ?? '—';
+            document.getElementById('statCron').textContent = data.stats?.cronCount ?? '—';
+            document.getElementById('statChannels').textContent = data.stats?.channelsCount ?? '—';
+            document.getElementById('statSession').textContent = data.stats?.sessionLife ?? '—';
+            
+            // Health banner
+            const healthBanner = document.getElementById('healthBanner');
+            const healthMessage = document.getElementById('healthMessage');
+            
+            if (data.health?.state && data.health.state !== 'ok') {
+                healthBanner.style.display = 'flex';
+                healthBanner.className = `health-banner ${data.health.state}`;
+                healthMessage.textContent = data.health.reasons?.join('; ') || 'System issues detected';
+            } else {
+                healthBanner.style.display = 'none';
+            }
+            
+            // Models
+            renderModels(data.models || []);
+            
+            // Cron jobs
+            renderCronJobs(data.cronJobs || []);
+            
+            // Pipeline
+            renderPipeline(data.pipeline || []);
+            
+            // Channels
+            renderChannels(data.channels || []);
+            
+            // Features
+            renderFeatures(data.features || []);
+        }
+
+        function renderModels(models) {
+            const container = document.getElementById('modelGrid');
+            
+            if (models.length === 0) {
+                container.innerHTML = '<div class="error-state"><p>No models configured</p></div>';
+                return;
+            }
+            
+            // Sort: primary first
+            const sorted = [...models].sort((a, b) => (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0));
+            
+            container.innerHTML = sorted.map(model => `
+                <div class="model-card ${model.isPrimary ? 'primary' : ''}">
+                    <div class="model-info">
+                        <span class="model-alias">${escapeHtml(model.alias)}</span>
+                        <div>
+                            <div class="model-name">${escapeHtml(model.name)}</div>
+                            <div class="model-role">${escapeHtml(model.role)}</div>
+                        </div>
+                    </div>
+                    <span class="model-badge ${(model.badge || '').toLowerCase()}">${escapeHtml(model.badge || 'Free')}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderCronJobs(jobs) {
+            const container = document.getElementById('cronList');
+            
+            if (jobs.length === 0) {
+                container.innerHTML = '<div class="cron-item"><span class="cron-name">No cron jobs configured</span></div>';
+                return;
+            }
+            
+            container.innerHTML = jobs.map(job => {
+                const statusClass = job.status.toLowerCase();
+                return `
+                    <div class="cron-item">
+                        <div class="cron-info">
+                            <span class="cron-name">${escapeHtml(job.name)}</span>
+                            <span class="cron-schedule">${escapeHtml(job.schedule)}</span>
+                        </div>
+                        <div>
+                            <span class="cron-status ${statusClass}">${escapeHtml(job.status)}</span>
+                            ${job.lastRun ? `<div class="cron-meta">Last: ${formatTime(job.lastRun)}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderPipeline(nodes) {
+            const container = document.getElementById('pipeline');
+            
+            if (nodes.length === 0) {
+                container.innerHTML = '<span class="pipeline-node unknown">Pipeline status unknown</span>';
+                return;
+            }
+            
+            const html = [];
+            nodes.forEach((node, index) => {
+                const statusClass = node.status.toLowerCase();
+                html.push(`<span class="pipeline-node ${statusClass}">${escapeHtml(node.name)}</span>`);
+                if (index < nodes.length - 1) {
+                    html.push('<span class="pipeline-arrow">→</span>');
+                }
+            });
+            
+            container.innerHTML = html.join('');
+        }
+
+        function renderChannels(channels) {
+            const container = document.getElementById('channelRow');
+            
+            if (channels.length === 0) {
+                container.innerHTML = '<span class="channel-chip unknown">No channels configured</span>';
+                return;
+            }
+            
+            container.innerHTML = channels.map(ch => {
+                const statusClass = ch.status.toLowerCase();
+                return `<span class="channel-chip ${statusClass}">${escapeHtml(ch.name)}</span>`;
+            }).join('');
+        }
+
+        function renderFeatures(features) {
+            const container = document.getElementById('featuresGrid');
+            
+            const defaultFeatures = [
+                { name: 'Multi-Model AI Stack', detected: false },
+                { name: 'Automated Cron Jobs', detected: false },
+                { name: 'Real-Time Channels', detected: false },
+                { name: 'Secure Local Binding', detected: false },
+                { name: 'Webhook Integration', detected: false },
+                { name: 'Health Monitoring', detected: false },
+            ];
+            
+            const featuresToRender = features.length > 0 ? features : defaultFeatures;
+            
+            container.innerHTML = featuresToRender.map(f => `
+                <div class="feature-item ${f.detected ? 'detected' : ''}">${escapeHtml(f.name)}</div>
+            `).join('');
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatTime(isoString) {
+            if (!isoString) return '—';
+            try {
+                const date = new Date(isoString);
+                return date.toLocaleString();
+            } catch {
+                return isoString;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,579 @@
+/**
+ * OpenClaw Systems Dashboard - Main Server
+ * Local-only, secure, live monitoring dashboard
+ */
+
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const { execFile } = require('child_process');
+const { promisify } = require('util');
+
+const execFileAsync = promisify(execFile);
+
+// Configuration
+const CONFIG = {
+  PORT: process.env.PORT || 8789,
+  HOST: process.env.HOST || '127.0.0.1',
+  CACHE_TTL_MS: 5000,
+  REFRESH_INTERVAL_MS: 15000,
+  MAX_BACKOFF_MS: 120000,
+  DEV_MODE: process.env.NODE_ENV === 'development',
+  OPENCLAW_TIMEOUT: 10000,
+  REDACTION_PATTERNS: [
+    /token/i,
+    /secret/i,
+    /api[_-]?key/i,
+    /password/i,
+    /cookie/i,
+    /oauth/i,
+    /authorization/i,
+    /bearer/i,
+    /auth/i,
+    /credential/i,
+    /private[_-]?key/i,
+    /refresh[_-]?token/i,
+    /webhook[_-]?secret/i,
+    /session[_-]?secret/i,
+  ],
+  BASE64_PATTERN: /[A-Za-z0-9+/]{40,}={0,2}/g,
+  HEX_PATTERN: /[a-f0-9]{32,}/gi,
+};
+
+// Security: Refuse to start if not binding to loopback
+function validateBinding() {
+  const loopbackAddresses = ['127.0.0.1', 'localhost', '::1'];
+  if (!loopbackAddresses.includes(CONFIG.HOST) && !CONFIG.HOST.startsWith('127.')) {
+    console.error('❌ FATAL: Refusing to start on non-loopback address:', CONFIG.HOST);
+    console.error('   The dashboard must bind to 127.0.0.1 for security.');
+    process.exit(1);
+  }
+}
+
+// Cache storage
+const cache = new Map();
+
+function getCached(key, fetcher) {
+  const now = Date.now();
+  const cached = cache.get(key);
+  
+  if (cached && (now - cached.timestamp) < CONFIG.CACHE_TTL_MS) {
+    return cached.data;
+  }
+  
+  return null;
+}
+
+function setCached(key, data) {
+  cache.set(key, { data, timestamp: Date.now() });
+}
+
+// Redaction layer - strips sensitive fields
+function redactSecrets(obj, path = '') {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+  
+  if (typeof obj === 'string') {
+    // Check if key suggests this is a secret
+    const keyLower = path.toLowerCase();
+    const isSecretField = CONFIG.REDACTION_PATTERNS.some(pattern => pattern.test(keyLower));
+    
+    if (isSecretField) {
+      return obj.length > 4 ? obj.slice(0, 4) + '••••' : '••••';
+    }
+    
+    // Mask base64-looking strings that might be tokens
+    if (obj.length > 40 && CONFIG.BASE64_PATTERN.test(obj)) {
+      return obj.slice(0, 8) + '••••';
+    }
+    
+    return obj;
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map((item, index) => redactSecrets(item, `${path}[${index}]`));
+  }
+  
+  if (typeof obj === 'object') {
+    const result = {};
+    for (const [key, value] of Object.entries(obj)) {
+      // Check if key itself is sensitive
+      const keyLower = key.toLowerCase();
+      if (CONFIG.REDACTION_PATTERNS.some(pattern => pattern.test(keyLower))) {
+        if (typeof value === 'string' && value.length > 0) {
+          result[key] = value.length > 4 ? value.slice(0, 4) + '••••' : '••••';
+        } else if (typeof value === 'object' && value !== null) {
+          result[key] = '[REDACTED]';
+        } else {
+          result[key] = '••••';
+        }
+      } else {
+        result[key] = redactSecrets(value, `${path}.${key}`);
+      }
+    }
+    return result;
+  }
+  
+  return obj;
+}
+
+// Strict allowlist of CLI commands
+const ALLOWED_COMMANDS = {
+  'status': { args: ['--json'], timeout: 10000 },
+  'status-all': { args: ['status', '--all'], timeout: 10000, jsonFlag: false },
+  'cron-list': { args: ['cron', 'list', '--json', '--all'], timeout: 10000 },
+  'cron-runs': { args: ['cron', 'runs', '--json'], timeout: 10000, optional: true },
+  'channels-list': { args: ['channels', 'list', '--json'], timeout: 10000 },
+  'channels-status': { args: ['channels', 'status'], timeout: 10000, jsonFlag: false },
+  'agents-list': { args: ['agents', 'list', '--json'], timeout: 10000 },
+  'hooks-list': { args: ['hooks', 'list', '--json'], timeout: 10000 },
+  'gateway-status': { args: ['gateway', 'status'], timeout: 10000, jsonFlag: false },
+  'health': { args: ['health', '--json'], timeout: 10000 },
+  'sessions': { args: ['sessions', '--all-agents', '--json'], timeout: 10000 },
+};
+
+async function runOpenClawCommand(commandKey) {
+  const commandConfig = ALLOWED_COMMANDS[commandKey];
+  if (!commandConfig) {
+    throw new Error(`Unknown command: ${commandKey}`);
+  }
+  
+  const cacheKey = `cmd:${commandKey}`;
+  const cached = getCached(cacheKey);
+  if (cached) {
+    return cached;
+  }
+  
+  try {
+    const { stdout } = await execFileAsync('openclaw', commandConfig.args, {
+      timeout: commandConfig.timeout,
+      encoding: 'utf8',
+    });
+    
+    let result;
+    if (commandConfig.jsonFlag !== false) {
+      try {
+        result = JSON.parse(stdout);
+      } catch {
+        result = { raw: stdout, parseError: true };
+      }
+    } else {
+      result = { raw: stdout };
+    }
+    
+    // Apply redaction
+    result = redactSecrets(result);
+    
+    setCached(cacheKey, result);
+    return result;
+  } catch (error) {
+    // For optional commands, return empty result instead of throwing
+    if (commandConfig.optional) {
+      return { error: 'Command failed or not available', optional: true };
+    }
+    
+    const errorResult = {
+      error: error.message,
+      stderr: error.stderr,
+      code: error.code,
+    };
+    setCached(cacheKey, errorResult);
+    return errorResult;
+  }
+}
+
+// Parse gateway status from text output
+function parseGatewayStatus(text) {
+  const status = {
+    running: false,
+    bind: null,
+    port: null,
+    pid: null,
+    rpcOk: false,
+    raw: text,
+  };
+  
+  if (!text) return status;
+  
+  // Check if running
+  status.running = /running/i.test(text) || /ok/i.test(text);
+  status.rpcOk = /rpc.*ok/i.test(text) || /probe.*ok/i.test(text);
+  
+  // Extract bind address
+  const bindMatch = text.match(/bind[:\s]+(127\.\d+\.\d+\.\d+|localhost)/i);
+  if (bindMatch) status.bind = bindMatch[1];
+  
+  // Extract port
+  const portMatch = text.match(/port[:\s]+(\d+)/i);
+  if (portMatch) status.port = parseInt(portMatch[1], 10);
+  
+  // Extract PID
+  const pidMatch = text.match(/pid[:\s]+(\d+)/i);
+  if (pidMatch) status.pid = parseInt(pidMatch[1], 10);
+  
+  return status;
+}
+
+// Derive model alias from model name
+function getModelAlias(modelName) {
+  if (!modelName) return 'default';
+  const name = modelName.toLowerCase();
+  if (name.includes('claude') || name.includes('opus')) return 'opus';
+  if (name.includes('gpt') || name.includes('openai')) return 'gpt';
+  if (name.includes('kimi')) return 'kimi';
+  if (name.includes('flash') || name.includes('gemini')) return 'flash';
+  if (name.includes('deepseek')) return 'deepseek';
+  return 'default';
+}
+
+// Derive badge type from model/provider
+function getModelBadge(model) {
+  // Check for paid/free indicators in model data
+  if (model.provider === 'openai' || model.paid === true) return 'Paid';
+  if (model.provider === 'ollama' || model.local === true) return 'Local';
+  if (model.oauth || model.requiresAuth) return 'OAuth';
+  return 'Free';
+}
+
+// Collect all dashboard data
+async function collectDashboardData() {
+  const startTime = Date.now();
+  
+  try {
+    // Collect all data concurrently
+    const [
+      statusResult,
+      gatewayResult,
+      cronResult,
+      channelsResult,
+      agentsResult,
+      hooksResult,
+      healthResult,
+      sessionsResult,
+    ] = await Promise.all([
+      runOpenClawCommand('status').catch(() => ({ error: 'Failed' })),
+      runOpenClawCommand('gateway-status').catch(() => ({ raw: '' })),
+      runOpenClawCommand('cron-list').catch(() => ({ jobs: [] })),
+      runOpenClawCommand('channels-list').catch(() => ({ channels: [] })),
+      runOpenClawCommand('agents-list').catch(() => ({ agents: [] })),
+      runOpenClawCommand('hooks-list').catch(() => ({ hooks: [] })),
+      runOpenClawCommand('health').catch(() => ({ error: 'Failed' })),
+      runOpenClawCommand('sessions').catch(() => ({ sessions: [] })),
+    ]);
+    
+    const gateway = parseGatewayStatus(gatewayResult.raw);
+    
+    // Parse models from agents data
+    const models = [];
+    const agents = agentsResult.agents || agentsResult || [];
+    const agentArray = Array.isArray(agents) ? agents : [agents].filter(Boolean);
+    
+    agentArray.forEach(agent => {
+      if (agent.model) {
+        models.push({
+          id: agent.model,
+          name: agent.modelDisplayName || agent.model,
+          alias: getModelAlias(agent.model),
+          role: agent.id === 'main' ? 'Primary Agent' : `${agent.id} Agent`,
+          badge: getModelBadge(agent),
+          isPrimary: agent.id === 'main',
+        });
+      }
+      // Check for model stack in agent config
+      if (agent.models && Array.isArray(agent.models)) {
+        agent.models.forEach(m => {
+          models.push({
+            id: m.id || m,
+            name: m.name || m.id || m,
+            alias: getModelAlias(m.id || m),
+            role: m.role || 'Model',
+            badge: getModelBadge(m),
+            isPrimary: false,
+          });
+        });
+      }
+    });
+    
+    // Parse cron jobs
+    const cronJobs = [];
+    const cronData = cronResult.jobs || cronResult || [];
+    const cronArray = Array.isArray(cronData) ? cronData : [];
+    
+    cronArray.forEach(job => {
+      let status = 'Unknown';
+      if (job.disabled || job.enabled === false) {
+        status = 'Disabled';
+      } else if (job.lastRun?.failed || job.lastResult === 'error') {
+        status = 'Failed';
+      } else if (job.enabled !== false) {
+        status = 'Active';
+      }
+      
+      cronJobs.push({
+        id: job.id || job.name,
+        name: job.name || job.id,
+        schedule: job.schedule || job.cron || '—',
+        status: status,
+        lastRun: job.lastRun?.time || job.lastRunAt,
+        nextRun: job.nextRun,
+      });
+    });
+    
+    // Parse channels
+    const channels = [];
+    const channelData = channelsResult.channels || channelsResult || [];
+    const channelArray = Array.isArray(channelData) ? channelData : [];
+    
+    channelArray.forEach(ch => {
+      let status = 'Unknown';
+      if (ch.connected || ch.status === 'connected') status = 'Active';
+      else if (ch.status === 'degraded') status = 'Degraded';
+      else if (ch.status === 'error' || ch.error) status = 'Down';
+      
+      channels.push({
+        id: ch.id || ch.name,
+        name: ch.name || ch.id,
+        type: ch.type || ch.provider,
+        status: status,
+      });
+    });
+    
+    // If no channels found, add placeholders that will show Unknown
+    if (channels.length === 0) {
+      channels.push({ id: 'telegram', name: 'Telegram', type: 'telegram', status: 'Unknown' });
+      channels.push({ id: 'discord', name: 'Discord', type: 'discord', status: 'Unknown' });
+    }
+    
+    // Gmail Pipeline status
+    const pipeline = [
+      { id: 'gmail', name: 'Gmail', status: 'Unknown' },
+      { id: 'pubsub', name: 'Pub/Sub', status: 'Unknown' },
+      { id: 'tailscale', name: 'Tailscale Funnel', status: gateway.bind?.includes('tailscale') ? 'OK' : 'Unknown' },
+      { id: 'hook', name: 'OpenClaw Hook', status: (hooksResult.hooks?.length > 0) ? 'OK' : 'Unknown' },
+      { id: 'agent', name: 'GPT Agent', status: gateway.running ? 'OK' : 'Down' },
+      { id: 'telegram', name: 'Telegram', status: channels.find(c => c.type === 'telegram')?.status || 'Unknown' },
+    ];
+    
+    // Determine hooks status more precisely
+    const hooks = hooksResult.hooks || [];
+    if (hooks.length > 0) {
+      const webhookHook = hooks.find(h => h.type === 'webhook' || h.name?.includes('gmail'));
+      if (webhookHook) {
+        pipeline[3].status = webhookHook.enabled !== false ? 'OK' : 'Degraded';
+      }
+    }
+    
+    // Overall health
+    const healthIssues = [];
+    if (!gateway.running) healthIssues.push('Gateway not running');
+    if (!gateway.rpcOk) healthIssues.push('RPC probe failed');
+    
+    const channelsDown = channels.filter(c => c.status === 'Down');
+    if (channelsDown.length > 0) {
+      healthIssues.push(`${channelsDown.length} channel(s) down`);
+    }
+    
+    const failedJobs = cronJobs.filter(j => j.status === 'Failed');
+    if (failedJobs.length > 0) {
+      healthIssues.push(`${failedJobs.length} cron job(s) failed`);
+    }
+    
+    const healthState = healthIssues.length === 0 ? 'ok' : 
+                       healthIssues.length < 2 ? 'warn' : 'down';
+    
+    // Session life from config (if available)
+    let sessionLife = '—';
+    if (statusResult.session?.ttl) {
+      sessionLife = `${Math.round(statusResult.session.ttl / 60)}m`;
+    } else if (statusResult.config?.session?.ttl) {
+      sessionLife = `${Math.round(statusResult.config.session.ttl / 60)}m`;
+    }
+    
+    // Get agent name
+    const agentName = agentArray.find(a => a.id === 'main')?.name || 
+                      agentArray[0]?.name || 
+                      'Main';
+    
+    return {
+      generatedAt: new Date().toISOString(),
+      agentName: agentName,
+      gateway: {
+        running: gateway.running,
+        bind: gateway.bind,
+        port: gateway.port,
+        pid: gateway.pid,
+        rpcOk: gateway.rpcOk,
+      },
+      stats: {
+        modelsCount: models.length || '—',
+        cronCount: cronJobs.length,
+        channelsCount: channels.length,
+        sessionLife: sessionLife,
+      },
+      models: models,
+      cronJobs: cronJobs,
+      channels: channels,
+      pipeline: pipeline,
+      features: [
+        { name: 'Multi-Model AI Stack', detected: models.length > 1 },
+        { name: 'Automated Cron Jobs', detected: cronJobs.length > 0 },
+        { name: 'Real-Time Channels', detected: channels.some(c => c.status === 'Active') },
+        { name: 'Secure Local Binding', detected: gateway.bind === '127.0.0.1' },
+        { name: 'Webhook Integration', detected: hooks.length > 0 },
+        { name: 'Health Monitoring', detected: healthState !== 'down' },
+      ],
+      health: {
+        state: healthState,
+        reasons: healthIssues,
+      },
+      _meta: {
+        collectionTimeMs: Date.now() - startTime,
+      },
+    };
+  } catch (error) {
+    return {
+      generatedAt: new Date().toISOString(),
+      error: 'Failed to collect dashboard data',
+      errorDetails: error.message,
+      health: { state: 'down', reasons: ['Data collection failed'] },
+    };
+  }
+}
+
+// Load override file if exists
+function loadModelStackOverride() {
+  const overridePath = path.join(__dirname, 'config', 'model-stack.override.json');
+  try {
+    if (fs.existsSync(overridePath)) {
+      const content = fs.readFileSync(overridePath, 'utf8');
+      return JSON.parse(content);
+    }
+  } catch (error) {
+    console.warn('Failed to load model override:', error.message);
+  }
+  return null;
+}
+
+// Serve static files
+function serveStaticFile(res, filePath, contentType) {
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      res.writeHead(404);
+      res.end('Not found');
+      return;
+    }
+    res.writeHead(200, { 'Content-Type': contentType });
+    res.end(data);
+  });
+}
+
+// Main request handler
+async function handleRequest(req, res) {
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const pathname = url.pathname;
+  
+  // CORS headers for localhost only
+  res.setHeader('Access-Control-Allow-Origin', `http://localhost:${CONFIG.PORT}`);
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
+  if (req.method === 'OPTIONS') {
+    res.writeHead(200);
+    res.end();
+    return;
+  }
+  
+  // API endpoints
+  if (pathname === '/api/summary') {
+    const data = await collectDashboardData();
+    
+    // Apply model override if available
+    const override = loadModelStackOverride();
+    if (override && override.models) {
+      // Merge override with live data
+      data.models = override.models.map(m => {
+        const live = data.models.find(lm => lm.id === m.id);
+        return { ...m, ...live, isPrimary: m.isPrimary || live?.isPrimary };
+      });
+    }
+    
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(data));
+    return;
+  }
+  
+  // Debug endpoint (dev only)
+  if (pathname === '/api/debug' && CONFIG.DEV_MODE) {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      config: { ...CONFIG, REDACTION_PATTERNS: '[redacted for debug]' },
+      cacheKeys: Array.from(cache.keys()),
+    }));
+    return;
+  }
+  
+  // Serve index.html for root
+  if (pathname === '/') {
+    serveStaticFile(res, path.join(__dirname, '..', 'public', 'index.html'), 'text/html');
+    return;
+  }
+  
+  // Static files
+  if (pathname.startsWith('/')) {
+    const filePath = path.join(__dirname, '..', 'public', pathname);
+    // Security: prevent directory traversal
+    const resolvedPath = path.resolve(filePath);
+    const publicDir = path.resolve(__dirname, '..', 'public');
+    
+    if (!resolvedPath.startsWith(publicDir)) {
+      res.writeHead(403);
+      res.end('Forbidden');
+      return;
+    }
+    
+    const ext = path.extname(filePath);
+    const contentTypes = {
+      '.html': 'text/html',
+      '.css': 'text/css',
+      '.js': 'application/javascript',
+      '.json': 'application/json',
+      '.png': 'image/png',
+      '.jpg': 'image/jpeg',
+      '.svg': 'image/svg+xml',
+    };
+    
+    serveStaticFile(res, filePath, contentTypes[ext] || 'application/octet-stream');
+    return;
+  }
+  
+  res.writeHead(404);
+  res.end('Not found');
+}
+
+// Start server
+function start() {
+  validateBinding();
+  
+  const server = http.createServer(handleRequest);
+  
+  server.listen(CONFIG.PORT, CONFIG.HOST, () => {
+    console.log('╔════════════════════════════════════════════════════════════╗');
+    console.log('║       OpenClaw Systems Dashboard                           ║');
+    console.log('╠════════════════════════════════════════════════════════════╣');
+    console.log(`║  Local:   http://${CONFIG.HOST}:${CONFIG.PORT}                    ║`);
+    console.log(`║  Cache:   ${CONFIG.CACHE_TTL_MS}ms                                      ║`);
+    console.log(`║  Refresh: ${CONFIG.REFRESH_INTERVAL_MS}ms (auto-poll)                     ║`);
+    console.log('╚════════════════════════════════════════════════════════════╝');
+    console.log('');
+    console.log('Security: Binding validated to loopback only');
+    console.log('Press Ctrl+C to stop');
+  });
+  
+  server.on('error', (err) => {
+    console.error('Server error:', err);
+    process.exit(1);
+  });
+}
+
+start();
