@@ -120,17 +120,17 @@ function redactSecrets(obj, path = '') {
 
 // Strict allowlist of CLI commands
 const ALLOWED_COMMANDS = {
-  'status': { args: ['--json'], timeout: 10000 },
-  'status-all': { args: ['status', '--all'], timeout: 10000, jsonFlag: false },
-  'cron-list': { args: ['cron', 'list', '--json', '--all'], timeout: 10000 },
-  'cron-runs': { args: ['cron', 'runs', '--json'], timeout: 10000, optional: true },
-  'channels-list': { args: ['channels', 'list', '--json'], timeout: 10000 },
-  'channels-status': { args: ['channels', 'status'], timeout: 10000, jsonFlag: false },
-  'agents-list': { args: ['agents', 'list', '--json'], timeout: 10000 },
-  'hooks-list': { args: ['hooks', 'list', '--json'], timeout: 10000 },
-  'gateway-status': { args: ['gateway', 'status'], timeout: 10000, jsonFlag: false },
-  'health': { args: ['health', '--json'], timeout: 10000 },
-  'sessions': { args: ['sessions', '--all-agents', '--json'], timeout: 10000 },
+  'status': { args: ['--json'], timeout: 3000 },
+  'status-all': { args: ['status', '--all'], timeout: 3000, jsonFlag: false },
+  'cron-list': { args: ['cron', 'list', '--json', '--all'], timeout: 3000 },
+  'cron-runs': { args: ['cron', 'runs', '--json'], timeout: 3000, optional: true },
+  'channels-list': { args: ['channels', 'list', '--json'], timeout: 3000 },
+  'channels-status': { args: ['channels', 'status'], timeout: 3000, jsonFlag: false },
+  'agents-list': { args: ['agents', 'list', '--json'], timeout: 3000 },
+  'hooks-list': { args: ['hooks', 'list', '--json'], timeout: 3000 },
+  'gateway-status': { args: ['gateway', 'status'], timeout: 2000, jsonFlag: false },
+  'health': { args: ['health', '--json'], timeout: 3000 },
+  'sessions': { args: ['sessions', '--all-agents', '--json'], timeout: 3000 },
 };
 
 async function runOpenClawCommand(commandKey) {
@@ -241,7 +241,16 @@ async function collectDashboardData() {
   const startTime = Date.now();
 
   try {
-    // Collect all data concurrently
+    // Load config file FIRST (fast, synchronous)
+    const configData = loadOpenClawConfig();
+    const config = configData?.config;
+
+    // Parse models from config immediately (don't wait for CLI)
+    let models = parseModelsFromConfig(config);
+    let agentName = parseAgentName(config);
+    let channels = parseChannelsFromConfig(config);
+
+    // Collect live data from CLI (with short timeouts)
     const [
       statusResult,
       gatewayResult,
@@ -264,36 +273,46 @@ async function collectDashboardData() {
 
     const gateway = parseGatewayStatus(gatewayResult.raw);
 
-    // Parse models from agents data
-    const models = [];
+    // Merge CLI data with config data (CLI takes precedence for live status)
     const agents = agentsResult.agents || agentsResult || [];
     const agentArray = Array.isArray(agents) ? agents : [agents].filter(Boolean);
 
-    agentArray.forEach(agent => {
-      if (agent.model) {
-        models.push({
-          id: agent.model,
-          name: agent.modelDisplayName || agent.model,
-          alias: getModelAlias(agent.model),
-          role: agent.id === 'main' ? 'Primary Agent' : `${agent.id} Agent`,
-          badge: getModelBadge(agent),
-          isPrimary: agent.id === 'main',
-        });
-      }
-      // Check for model stack in agent config
-      if (agent.models && Array.isArray(agent.models)) {
-        agent.models.forEach(m => {
-          models.push({
-            id: m.id || m,
-            name: m.name || m.id || m,
-            alias: getModelAlias(m.id || m),
-            role: m.role || 'Model',
-            badge: getModelBadge(m),
-            isPrimary: false,
+    // If CLI returned models, use those instead
+    if (agentArray.length > 0) {
+      const cliModels = [];
+      agentArray.forEach(agent => {
+        if (agent.model) {
+          cliModels.push({
+            id: agent.model,
+            name: agent.modelDisplayName || agent.model,
+            alias: getModelAlias(agent.model),
+            role: agent.id === 'main' ? 'Primary Agent' : `${agent.id} Agent`,
+            badge: getModelBadge(agent),
+            isPrimary: agent.id === 'main',
           });
-        });
+        }
+        if (agent.models && Array.isArray(agent.models)) {
+          agent.models.forEach(m => {
+            cliModels.push({
+              id: m.id || m,
+              name: m.name || m.id || m,
+              alias: getModelAlias(m.id || m),
+              role: m.role || 'Model',
+              badge: getModelBadge(m),
+              isPrimary: false,
+            });
+          });
+        }
+      });
+      if (cliModels.length > 0) {
+        models = cliModels;
       }
-    });
+      // Update agent name from CLI if available
+      const cliAgentName = agentArray.find(a => a.id === 'main')?.name || agentArray[0]?.name;
+      if (cliAgentName) {
+        agentName = cliAgentName;
+      }
+    }
 
     // Parse cron jobs
     const cronJobs = [];
@@ -320,26 +339,34 @@ async function collectDashboardData() {
       });
     });
 
-    // Parse channels
-    const channels = [];
+    // Parse channels (merge CLI data with config fallback)
     const channelData = channelsResult.channels || channelsResult || [];
     const channelArray = Array.isArray(channelData) ? channelData : [];
 
+    // Update channel status from CLI data if available
     channelArray.forEach(ch => {
-      let status = 'Unknown';
-      if (ch.connected || ch.status === 'connected') status = 'Active';
-      else if (ch.status === 'degraded') status = 'Degraded';
-      else if (ch.status === 'error' || ch.error) status = 'Down';
-
-      channels.push({
-        id: ch.id || ch.name,
-        name: ch.name || ch.id,
-        type: ch.type || ch.provider,
-        status: status,
-      });
+      const existing = channels.find(c => c.id === ch.id || c.type === (ch.type || ch.provider));
+      if (existing) {
+        // Update status from CLI
+        if (ch.connected || ch.status === 'connected') existing.status = 'Active';
+        else if (ch.status === 'degraded') existing.status = 'Degraded';
+        else if (ch.status === 'error' || ch.error) existing.status = 'Down';
+      } else {
+        // Add new channel from CLI
+        let status = 'Unknown';
+        if (ch.connected || ch.status === 'connected') status = 'Active';
+        else if (ch.status === 'degraded') status = 'Degraded';
+        else if (ch.status === 'error' || ch.error) status = 'Down';
+        channels.push({
+          id: ch.id || ch.name,
+          name: ch.name || ch.id,
+          type: ch.type || ch.provider,
+          status: status,
+        });
+      }
     });
 
-    // If no channels found, add placeholders that will show Unknown
+    // If still no channels, add placeholders
     if (channels.length === 0) {
       channels.push({ id: 'telegram', name: 'Telegram', type: 'telegram', status: 'Unknown' });
       channels.push({ id: 'discord', name: 'Discord', type: 'discord', status: 'Unknown' });
@@ -388,12 +415,9 @@ async function collectDashboardData() {
       sessionLife = `${Math.round(statusResult.session.ttl / 60)}m`;
     } else if (statusResult.config?.session?.ttl) {
       sessionLife = `${Math.round(statusResult.config.session.ttl / 60)}m`;
+    } else if (config?.agents?.defaults?.timeoutSeconds) {
+      sessionLife = `${Math.round(config.agents.defaults.timeoutSeconds / 60)}m`;
     }
-
-    // Get agent name
-    const agentName = agentArray.find(a => a.id === 'main')?.name ||
-                      agentArray[0]?.name ||
-                      'Main';
 
     return {
       generatedAt: new Date().toISOString(),
@@ -439,6 +463,136 @@ async function collectDashboardData() {
       health: { state: 'down', reasons: ['Data collection failed'] },
     };
   }
+}
+
+// Load OpenClaw config file directly (fallback when CLI hangs)
+function loadOpenClawConfig() {
+  const configPaths = [
+    path.join(process.env.HOME || '/home/darwin', '.openclaw', 'openclaw.json'),
+    path.join(process.env.HOME || '/home/darwin', '.config', 'openclaw', 'config.json'),
+  ];
+
+  for (const configPath of configPaths) {
+    try {
+      if (fs.existsSync(configPath)) {
+        const content = fs.readFileSync(configPath, 'utf8');
+        const config = JSON.parse(content);
+        return { config, path: configPath };
+      }
+    } catch (error) {
+      console.warn(`Failed to load config from ${configPath}:`, error.message);
+    }
+  }
+
+  return null;
+}
+
+// Parse models from config file
+function parseModelsFromConfig(config) {
+  const models = [];
+
+  if (!config) return models;
+
+  // Get agents list
+  const agents = config.agents?.list || [];
+  const defaults = config.agents?.defaults || {};
+
+  // Parse from agents list
+  agents.forEach(agent => {
+    if (agent.model?.primary) {
+      const modelId = agent.model.primary;
+      const [provider, modelName] = modelId.split('/');
+      models.push({
+        id: modelId,
+        name: modelName || modelId,
+        alias: getModelAlias(modelId),
+        role: agent.id === 'main' ? 'Primary Agent' : `${agent.id} Agent`,
+        badge: getModelBadge({ provider }),
+        isPrimary: agent.id === 'main',
+      });
+    }
+  });
+
+  // Parse from models.providers section
+  if (config.models?.providers) {
+    Object.entries(config.models.providers).forEach(([providerId, provider]) => {
+      if (provider.models && Array.isArray(provider.models)) {
+        provider.models.forEach(m => {
+          const modelId = `${providerId}/${m.id}`;
+          // Only add if not already added from agents
+          if (!models.find(existing => existing.id === modelId)) {
+            models.push({
+              id: modelId,
+              name: m.name || m.id,
+              alias: getModelAlias(m.id),
+              role: 'Available Model',
+              badge: getModelBadge({ provider: providerId }),
+              isPrimary: false,
+            });
+          }
+        });
+      }
+    });
+  }
+
+  // If still no models, add default from defaults.model
+  if (models.length === 0 && defaults.model?.primary) {
+    const modelId = defaults.model.primary;
+    const [provider, modelName] = modelId.split('/');
+    models.push({
+      id: modelId,
+      name: modelName || modelId,
+      alias: getModelAlias(modelId),
+      role: 'Primary Agent',
+      badge: getModelBadge({ provider }),
+      isPrimary: true,
+    });
+  }
+
+  return models;
+}
+
+// Parse agent name from config
+function parseAgentName(config) {
+  if (!config) return 'Main';
+  const mainAgent = config.agents?.list?.find(a => a.id === 'main');
+  return mainAgent?.name || mainAgent?.id || 'Main';
+}
+
+// Parse channels from config
+function parseChannelsFromConfig(config) {
+  const channels = [];
+
+  if (!config?.channels) return channels;
+
+  if (config.channels.telegram?.enabled) {
+    channels.push({
+      id: 'telegram',
+      name: 'Telegram',
+      type: 'telegram',
+      status: 'Unknown', // Will be updated from live check
+    });
+  }
+
+  if (config.channels.discord?.enabled) {
+    channels.push({
+      id: 'discord',
+      name: 'Discord',
+      type: 'discord',
+      status: 'Unknown',
+    });
+  }
+
+  if (config.channels.whatsapp?.enabled) {
+    channels.push({
+      id: 'whatsapp',
+      name: 'WhatsApp',
+      type: 'whatsapp',
+      status: 'Unknown',
+    });
+  }
+
+  return channels;
 }
 
 // Load override file if exists
