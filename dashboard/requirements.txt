@@ -1,0 +1,6 @@
+# No external dependencies required!
+# This dashboard uses only Python standard library modules.
+# 
+# Requirements:
+# - Python 3.7+
+# - OpenClaw CLI installed and in PATH
