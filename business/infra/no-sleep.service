@@ -1,0 +1,13 @@
+[Unit]
+Description=Prevent System Sleep (24/7 Always-On)
+Documentation=https://github.com/systemd/systemd/blob/main/man/systemd-inhibit.xml
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/systemd-inhibit --what=handle-lid-switch:handle-suspend-key:handle-hibernate-key:idle:sleep --who="Restaurant Agent Server" --why="Running customer service agents 24/7" --mode=block /bin/sh -c 'while true; do sleep 60; done'
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
