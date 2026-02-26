@@ -1,3 +1,39 @@
-venv/
+# Data files (generated)
+*.json
+!package.json
+!package-lock.json
+*.log
+.scan.log
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# OpenClaw runtime (but not config)
+.openclaw/workspace-state.json
+.openclaw/data/*.json
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
