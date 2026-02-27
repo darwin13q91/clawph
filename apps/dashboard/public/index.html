@@ -718,6 +718,46 @@
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
 }
+    <!-- Alerts System CSS -->
+    <style>
+        @keyframes slideInAlert {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        #alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 380px;
+            pointer-events: none;
+        }
+        
+        .dashboard-alert {
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--accent-primary);
+            border-radius: 8px;
+            padding: 16px 20px;
+            box-shadow: var(--shadow-lg);
+            pointer-events: all;
+            animation: slideInAlert 0.3s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .dashboard-alert.success { border-left-color: #22c55e; }
+        .dashboard-alert.error { border-left-color: #ef4444; }
+        .dashboard-alert.warning { border-left-color: #f59e0b; }
+        .dashboard-alert.trade { border-left-color: #8b5cf6; }
+        .dashboard-alert.scan { border-left-color: #06b6d4; }
+    </style>
 </head>
 <body>
     <div class="app">
@@ -1464,6 +1504,96 @@
                 setTimeout(() => notif.remove(), 300);
             }, 3000);
         }
+
+        // Real-Time Alerts System
+        class DashboardAlerts {
+            constructor() {
+                this.container = null;
+                this.init();
+            }
+
+            init() {
+                this.container = document.createElement('div');
+                this.container.id = 'alert-container';
+                document.body.appendChild(this.container);
+                this.startPolling();
+            }
+
+            show(message, type = 'info', duration = 5000) {
+                const alert = document.createElement('div');
+                alert.className = 'dashboard-alert ' + type;
+                
+                const icons = {
+                    success: '✅', error: '❌', warning: '⚠️',
+                    info: 'ℹ️', trade: '💰', scan: '🔍'
+                };
+
+                alert.innerHTML = `
+                    <span style="font-size: 18px;">${icons[type] || icons.info}</span>
+                    <div style="flex: 1;">${message}</div>
+                    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:#666;cursor:pointer;font-size:18px;">×</button>
+                `;
+
+                this.container.appendChild(alert);
+
+                if (duration > 0) {
+                    setTimeout(() => {
+                        alert.style.opacity = '0';
+                        alert.style.transform = 'translateX(100%)';
+                        setTimeout(() => alert.remove(), 300);
+                    }, duration);
+                }
+            }
+
+            tradeExecuted(trade) {
+                const profit = (trade.pnl || 0) >= 0;
+                this.show(
+                    `<strong>Trade ${profit ? 'Won' : 'Lost'}!</strong><br>
+                    ${trade.market || 'Trade'}<br>
+                    <span style="color: ${profit ? '#22c55e' : '#ef4444'}">${profit ? '+' : ''}${(trade.pnl || 0).toFixed(2)}</span>`,
+                    'trade', 8000
+                );
+            }
+
+            opportunityFound(market) {
+                this.show(
+                    `<strong>💎 Opportunity!</strong><br>
+                    ${market.question || 'New market'}<br>
+                    <span style="color: #22c55e">Vol: $${(market.volume || 0).toLocaleString()}</span>`,
+                    'scan', 10000
+                );
+            }
+
+            async startPolling() {
+                setInterval(() => this.checkEvents(), 30000);
+                await this.checkEvents();
+            }
+
+            async checkEvents() {
+                try {
+                    // Check for trades
+                    const trades = await fetch('/api/paper-trades').then(r => r.json()).catch(() => []);
+                    if (trades.length > 0) {
+                        const latest = trades[trades.length - 1];
+                        if (latest.timestamp > (this.lastTradeTime || 0)) {
+                            this.tradeExecuted(latest);
+                            this.lastTradeTime = latest.timestamp;
+                        }
+                    }
+
+                    // Check for opportunities
+                    const scan = await fetch('/api/polymarket').then(r => r.json()).catch(() => ({}));
+                    if (scan.opportunities?.length > (this.lastOppCount || 0)) {
+                        scan.opportunities.slice(0, 2).forEach(o => this.opportunityFound(o));
+                    }
+                    this.lastOppCount = scan.opportunities?.length || 0;
+
+                } catch (e) {}
+            }
+        }
+
+        // Initialize alerts
+        const dashboardAlerts = new DashboardAlerts();
     </script>
     <style>
         @keyframes slideInRight {
