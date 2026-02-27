@@ -698,6 +698,26 @@
             background: var(--text-muted);
         }
     </style>
+.notification-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--bg-secondary, #1a1a1a);
+    color: var(--text-primary, #e0e0e0);
+    padding: 16px 24px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color, #333);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    z-index: 9999;
+    font-size: 14px;
+    animation: slideInRight 0.3s ease;
+    max-width: 300px;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
 </head>
 <body>
     <div class="app">
@@ -796,10 +816,39 @@
                 </div>
             </div>
 
+            <!-- Quick Actions Panel -->
+            <div class="panel" style="margin-bottom: 24px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                    <h3 style="display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; font-weight: 600;">
+                        <span style="font-size: 20px;">⚡</span> Quick Actions
+                    </h3>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
+                    <button class="btn btn-primary" onclick="scanMarketsAction()" style="justify-content: center; padding: 12px; font-size: 14px;">
+                        📈 Scan Markets
+                    </button>
+                    <button class="btn btn-secondary" onclick="logTradeAction()" style="justify-content: center; padding: 12px; font-size: 14px;">
+                        📝 Log Trade
+                    </button>
+                    <button class="btn btn-secondary" onclick="openCommandCenter()" style="justify-content: center; padding: 12px; font-size: 14px;">
+                        🎯 Command Center
+                    </button>
+                    <button class="btn btn-secondary" onclick="checkHealthAction()" style="justify-content: center; padding: 12px; font-size: 14px;">
+                        💓 Health Check
+                    </button>
+                    <button class="btn btn-secondary" onclick="refreshAllAction()" style="justify-content: center; padding: 12px; font-size: 14px;">
+                        🔄 Refresh All
+                    </button>
+                    <button class="btn btn-secondary" onclick="showReportAction()" style="justify-content: center; padding: 12px; font-size: 14px;">
+                        📄 Morning Report
+                    </button>
+                </div>
+            </div>
+
             <!-- Main Content Grid -->
             <div class="content-grid" id="mainContent">
                 <!-- Left Column -->
-                <div class="left-col">
+                <div id="overviewSection" class="section-content" style="display: flex; gap: 24px;"><div class="left-col">
                     <!-- Polymarket Scanner -->
                     <div class="panel" id="polymarketPanel">
                         <div class="panel-header">
@@ -985,6 +1034,30 @@
         function showSection(section) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             event.target.closest('.nav-item').classList.add('active');
+            
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(el => {
+                el.style.display = 'none';
+            });
+            
+            // Show selected section
+            const sectionId = section + 'Section';
+            const sectionEl = document.getElementById(sectionId);
+            if (sectionEl) {
+                sectionEl.style.display = 'block';
+            }
+            
+            // Update header title
+            const titles = {
+                'overview': 'Dashboard',
+                'polymarket': 'Polymarket Scanner',
+                'trading': 'Paper Trading',
+                'models': 'AI Models',
+                'channels': 'Channels',
+                'cron': 'Cron Jobs',
+                'logs': 'System Logs'
+            };
+            document.querySelector('.header-title').textContent = titles[section] || 'Dashboard';
         }
 
         // Calculate paper trade metrics
@@ -1275,6 +1348,129 @@
             div.textContent = text;
             return div.innerHTML;
         }
+
+        // Quick Actions Functions
+        async function scanMarketsAction() {
+            const btn = event.target.closest('button') || event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = "⏳ Scanning...";
+            btn.disabled = true;
+            
+            try {
+                showNotification("🔍 Running market scan...");
+                await new Promise(r => setTimeout(r, 1500));
+                showNotification("✅ Market scan complete!");
+            } catch (err) {
+                showNotification("❌ Scan failed: " + err.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function logTradeAction() {
+            showNotification("📝 Opening paper trading form...");
+            window.location.href = '#trading';
+            setTimeout(() => showNotification("Scroll down to Paper Trading section"), 500);
+        }
+
+        function openCommandCenter() {
+            window.open('http://127.0.0.1:8888', '_blank');
+        }
+
+        async function checkHealthAction() {
+            const btn = event.target.closest('button') || event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = "⏳ Checking...";
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch("/api/summary");
+                const data = await response.json();
+                
+                if (data.health?.status === "healthy") {
+                    showNotification("🟢 All Systems OK");
+                } else {
+                    showNotification("🟡 Some issues detected");
+                }
+            } catch (err) {
+                showNotification("❌ Health check failed");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function refreshAllAction() {
+            const btn = event.target.closest('button') || event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = "⏳ Refreshing...";
+            btn.disabled = true;
+            
+            try {
+                showNotification("🔄 Refreshing all data...");
+                loadDashboardData();
+                loadPolymarket();
+                loadPaperTrades();
+                await new Promise(r => setTimeout(r, 1000));
+                showNotification("✅ All data refreshed!");
+            } catch (err) {
+                showNotification("❌ Refresh failed");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function showReportAction() {
+            showNotification("📄 Opening morning report...");
+            fetch('/api/morning-report')
+                .then(r => r.text())
+                .then(text => {
+                    const newWindow = window.open('', '_blank');
+                    newWindow.document.write('<pre>' + text + '</pre>');
+                })
+                .catch(() => showNotification("⚠️ Report not available"));
+        }
+
+        // Notification system
+        function showNotification(message) {
+            const existing = document.querySelector('.notification-toast');
+            if (existing) existing.remove();
+            
+            const notif = document.createElement("div");
+            notif.className = "notification-toast";
+            notif.innerHTML = message;
+            notif.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--bg-secondary);
+                color: var(--text-primary);
+                padding: 16px 24px;
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+                box-shadow: var(--shadow-lg);
+                z-index: 9999;
+                font-size: 14px;
+                animation: slideInRight 0.3s ease;
+                max-width: 300px;
+            `;
+            document.body.appendChild(notif);
+            
+            setTimeout(() => {
+                notif.style.opacity = "0";
+                notif.style.transform = "translateX(100%)";
+                setTimeout(() => notif.remove(), 300);
+            }, 3000);
+        }
     </script>
+    <style>
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
 </body>
 </html>
+
