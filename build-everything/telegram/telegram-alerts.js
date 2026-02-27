@@ -4,7 +4,10 @@ const https = require('https');
 
 class TelegramAlerts {
     constructor() {
-        this.configPath = process.env.HOME + '/.openclaw/config/telegram.json';
+        // Primary: alerts-specific config, fallback: main telegram config
+        const alertsConfig = process.env.HOME + '/.openclaw/config/telegram-alerts.json';
+        const mainConfig = process.env.HOME + '/.openclaw/config/telegram.json';
+        this.configPath = fs.existsSync(alertsConfig) ? alertsConfig : mainConfig;
         this.loadConfig();
     }
 
