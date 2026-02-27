@@ -1,0 +1,183 @@
+/* Mobile Optimizations for OpenClaw Dashboard */
+/* Add this to dashboard after main styles */
+
+/* Tablet breakpoint */
+@media (max-width: 1024px) {
+    .app {
+        grid-template-columns: 220px 1fr;
+    }
+    
+    .sidebar {
+        width: 220px;
+        padding: 20px 12px;
+    }
+}
+
+/* Mobile breakpoint */
+@media (max-width: 768px) {
+    .app {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Hide sidebar, show hamburger */
+    .sidebar {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        width: 280px;
+        height: 100vh;
+        z-index: 1000;
+        transition: left 0.3s ease;
+        padding: 20px;
+    }
+    
+    .sidebar.active {
+        left: 0;
+    }
+    
+    /* Mobile menu toggle */
+    .mobile-menu-toggle {
+        display: flex !important;
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 1001;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        width: 44px;
+        height: 44px;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        cursor: pointer;
+    }
+    
+    /* Overlay when menu open */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+    }
+    
+    .sidebar-overlay.active {
+        display: block;
+    }
+    
+    .main {
+        padding: 72px 16px 16px;
+    }
+    
+    /* Stack stats */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .stat-card {
+        padding: 16px;
+    }
+    
+    .stat-value {
+        font-size: 24px;
+    }
+    
+    /* Quick actions - 2 columns */
+    #quickActionsPanel .panel-body > div {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    
+    #quickActionsPanel button {
+        padding: 14px 8px !important;
+        font-size: 13px !important;
+    }
+    
+    /* Header adjustments */
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+    }
+    
+    .header-title {
+        font-size: 20px;
+    }
+    
+    /* Panels full width */
+    .panel {
+        margin-bottom: 16px;
+    }
+    
+    /* Tables scrollable */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    table {
+        min-width: 600px;
+    }
+    
+    /* Form inputs larger for touch */
+    input, select, button {
+        min-height: 44px;
+    }
+    
+    /* Reduce padding */
+    .panel-body {
+        padding: 16px;
+    }
+    
+    /* Toast notifications - full width on mobile */
+    .notification-toast,
+    #alert-container {
+        left: 16px !important;
+        right: 16px !important;
+        max-width: none !important;
+    }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    #quickActionsPanel .panel-body > div {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .header-title {
+        font-size: 18px;
+    }
+    
+    .header-subtitle {
+        font-size: 13px;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) {
+    .nav-item:hover,
+    .stat-card:hover,
+    .btn:hover {
+        transform: none !important;
+    }
+    
+    .nav-item:active,
+    .btn:active {
+        opacity: 0.7;
+    }
+}
+
+/* Hide mobile elements on desktop */
+.mobile-menu-toggle,
+.sidebar-overlay {
+    display: none;
+}
