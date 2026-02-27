@@ -697,27 +697,29 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--text-muted);
         }
+        
+        .notification-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            padding: 16px 24px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            z-index: 9999;
+            font-size: 14px;
+            animation: slideInRight 0.3s ease;
+            max-width: 300px;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
-.notification-toast {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: var(--bg-secondary, #1a1a1a);
-    color: var(--text-primary, #e0e0e0);
-    padding: 16px 24px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color, #333);
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-    z-index: 9999;
-    font-size: 14px;
-    animation: slideInRight 0.3s ease;
-    max-width: 300px;
-}
-
-@keyframes slideInRight {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
+    
     <!-- Alerts System CSS -->
     <style>
         @keyframes slideInAlert {
