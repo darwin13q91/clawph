@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Center | Unified Dashboard</title>
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-elevated: #1a1a1a;
+            --text-primary: #fafafa;
+            --text-secondary: #a3a3a3;
+            --text-muted: #737373;
+            --border-color: #262626;
+            --accent-success: #22c55e;
+            --accent-warning: #f59e0b;
+            --accent-danger: #ef4444;
+            --accent-info: #3b82f6;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+        
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .status-healthy {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--accent-success);
+        }
+        
+        .status-warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-warning);
+        }
+        
+        .status-critical {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-danger);
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+        }
+        
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-icon {
+            font-size: 20px;
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .metric:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .metric-value {
+            font-weight: 600;
+            font-family: 'SF Mono', monospace;
+        }
+        
+        .service-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .service-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .service-status {
+            font-size: 14px;
+        }
+        
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .score-item {
+            background: var(--bg-elevated);
+            padding: 12px;
+            border-radius: 8px;
+        }
+        
+        .score-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+        
+        .score-name {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .score-value {
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        .score-bar {
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .score-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+        
+        .score-excellent { color: var(--accent-success); }
+        .score-good { color: #84cc16; }
+        .score-moderate { color: var(--accent-warning); }
+        .score-poor { color: var(--accent-danger); }
+        
+        .opportunity-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .opportunity-item {
+            padding: 10px;
+            background: var(--bg-elevated);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        .opportunity-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .opportunity-meta {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+        
+        .alert-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .alert-title {
+            color: var(--accent-danger);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .alert-item {
+            padding: 4px 0;
+            font-size: 14px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+        
+        .refresh-btn {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        .refresh-btn:hover {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        
+        .nav-link {
+            color: var(--accent-info);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>🎯 Command Center</h1>
+                <div class="subtitle">Unified view of all your systems</div>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <span id="overallStatus" class="status-badge status-healthy">Loading...</span>
+                <button class="refresh-btn" onclick="refreshData()">🔄 Refresh</button>
+            </div>
+        </header>
+        
+        <div id="loading" class="loading">
+            <div>Loading system status...</div>
+        </div>
+        
+        <div id="content" class="grid" style="display: none;">
+            <!-- Health Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">💻</span>
+                        System Health
+                    </div>
+                </div>
+                <div id="healthMetrics">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+            
+            <!-- Services Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">🔌</span>
+                        Services
+                    </div>
+                </div>
+                <div id="servicesList">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+            
+            <!-- Trading Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">📈</span>
+                        Paper Trading
+                    </div>
+                    <a href="http://127.0.0.1:8789" target="_blank" class="nav-link">Open Dashboard →</a>
+                </div>
+                <div id="tradingMetrics">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+            
+            <!-- Effectiveness Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">📊</span>
+                        System Effectiveness
+                    </div>
+                    <span id="avgScore">--/10</span>
+                </div>
+                <div id="effectivenessScores" class="score-grid">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+            
+            <!-- Opportunities Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">🎯</span>
+                        Market Opportunities
+                    </div>
+                </div>
+                <div id="opportunitiesList" class="opportunity-list">
+                    <!-- Filled by JS -->
+                </div>
+            </div>
+            
+            <!-- Recommendations Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">💡</span>
+                        Recommendations
+                    </div>
+                </div>
+                <div id="recommendations">
+                    <div style="color: var(--text-secondary); font-size: 14px;">
+                        Loading recommendations...
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="nav-links">
+            <a href="http://127.0.0.1:8789" class="nav-link">📊 Main Dashboard</a>
+            <a href="http://127.0.0.1:8789" class="nav-link">📈 Polymarket</a>
+            <a href="http://127.0.0.1:8789" class="nav-link">📝 Paper Trading</a>
+        </div>
+        
+        <div class="footer">
+            Command Center v1.0 | Aggregating all systems into unified view
+            <br>
+            Auto-refresh every 60 seconds
+        </div>
+    </div>
+    
+    <script>
+        let autoRefresh;
+        
+        async function loadData() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                renderDashboard(data);
+            } catch (error) {
+                console.error('Failed to load data:', error);
+                showError('Failed to load system status');
+            }
+        }
+        
+        function renderDashboard(data) {
+            // Hide loading, show content
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'grid';
+            
+            // Overall status
+            const statusEl = document.getElementById('overallStatus');
+            if (data.overall_status?.includes('🔴')) {
+                statusEl.className = 'status-badge status-critical';
+                statusEl.textContent = 'Critical Issues';
+            } else if (data.overall_status?.includes('🟡')) {
+                statusEl.className = 'status-badge status-warning';
+                statusEl.textContent = 'Some Issues';
+            } else {
+                statusEl.className = 'status-badge status-healthy';
+                statusEl.textContent = 'All Systems OK';
+            }
+            
+            // Health metrics
+            if (data.health) {
+                document.getElementById('healthMetrics').innerHTML = `
+                    <div class="metric">
+                        <span class="metric-label">CPU Temperature</span>
+                        <span class="metric-value" style="color: ${data.health.cpu_temp > 80 ? 'var(--accent-danger)' : 'inherit'}">
+                            ${data.health.cpu_temp || '--'}°C
+                        </span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Memory Usage</span>
+                        <span class="metric-value" style="color: ${data.health.memory_percent > 85 ? 'var(--accent-warning)' : 'inherit'}">
+                            ${data.health.memory_percent || '--'}%
+                        </span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Disk Usage</span>
+                        <span class="metric-value" style="color: ${data.health.disk_percent > 85 ? 'var(--accent-warning)' : 'inherit'}">
+                            ${data.health.disk_percent || '--'}%
+                        </span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Load Average</span>
+                        <span class="metric-value">${data.health.load || '--'}</span>
+                    </div>
+                `;
+            }
+            
+            // Services
+            if (data.services) {
+                document.getElementById('servicesList').innerHTML = Object.entries(data.services)
+                    .map(([key, svc]) => `
+                        <div class="service-item">
+                            <div class="service-name">
+                                <span>${svc.active ? '🟢' : '🔴'}</span>
+                                <span>${svc.name}</span>
+                            </div>
+                            <span class="service-status" style="color: ${svc.active ? 'var(--accent-success)' : 'var(--accent-danger)'}">
+                                ${svc.status}
+                            </span>
+                        </div>
+                    `).join('');
+            }
+            
+            // Trading metrics
+            if (data.trading) {
+                const t = data.trading;
+                document.getElementById('tradingMetrics').innerHTML = `
+                    <div class="metric">
+                        <span class="metric-label">Total Trades</span>
+                        <span class="metric-value">${t.total_trades || 0}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Open Positions</span>
+                        <span class="metric-value">${t.open_positions || 0}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Win Rate</span>
+                        <span class="metric-value" style="color: ${t.win_rate >= 55 ? 'var(--accent-success)' : 'var(--accent-warning)'}">
+                            ${t.win_rate || 0}%
+                        </span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total P&L</span>
+                        <span class="metric-value" style="color: ${t.total_pnl >= 0 ? 'var(--accent-success)' : 'var(--accent-danger)'}">
+                            $${t.total_pnl || 0}
+                        </span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Today's Trades</span>
+                        <span class="metric-value">${t.today_trades || 0}</span>
+                    </div>
+                `;
+            }
+            
+            // Effectiveness scores
+            if (data.effectiveness) {
+                document.getElementById('avgScore').textContent = `${data.effectiveness.average || '--'}/10`;
+                
+                document.getElementById('effectivenessScores').innerHTML = Object.entries(data.effectiveness.scores || {})
+                    .map(([key, score]) => {
+                        const scoreColor = score.score >= 8 ? 'var(--accent-success)' : 
+                                          score.score >= 6 ? '#84cc16' : 
+                                          score.score >= 4 ? 'var(--accent-warning)' : 'var(--accent-danger)';
+                        return `
+                            <div class="score-item">
+                                <div class="score-header">
+                                    <span class="score-name">${score.name}</span>
+                                    <span class="score-value" style="color: ${scoreColor}">${score.score}</span>
+                                </div>
+                                <div class="score-bar">
+                                    <div class="score-bar-fill" style="width: ${score.score * 10}%; background: ${scoreColor}"></div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                
+                // Recommendations
+                if (data.effectiveness.recommendations) {
+                    document.getElementById('recommendations').innerHTML = data.effectiveness.recommendations
+                        .map(rec => `<div style="padding: 8px 0; border-bottom: 1px solid var(--border-color); font-size: 14px;">• ${rec}</div>`)
+                        .join('');
+                }
+            }
+            
+            // Opportunities
+            if (data.opportunities?.top_opportunities?.length > 0) {
+                document.getElementById('opportunitiesList').innerHTML = data.opportunities.top_opportunities
+                    .slice(0, 3)
+                    .map(opp => `
+                        <div class="opportunity-item">
+                            <div class="opportunity-title">${opp.question?.substring(0, 50)}...</div>
+                            <div class="opportunity-meta">
+                                YES: $${opp.yes_price} | Vol: $${opp.volume?.toLocaleString()} | ${opp.days_left} days
+                            </div>
+                        </div>
+                    `).join('');
+            } else {
+                document.getElementById('opportunitiesList').innerHTML = '<div style="color: var(--text-muted);">No opportunities found</div>';
+            }
+            
+            // Alerts
+            if (data.health?.issues?.length > 0) {
+                const alertsHtml = data.health.issues.map(issue => `<div class="alert-item">⚠️ ${issue}</div>
+                `).join('');
+                
+                document.getElementById('content').insertAdjacentHTML('afterbegin', `
+                    <div class="alert-box" style="grid-column: 1 / -1;">
+                        <div class="alert-title">System Alerts</div>
+                        ${alertsHtml}
+                    </div>
+                `);
+            }
+        }
+        
+        function showError(message) {
+            document.getElementById('loading').innerHTML = `<div style="color: var(--accent-danger)">❌ ${message}</div>`;
+        }
+        
+        function refreshData() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('content').style.display = 'none';
+            loadData();
+        }
+        
+        // Initial load
+        loadData();
+        
+        // Auto-refresh every 60 seconds
+        autoRefresh = setInterval(loadData, 60000);
+    </script>
+</body>
+</html>
