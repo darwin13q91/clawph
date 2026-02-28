@@ -1,0 +1,14 @@
+{
+  "business_name": "",
+  "industry": "",
+  "location": "",
+  "contact_info": {
+    "phone": "",
+    "email": "",
+    "address": ""
+  },
+  "services": [],
+  "products": [],
+  "common_questions": [],
+  "special_instructions": ""
+}
