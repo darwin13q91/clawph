@@ -4,7 +4,7 @@
 
 ### Webhook Server Running
 - **Local Port:** 3001
-- **Public URL:** https://7fe7-143-44-165-226.ngrok-free.app/webhook/facebook
+- **Public URL:** https://deep-dogs-sell.loca.lt/webhook/facebook
 - **Status:** 🟢 Online
 
 ---
@@ -25,7 +25,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Callback URL** | `https://7fe7-143-44-165-226.ngrok-free.app/webhook/facebook` |
+| **Callback URL** | `https://deep-dogs-sell.loca.lt/webhook/facebook` |
 | **Verify Token** | `AiOpsFlow13!ED` |
 
 Click **"Verify and Save"**
