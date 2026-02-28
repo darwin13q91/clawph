@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 const CONFIG = {
-    webhookUrl: 'https://7fe7-143-44-165-226.ngrok-free.app/webhook/facebook',
+    webhookUrl: 'https://deep-dogs-sell.loca.lt/webhook/facebook',
     verifyToken: 'AiOpsFlow13!ED',
     pageAccessToken: 'EAASrG1AkhvcBQ8jdOZAgx26VsOfx53WaBWeLt1hSlHJZCIZCf6rI6cWXiLPZBiIOUZCIeE5EHKOB64BGXIZBLewzK3nrdVVqq0ZC9tXZBYKAZBZAzbePeODVoZBuwZC0xI4B7Prjjmx5q23kmde9K42RjfZCUV2XT8oARHcfdeiINt8TnBBAeFXp8c8D9ZBIlctzgVhYroqQryh4vT9aC7WMXOZAi0WEq6i5W5lMCQVunMxbWjak34S2L2euMajXlbQnBiHshNbFiZCZAgf6BcKGZC3OS2y3ExZBAZDZD'
 };
