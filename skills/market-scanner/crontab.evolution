@@ -1,0 +1,8 @@
+# Self-Improving Trading Bot Schedule
+# Runs evolution analysis weekly (Sundays at 9 PM)
+
+# Weekly strategy evolution
+0 21 * * 0 cd /home/darwin/.openclaw/workspace/skills/market-scanner && bash run_evolution.sh
+
+# Daily performance tracking (for strategy evaluation)
+0 22 * * * cd /home/darwin/.openclaw/workspace/skills/market-scanner && python3 strategy_evolution.py --evaluate-only
