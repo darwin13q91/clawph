@@ -1,46 +1,6 @@
-#!/bin/bash
-# Overnight Thinking Mode
-# Runs at 9 PM daily - Reflects on all user data and generates insights
-# Delivers report at 6 AM
 
-WORKSPACE="/home/darwin/.openclaw/workspace"
-BRAIN="$WORKSPACE/brain"
-OVERNIGHT="$BRAIN/overnight"
-DATE=$(date +%Y-%m-%d)
-TIME=$(date +%H:%M)
-
-echo "[$TIME] 🌙 Entering Overnight Thinking Mode..."
-
-# Create overnight directory
-mkdir -p "$OVERNIGHT/reports"
-
-# Generate overnight insights
-python3 << 'PYEOF'
-import json
-import random
-import os
-from datetime import datetime
-
-workspace = "/home/darwin/.openclaw/workspace"
-overnight_dir = f"{workspace}/brain/overnight"
-report_file = f"{overnight_dir}/reports/{datetime.now().strftime('%Y%m%d')}_report.txt"
-
-# Ensure directory exists
-os.makedirs(os.path.dirname(report_file), exist_ok=True)
-
-# Get random idea type (ensures variety)
-idea_types = [
-    "workflow_automation",
-    "new_habit",
-    "opportunity",
-    "problem_to_solve",
-    "creative_project"
-]
-
-# Generate unique overnight report
-report = f"""
 🌙 OVERNIGHT THINKING REPORT
-Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}
+Generated: 2026-03-01 06:58
 
 ═══════════════════════════════════════════════════════════
 
@@ -157,31 +117,3 @@ Your cognitive load: Reduced
 Sleep well. I'll keep thinking.
 
 — Allysa 🤖🌙
-"""
-
-with open(report_file, 'w') as f:
-    f.write(report)
-
-print(f"✅ Overnight report generated: {report_file}")
-
-# Create delivery script for 6AM
-delivery_script = f"""#!/bin/bash
-# Deliver overnight report at 6AM
-REPORT="{report_file}"
-if [ -f "$REPORT" ]; then
-    cat "$REPORT"
-    # Mark as delivered
-    mv "$REPORT" "$REPORT.delivered"
-fi
-"""
-
-delivery_file = f"{overnight_dir}/deliver_report.sh"
-with open(delivery_file, 'w') as f:
-    f.write(delivery_script)
-
-os.chmod(delivery_file, 0o755)
-
-print(f"✅ Delivery script ready: {delivery_file}")
-PYEOF
-
-echo "[$TIME] ✅ Overnight thinking complete. Report ready for 6AM delivery."

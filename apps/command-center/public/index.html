@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="300">
     <title>Command Center | Unified Dashboard</title>
     <style>
         :root {
@@ -17,6 +18,7 @@
             --accent-warning: #f59e0b;
             --accent-danger: #ef4444;
             --accent-info: #3b82f6;
+            --accent-primary: #6366f1;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -73,6 +75,11 @@
         .status-critical {
             background: rgba(239, 68, 68, 0.15);
             color: var(--accent-danger);
+        }
+        
+        .status-info {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--accent-info);
         }
         
         .grid {
@@ -134,6 +141,10 @@
             justify-content: space-between;
             padding: 10px 0;
             border-bottom: 1px solid var(--border-color);
+        }
+        
+        .service-item:last-child {
+            border-bottom: none;
         }
         
         .service-name {
@@ -268,6 +279,7 @@
             display: flex;
             gap: 16px;
             margin-top: 16px;
+            flex-wrap: wrap;
         }
         
         .nav-link {
@@ -279,6 +291,129 @@
         .nav-link:hover {
             text-decoration: underline;
         }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 6px 0;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-list li::before {
+            content: '✓ ';
+            color: var(--accent-success);
+            font-weight: bold;
+        }
+        
+        .pricing-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        
+        .pricing-badge {
+            background: var(--bg-elevated);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .strategy-tag {
+            display: inline-block;
+            background: var(--bg-elevated);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+        
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .schedule-item {
+            background: var(--bg-elevated);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .schedule-time {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+        
+        .schedule-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        
+        .external-link {
+            font-size: 12px;
+            color: var(--accent-info);
+            text-decoration: none;
+        }
+        
+        .external-link:hover {
+            text-decoration: underline;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px 20px;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            max-width: 300px;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .notification.hide {
+            animation: slideOut 0.3s ease forwards;
+        }
+        
+        @keyframes slideOut {
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .schedule-grid {
+                grid-template-columns: 1fr;
+            }
+            header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+        }
     </style>
 </head>
 <body>
@@ -286,7 +421,7 @@
         <header>
             <div>
                 <h1>🎯 Command Center</h1>
-                <div class="subtitle">Unified view of all your systems</div>
+                <div class="subtitle">Unified view of all your systems — <span id="lastUpdated">—</span></div>
             </div>
             <div style="display: flex; gap: 12px; align-items: center;">
                 <span id="overallStatus" class="status-badge status-healthy">Loading...</span>
@@ -299,6 +434,161 @@
         </div>
         
         <div id="content" class="grid" style="display: none;">
+            <!-- VPS Gateway Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">🌐</span>
+                        VPS Gateway
+                    </div>
+                    <span class="status-badge status-healthy">🟢 LIVE</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">URL</span>
+                    <span class="metric-value">webhook.amajungle.com</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">SSL Status</span>
+                    <span class="metric-value" style="color: var(--accent-success)">✓ Configured</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Active Clients</span>
+                    <span class="metric-value">0 / ∞</span>
+                </div>
+                <ul class="feature-list" style="margin-top: 12px;">
+                    <li>Multi-tenant architecture</li>
+                    <li>Client isolation enabled</li>
+                    <li>Custom webhook responses</li>
+                    <li>Ready for onboarding</li>
+                </ul>
+                <div style="margin-top: 12px;">
+                    <a href="https://webhook.amajungle.com" target="_blank" class="external-link">Open Gateway →</a>
+                </div>
+            </div>
+            
+            <!-- Amazon-Client Service Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">📦</span>
+                        Amazon-Client Service
+                    </div>
+                    <span class="status-badge status-info">Ready</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Status</span>
+                    <span class="metric-value">Infrastructure Complete</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Bot Types</span>
+                    <span class="metric-value">6 Available</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Capacity</span>
+                    <span class="metric-value">20-50 Clients</span>
+                </div>
+                <ul class="feature-list" style="margin-top: 12px;">
+                    <li>Docker Compose deployment</li>
+                    <li>Amazon SP-API integration</li>
+                    <li>Scalable infrastructure</li>
+                </ul>
+                <div class="pricing-row">
+                    <span class="pricing-badge">Starter $300</span>
+                    <span class="pricing-badge">Growth $600</span>
+                    <span class="pricing-badge">Pro $1,200</span>
+                    <span class="pricing-badge">Enterprise $2,500</span>
+                </div>
+            </div>
+            
+            <!-- Trading Bot Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">🤖</span>
+                        Trading Bot
+                    </div>
+                    <a href="http://127.0.0.1:8789" target="_blank" class="nav-link">Open →</a>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Active Positions</span>
+                    <span class="metric-value">66 Open</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Active Strategies</span>
+                    <span class="metric-value">3 Running</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Evolution Status</span>
+                    <span class="metric-value" style="color: var(--accent-success)">🔬 Monitoring</span>
+                </div>
+                <div style="margin-top: 12px;">
+                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Active Strategies:</div>
+                    <span class="strategy-tag">Mean Reversion</span>
+                    <span class="strategy-tag">Momentum</span>
+                    <span class="strategy-tag">Breakout</span>
+                </div>
+                <div style="margin-top: 12px; padding: 10px; background: rgba(245, 158, 11, 0.1); border-radius: 6px; font-size: 12px; color: var(--text-secondary);">
+                    ⚠️ Paper trading mode — awaiting closures for evolution analysis
+                </div>
+            </div>
+            
+            <!-- CFO System Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">💰</span>
+                        CFO System
+                    </div>
+                    <span class="status-badge status-healthy">On Budget</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Net Worth</span>
+                    <span class="metric-value">$210</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Monthly Income</span>
+                    <span class="metric-value" style="color: var(--accent-success)">$1,800</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Monthly Surplus</span>
+                    <span class="metric-value" style="color: var(--accent-success)">+$350</span>
+                </div>
+                <div style="margin-top: 12px; padding: 10px; background: var(--bg-elevated); border-radius: 6px;">
+                    <div style="font-size: 12px; color: var(--text-muted);">Next CFO Report: 1st & 15th of month</div>
+                </div>
+            </div>
+            
+            <!-- Reports System Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">📄</span>
+                        Reports System
+                    </div>
+                    <span class="status-badge status-info">Auto-Scheduled</span>
+                </div>
+                <div class="schedule-grid" style="margin-bottom: 16px;">
+                    <div class="schedule-item">
+                        <div class="schedule-time">6:00 AM</div>
+                        <div class="schedule-label">Morning Reports</div>
+                        <div style="font-size: 10px; color: var(--accent-success); margin-top: 4px;">Daily</div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="schedule-time">9:00 PM</div>
+                        <div class="schedule-label">Overnight Thinking</div>
+                        <div style="font-size: 10px; color: var(--accent-success); margin-top: 4px;">Daily</div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="schedule-time">1st & 15th</div>
+                        <div class="schedule-label">CFO Reports</div>
+                        <div style="font-size: 10px; color: var(--accent-success); margin-top: 4px;">Bi-Monthly</div>
+                    </div>
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted); text-align: center;">
+                    All reports generated automatically
+                </div>
+            </div>
+            
             <!-- Health Card -->
             <div class="card">
                 <div class="card-header">
@@ -325,11 +615,11 @@
                 </div>
             </div>
             
-            <!-- Trading Card -->
+            <!-- Paper Trading Card -->
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">
-                        <span class="card-icon">📈</span>
+                        <span class="card-icon">📝</span>
                         Paper Trading
                     </div>
                     <a href="http://127.0.0.1:8789" target="_blank" class="nav-link">Open Dashboard →</a>
@@ -386,23 +676,44 @@
             <a href="http://127.0.0.1:8789" class="nav-link">📊 Main Dashboard</a>
             <a href="http://127.0.0.1:8789" class="nav-link">📈 Polymarket</a>
             <a href="http://127.0.0.1:8789" class="nav-link">📝 Paper Trading</a>
+            <a href="https://webhook.amajungle.com" target="_blank" class="nav-link">🌐 VPS Gateway</a>
         </div>
         
         <div class="footer">
-            Command Center v1.0 | Aggregating all systems into unified view
+            Command Center v2.0 | Aggregating all systems into unified view
             <br>
-            Auto-refresh every 60 seconds
+            Auto-refresh every 60 seconds | Last updated: <span id="footerLastUpdated">—</span>
         </div>
     </div>
     
     <script>
         let autoRefresh;
         
+        function showNotification(message, type = 'info') {
+            const notif = document.createElement('div');
+            notif.className = 'notification';
+            notif.innerHTML = message;
+            document.body.appendChild(notif);
+            
+            setTimeout(() => {
+                notif.classList.add('hide');
+                setTimeout(() => notif.remove(), 300);
+            }, 3000);
+        }
+        
+        function updateTimestamps() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString();
+            document.getElementById('lastUpdated').textContent = timeStr;
+            document.getElementById('footerLastUpdated').textContent = timeStr;
+        }
+        
         async function loadData() {
             try {
                 const response = await fetch('/api/status');
                 const data = await response.json();
                 renderDashboard(data);
+                updateTimestamps();
             } catch (error) {
                 console.error('Failed to load data:', error);
                 showError('Failed to load system status');
@@ -550,8 +861,7 @@
             
             // Alerts
             if (data.health?.issues?.length > 0) {
-                const alertsHtml = data.health.issues.map(issue => `<div class="alert-item">⚠️ ${issue}</div>
-                `).join('');
+                const alertsHtml = data.health.issues.map(issue => `<div class="alert-item">⚠️ ${issue}</div>`).join('');
                 
                 document.getElementById('content').insertAdjacentHTML('afterbegin', `
                     <div class="alert-box" style="grid-column: 1 / -1;">
@@ -569,6 +879,7 @@
         function refreshData() {
             document.getElementById('loading').style.display = 'block';
             document.getElementById('content').style.display = 'none';
+            showNotification('🔄 Refreshing...');
             loadData();
         }
         
