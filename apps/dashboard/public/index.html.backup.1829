@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenClaw Command Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Light theme */
+            --bg-primary: #fafafa;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f5f5f5;
+            --bg-elevated: #ffffff;
+            --text-primary: #171717;
+            --text-secondary: #525252;
+            --text-muted: #737373;
+            --border-color: #e5e5e5;
+            --border-subtle: #f0f0f0;
+            --accent-primary: #6366f1;
+            --accent-primary-light: #818cf8;
+            --accent-success: #22c55e;
+            --accent-warning: #f59e0b;
+            --accent-danger: #ef4444;
+            --accent-info: #3b82f6;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --radius-sm: 6px;
+            --radius: 10px;
+            --radius-lg: 16px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --bg-elevated: #1c1c1c;
+            --text-primary: #fafafa;
+            --text-secondary: #a3a3a3;
+            --text-muted: #737373;
+            --border-color: #262626;
+            --border-subtle: #1f1f1f;
+            --accent-primary: #6366f1;
+            --accent-primary-light: #818cf8;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        /* Layout */
+        .app {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px 24px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-primary), #8b5cf6);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-subtitle {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 12px;
+            margin-bottom: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            opacity: 0.7;
+        }
+
+        .nav-item.active .nav-icon {
+            opacity: 1;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--accent-danger);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        /* Main Content */
+        .main {
+            padding: 32px;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header-subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-primary-light);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--accent-success);
+        }
+
+        .status-pill::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 20px;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-primary);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .stat-change {
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-change.positive {
+            color: var(--accent-success);
+        }
+
+        .stat-change.negative {
+            color: var(--accent-danger);
+        }
+
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        .content-grid.full {
+            grid-template-columns: 1fr;
+        }
+
+        .panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .panel-body {
+            padding: 20px 24px;
+        }
+
+        .panel-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .data-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: var(--bg-tertiary);
+        }
+
+        .data-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+        }
+
+        .data-table tr:hover td {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .cell-primary {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .cell-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--accent-success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent-warning);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-danger);
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-info);
+        }
+
+        .badge-muted {
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+        }
+
+        /* Form Elements */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .form-input,
+        .form-select {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-size: 14px;
+            color: var(--text-primary);
+            font-family: inherit;
+            transition: var(--transition);
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Metrics Row */
+        .metrics-row {
+            display: flex;
+            gap: 24px;
+            padding: 16px 0;
+            border-top: 1px solid var(--border-color);
+            margin-top: 16px;
+        }
+
+        .metric {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .metric-value.positive {
+            color: var(--accent-success);
+        }
+
+        .metric-value.negative {
+            color: var(--accent-danger);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .empty-text {
+            font-size: 14px;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        /* Loading */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px;
+            gap: 16px;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Logs Panel */
+        .logs-container {
+            background: var(--bg-primary);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+
+        .logs-toolbar {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+        }
+
+        .logs-content {
+            height: 300px;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .log-entry {
+            display: flex;
+            gap: 12px;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .log-time {
+            color: var(--text-muted);
+            min-width: 80px;
+        }
+
+        .log-level {
+            min-width: 50px;
+            text-transform: uppercase;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .log-level.error { color: var(--accent-danger); }
+        .log-level.warn { color: var(--accent-warning); }
+        .log-level.info { color: var(--accent-info); }
+        .log-level.debug { color: var(--text-muted); }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .app {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main {
+                padding: 16px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">🐾</div>
+                <div>
+                    <div class="logo-text">OpenClaw</div>
+                    <div class="logo-subtitle">Command Center</div>
+                </div>
+            </div>
+
+            <nav class="nav-section">
+                <div class="nav-title">Overview</div>
+                <a href="#dashboard" class="nav-item active" onclick="showSection('dashboard')">
+                    <span class="nav-icon">📊</span>
+                    Dashboard
+                </a>
+                <a href="#polymarket" class="nav-item" onclick="showSection('polymarket')">
+                    <span class="nav-icon">📈</span>
+                    Polymarket
+                    <span class="nav-badge" id="navPolyCount">0</span>
+                </a>
+                <a href="#trading" class="nav-item" onclick="showSection('trading')">
+                    <span class="nav-icon">📝</span>
+                    Paper Trading
+                </a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-title">System</div>
+                <a href="#models" class="nav-item" onclick="showSection('models')">
+                    <span class="nav-icon">🤖</span>
+                    AI Models
+                </a>
+                <a href="#channels" class="nav-item" onclick="showSection('channels')">
+                    <span class="nav-icon">💬</span>
+                    Channels
+                </a>
+                <a href="#cron" class="nav-item" onclick="showSection('cron')">
+                    <span class="nav-icon">⏰</span>
+                    Cron Jobs
+                </a>
+                <a href="#logs" class="nav-item" onclick="showSection('logs')">
+                    <span class="nav-icon">📋</span>
+                    Logs
+                </a>
+            </nav>
+
+            <div style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color);">
+                <div class="nav-item" onclick="toggleTheme()">
+                    <span class="nav-icon" id="themeIcon">🌙</span>
+                    <span id="themeText">Dark Mode</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Header -->
+            <header class="header">
+                <div>
+                    <h1 class="header-title">Dashboard</h1>
+                    <div class="header-subtitle" id="agentSubtitle">Personal AI Agent Overview</div>
+                </div>
+                <div class="header-actions">
+                    <span class="status-pill" id="systemStatus">System Online</span>
+                    <button class="btn btn-secondary" onclick="refreshAll()">
+                        🔄 Refresh
+                    </button>
+                </div>
+            </header>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-label">AI Models</div>
+                    <div class="stat-value" id="statModels">—</div>
+                    <div class="stat-change positive">Active</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Polymarket Opportunities</div>
+                    <div class="stat-value" id="statOpportunities">—</div>
+                    <div class="stat-change" id="statOppsChange">Scanning...</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Paper Trades</div>
+                    <div class="stat-value" id="statTrades">—</div>
+                    <div class="stat-change" id="statWinRate">Win Rate: —</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Session Life</div>
+                    <div class="stat-value" id="statSession">—</div>
+                    <div class="stat-change positive">Configured</div>
+                </div>
+            </div>
+
+            <!-- Main Content Grid -->
+            <div class="content-grid" id="mainContent">
+                <!-- Left Column -->
+                <div id="overviewSection" class="section-content" style="display: flex; gap: 24px;"><div class="left-col">
+                    <!-- Polymarket Scanner -->
+                    <div class="panel" id="polymarketPanel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <div class="panel-icon">📈</div>
+                                Polymarket Scanner
+                            </div>
+                            <div class="panel-actions">
+                                <span class="badge badge-warning">🧪 Paper Trading</span>
+                                <button class="btn btn-secondary" onclick="refreshPolymarket()">Refresh</button>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div id="polyLoading" class="loading-container">
+                                <div class="spinner"></div>
+                                <div>Loading market data...</div>
+                            </div>
+                            <div id="polyContent" style="display: none;">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Market</th>
+                                            <th>Price</th>
+                                            <th>Volume</th>
+                                            <th>Days</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="polyTableBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="panel-footer">
+                            <span id="polyLastUpdate">Last updated: —</span>
+                            <span style="margin-left: auto;">⚠️ Paper trading only — no real trades</span>
+                        </div>
+                    </div>
+
+                    <!-- Paper Trading Journal -->
+                    <div class="panel" id="tradingPanel" style="margin-top: 24px;">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <div class="panel-icon">📝</div>
+                                Paper Trading Journal
+                            </div>
+                            <div class="panel-actions">
+                                <span class="badge badge-success" id="paperStatsBadge">0 Trades</span>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <!-- New Trade Form -->
+                            <div style="background: var(--bg-tertiary); padding: 20px; border-radius: var(--radius-sm); margin-bottom: 24px;">
+                                <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 16px;">
+                                    Log New Trade
+                                </div>
+                                <div class="form-grid">
+                                    <div class="form-group full">
+                                        <label class="form-label">Market</label>
+                                        <input type="text" class="form-input" id="ptMarket" placeholder="e.g., Will Bitcoin hit $100k in 2025?">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Direction</label>
+                                        <select class="form-select" id="ptDirection">
+                                            <option value="YES">Buy YES</option>
+                                            <option value="NO">Buy NO</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Price ($)</label>
+                                        <input type="number" class="form-input" id="ptPrice" placeholder="0.60" step="0.01" min="0.01" max="0.99">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Shares</label>
+                                        <input type="number" class="form-input" id="ptShares" value="1" min="1">
+                                    </div>
+                                    <div class="form-group full">
+                                        <label class="form-label">Reasoning</label>
+                                        <input type="text" class="form-input" id="ptReason" placeholder="Why are you taking this trade?">
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                                    <div style="font-size: 13px; color: var(--text-secondary);">
+                                        Position: <strong id="ptPositionSize" style="color: var(--text-primary);">$0</strong>
+                                        <span style="margin: 0 12px; color: var(--border-color);">|</span>
+                                        Potential Profit: <strong id="ptPotentialProfit" style="color: var(--accent-success);">$0</strong>
+                                    </div>
+                                    <button class="btn btn-primary" onclick="logPaperTrade()">Log Paper Trade</button>
+                                </div>
+                            </div>
+
+                            <!-- Recent Trades -->
+                            <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 12px;">
+                                Recent Trades
+                            </div>
+                            <div id="paperTradesList">
+                                <div class="empty-state">
+                                    <div class="empty-icon">📝</div>
+                                    <div class="empty-title">No trades yet</div>
+                                    <div class="empty-text">Start paper trading by logging your first hypothetical trade above.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="right-col">
+                    <!-- AI Models -->
+                    <div class="panel" id="modelsPanel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <div class="panel-icon">🤖</div>
+                                AI Models
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div id="modelsList">
+                                <div class="loading-container">
+                                    <div class="spinner"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Channels -->
+                    <div class="panel" id="channelsPanel" style="margin-top: 24px;">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <div class="panel-icon">💬</div>
+                                Channels
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <div id="channelsList">
+                                <div class="loading-container">
+                                    <div class="spinner"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Logs -->
+                    <div class="panel" id="logsPanel" style="margin-top: 24px;">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <div class="panel-icon">📋</div>
+                                Live Logs
+                            </div>
+                            <div class="panel-actions">
+                                <select class="form-select" id="logLevelFilter" onchange="updateLogFilter()" style="width: 100px; font-size: 12px; padding: 4px 8px;">
+                                    <option value="all">All</option>
+                                    <option value="error">Error</option>
+                                    <option value="warn">Warn</option>
+                                    <option value="info">Info</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="panel-body" style="padding: 0;">
+                            <div class="logs-content" id="logsContent" style="height: 250px;">
+                                <div class="loading-container">
+                                    <div class="spinner"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Theme toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+            document.getElementById('themeText').textContent = isDark ? 'Light Mode' : 'Dark Mode';
+        }
+
+        // Section navigation
+        function showSection(section) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+            
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(el => {
+                el.style.display = 'none';
+            });
+            
+            // Show selected section
+            const sectionId = section + 'Section';
+            const sectionEl = document.getElementById(sectionId);
+            if (sectionEl) {
+                sectionEl.style.display = 'block';
+            }
+            
+            // Update header title
+            const titles = {
+                'overview': 'Dashboard',
+                'polymarket': 'Polymarket Scanner',
+                'trading': 'Paper Trading',
+                'models': 'AI Models',
+                'channels': 'Channels',
+                'cron': 'Cron Jobs',
+                'logs': 'System Logs'
+            };
+            document.querySelector('.header-title').textContent = titles[section] || 'Dashboard';
+        }
+
+        // Calculate paper trade metrics
+        document.addEventListener('DOMContentLoaded', () => {
+            ['ptPrice', 'ptShares', 'ptDirection'].forEach(id => {
+                document.getElementById(id)?.addEventListener('input', updatePaperCalc);
+            });
+            
+            // Load all data
+            loadDashboardData();
+            loadPolymarket();
+            loadPaperTrades();
+            connectLogStream();
+            
+            // Auto-refresh
+            setInterval(loadDashboardData, 15000);
+            setInterval(loadPolymarket, 5 * 60 * 1000);
+            setInterval(loadPaperTrades, 30000);
+        });
+
+        function updatePaperCalc() {
+            const price = parseFloat(document.getElementById('ptPrice').value) || 0;
+            const shares = parseInt(document.getElementById('ptShares').value) || 0;
+            const isYes = document.getElementById('ptDirection').value === 'YES';
+            
+            const position = price * shares;
+            const profit = isYes ? shares * (1 - price) : shares * price;
+            
+            document.getElementById('ptPositionSize').textContent = `$${position.toFixed(2)}`;
+            document.getElementById('ptPotentialProfit').textContent = `$${profit.toFixed(2)}`;
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('/api/summary');
+                const data = await response.json();
+                
+                document.getElementById('agentSubtitle').textContent = `${data.agentName || 'Main'} — Personal AI Agent`;
+                document.getElementById('statModels').textContent = data.stats?.modelsCount || '—';
+                document.getElementById('statSession').textContent = data.stats?.sessionLife || '—';
+                
+                // Render models
+                renderModels(data.models || []);
+                
+                // Render channels
+                renderChannels(data.channels || []);
+                
+            } catch (err) {
+                console.error('Failed to load dashboard:', err);
+            }
+        }
+
+        function renderModels(models) {
+            const container = document.getElementById('modelsList');
+            if (!models.length) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-text">No models configured</div></div>';
+                return;
+            }
+            
+            let html = '';
+            models.forEach(m => {
+                html += `
+                    <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-tertiary); border-radius: var(--radius-sm); margin-bottom: 8px; ${m.isPrimary ? 'border: 1px solid var(--accent-primary);' : ''}">
+                        <div style="width: 36px; height: 36px; border-radius: var(--radius-sm); background: ${m.isPrimary ? 'var(--accent-primary)' : 'var(--bg-primary)'}; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; color: ${m.isPrimary ? 'white' : 'var(--text-secondary)'};">
+                            ${m.alias?.substring(0, 2).toUpperCase() || 'AI'}
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; font-size: 14px;">${escapeHtml(m.name)}</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">${escapeHtml(m.role)}</div>
+                        </div>
+                        <span class="badge ${m.badge === 'Paid' ? 'badge-info' : 'badge-muted'}">${m.badge || 'Free'}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderChannels(channels) {
+            const container = document.getElementById('channelsList');
+            if (!channels.length) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-text">No channels</div></div>';
+                return;
+            }
+            
+            let html = '';
+            channels.forEach(ch => {
+                const statusClass = ch.status === 'Active' ? 'badge-success' : ch.status === 'Down' ? 'badge-danger' : 'badge-muted';
+                html += `
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-subtle);">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 16px;">${getChannelIcon(ch.type)}</span>
+                            <span style="font-weight: 500;">${escapeHtml(ch.name)}</span>
+                        </div>
+                        <span class="badge ${statusClass}">${ch.status}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function getChannelIcon(type) {
+            const icons = { telegram: '✈️', discord: '💬', whatsapp: '📱', signal: '🔒' };
+            return icons[type?.toLowerCase()] || '📡';
+        }
+
+        // Polymarket
+        async function loadPolymarket() {
+            try {
+                const response = await fetch('/api/polymarket');
+                const data = await response.json();
+                
+                document.getElementById('statOpportunities').textContent = data.count || 0;
+                document.getElementById('navPolyCount').textContent = data.count || 0;
+                document.getElementById('statOppsChange').textContent = data.scannedAt ? `Scanned ${new Date(data.scannedAt).toLocaleTimeString()}` : 'Scanning...';
+                
+                const tbody = document.getElementById('polyTableBody');
+                const opps = data.opportunities?.slice(0, 10) || [];
+                
+                if (!opps.length) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 48px; color: var(--text-muted);">No opportunities found</td></tr>';
+                } else {
+                    tbody.innerHTML = opps.map(o => `
+                        <tr>
+                            <td class="cell-primary">${escapeHtml(o.question?.substring(0, 50) + (o.question?.length > 50 ? '...' : ''))}</td>
+                            <td class="cell-mono">$${o.yes_price?.toFixed(2)}</td>
+                            <td class="cell-mono">$${o.volume?.toLocaleString()}</td>
+                            <td>${o.days_left}</td>
+                            <td><button class="btn btn-secondary" style="padding: 4px 12px; font-size: 12px;" onclick="copyToPaperTrade('${escapeHtml(o.question)}', ${o.yes_price})">Trade</button></td>
+                        </tr>
+                    `).join('');
+                }
+                
+                document.getElementById('polyLoading').style.display = 'none';
+                document.getElementById('polyContent').style.display = 'block';
+                
+                if (data.scannedAt) {
+                    document.getElementById('polyLastUpdate').textContent = `Last updated: ${new Date(data.scannedAt).toLocaleTimeString()}`;
+                }
+            } catch (err) {
+                console.error('Failed to load Polymarket:', err);
+            }
+        }
+
+        function copyToPaperTrade(question, price) {
+            document.getElementById('ptMarket').value = question;
+            document.getElementById('ptPrice').value = price.toFixed(2);
+            document.getElementById('ptDirection').value = 'YES';
+            updatePaperCalc();
+            document.getElementById('tradingPanel').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function refreshPolymarket() {
+            document.getElementById('polyLoading').style.display = 'flex';
+            document.getElementById('polyContent').style.display = 'none';
+            loadPolymarket();
+        }
+
+        // Paper trades
+        async function logPaperTrade() {
+            const market = document.getElementById('ptMarket').value.trim();
+            const direction = document.getElementById('ptDirection').value;
+            const price = parseFloat(document.getElementById('ptPrice').value);
+            const shares = parseInt(document.getElementById('ptShares').value);
+            const reason = document.getElementById('ptReason').value.trim();
+            
+            if (!market || !price || price < 0.01 || price > 0.99 || shares < 1) {
+                alert('Please fill in all fields correctly');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/paper-trades', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ market_question: market, direction, entry_price: price, shares, reasoning: reason }),
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('ptMarket').value = '';
+                    document.getElementById('ptPrice').value = '';
+                    document.getElementById('ptReason').value = '';
+                    updatePaperCalc();
+                    loadPaperTrades();
+                }
+            } catch (err) {
+                console.error('Failed to log trade:', err);
+            }
+        }
+
+        async function loadPaperTrades() {
+            try {
+                const response = await fetch('/api/paper-trades');
+                const data = await response.json();
+                
+                const stats = data.stats || {};
+                document.getElementById('statTrades').textContent = stats.total_trades || 0;
+                document.getElementById('statWinRate').textContent = `Win Rate: ${stats.win_rate || 0}%`;
+                document.getElementById('statWinRate').className = `stat-change ${(stats.win_rate || 0) >= 50 ? 'positive' : 'negative'}`;
+                document.getElementById('paperStatsBadge').textContent = `${stats.total_trades || 0} Trades`;
+                
+                const container = document.getElementById('paperTradesList');
+                const trades = data.trades || [];
+                
+                if (!trades.length) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📝</div>
+                            <div class="empty-title">No trades yet</div>
+                            <div class="empty-text">Start paper trading by logging your first hypothetical trade.</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '<table class="data-table"><thead><tr><th>Market</th><th>Entry</th><th>P&L</th></tr></thead><tbody>';
+                trades.forEach(t => {
+                    const pnl = t.pnl;
+                    const pnlClass = pnl === null ? '' : pnl >= 0 ? 'positive' : 'negative';
+                    const pnlText = pnl === null ? 'OPEN' : (pnl >= 0 ? '+' : '') + `$${pnl.toFixed(2)}`;
+                    html += `
+                        <tr>
+                            <td>
+                                <div class="cell-primary">${escapeHtml(t.market_question?.substring(0, 40))}${t.market_question?.length > 40 ? '...' : ''}</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">${t.direction} ${t.shares} shares</div>
+                            </td>
+                            <td class="cell-mono">$${t.entry_price.toFixed(2)}</td>
+                            <td class="${pnlClass}" style="font-weight: 600;">${pnlText}</td>
+                        </tr>
+                    `;
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+                
+            } catch (err) {
+                console.error('Failed to load paper trades:', err);
+            }
+        }
+
+        // Logs
+        function connectLogStream() {
+            const evtSource = new EventSource('/api/logs/stream');
+            const container = document.getElementById('logsContent');
+            
+            evtSource.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'log') {
+                        const log = data.data;
+                        const level = (log.level || 'info').toLowerCase();
+                        const levelFilter = document.getElementById('logLevelFilter').value;
+                        
+                        if (levelFilter !== 'all' && level !== levelFilter) return;
+                        
+                        const entry = document.createElement('div');
+                        entry.className = 'log-entry';
+                        entry.innerHTML = `
+                            <span class="log-time">${new Date(log.timestamp).toLocaleTimeString()}</span>
+                            <span class="log-level ${level}">${level}</span>
+                            <span>${escapeHtml(log.message?.substring(0, 100))}</span>
+                        `;
+                        container.appendChild(entry);
+                        container.scrollTop = container.scrollHeight;
+                    }
+                } catch (e) {}
+            };
+            
+            evtSource.onerror = () => {
+                container.innerHTML = '<div style="padding: 20px; color: var(--text-muted);">Log stream disconnected</div>';
+            };
+        }
+
+        function updateLogFilter() {
+            // Reconnect with new filter
+            // Simplified - in production would filter existing buffer
+        }
+
+        function refreshAll() {
+            loadDashboardData();
+            loadPolymarket();
+            loadPaperTrades();
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+<script src="nav-fix.js"></script>
+</body>
+</html>

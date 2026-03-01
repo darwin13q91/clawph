@@ -1,4 +1,4 @@
-const TelegramAlerts = require('../build-everything/telegram/telegram-alerts.js');
+const TelegramAlerts = require('./telegram-alerts.js');
 const fs = require('fs');
 const path = require('path');
 
