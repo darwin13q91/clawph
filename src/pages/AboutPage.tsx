@@ -188,11 +188,11 @@ export default function AboutPage() {
           {/* Founder Photo */}
           <div className="my-12 flex justify-center">
             <div className="relative">
-              <div className="w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-neon/30 shadow-lg shadow-neon/10">
+              <div className="w-48 h-64 md:w-56 md:h-72 rounded-2xl overflow-hidden border-4 border-neon/30 shadow-lg shadow-neon/10">
                 <img 
                   src="/images/founder.png" 
                   alt="Allysa Kate Estardo — Founder of amajungle" 
-                  className="w-full h-full object-cover object-top"
+                  className="w-full h-full object-cover object-[center_15%]"
                   loading="lazy"
                 />
               </div>
