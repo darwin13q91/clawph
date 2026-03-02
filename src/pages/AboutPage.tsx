@@ -185,6 +185,20 @@ export default function AboutPage() {
             </h2>
           </div>
           
+          {/* Founder Photo */}
+          <div className="my-12 flex justify-center">
+            <div className="relative">
+              <div className="w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-neon/30 shadow-lg shadow-neon/10">
+                <img 
+                  src="/images/founder.png" 
+                  alt="Allysa Kate Estardo — Founder of amajungle" 
+                  className="w-full h-full object-cover object-top"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-6 text-warm-72 text-lg leading-relaxed">
             <p>
               amajungle started with a simple question: why are Amazon sellers still doing 
@@ -221,8 +235,13 @@ export default function AboutPage() {
 
           {/* Signature */}
           <div className="mt-12 flex items-center gap-4 justify-center">
-            <div className="w-16 h-16 rounded-full bg-neon/20 flex items-center justify-center">
-              <span className="text-neon font-bold text-xl">AE</span>
+            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-neon/30">
+              <img 
+                src="/images/founder.png" 
+                alt="Allysa Kate Estardo" 
+                className="w-full h-full object-cover object-top"
+                loading="lazy"
+              />
             </div>
             <div className="text-left">
               <p className="text-warm font-medium">Allysa Kate Estardo</p>
