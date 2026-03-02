@@ -44,9 +44,9 @@ module.exports = {
           dark: "#082f23",
         },
         violet: {
-          DEFAULT: "#6E2E8C",
-          light: "#7d389c",
-          dark: "#5c2575",
+          DEFAULT: "#B06CDB",
+          light: "#C48AE8",
+          dark: "#8A4CB0",
         },
         neon: {
           DEFAULT: "#CFFF00",
