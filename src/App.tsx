@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Toaster } from 'sonner';
+import { Analytics } from '@vercel/analytics/react';
 
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
@@ -153,6 +154,7 @@ function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
+        <Analytics />
       </div>
       </ErrorBoundary>
     </BrowserRouter>
