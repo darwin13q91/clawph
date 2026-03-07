@@ -66,7 +66,7 @@ export default function ContactSection() {
         'rEsGrRh2EGJZawfqI'
       );
       
-      toast.success('Message sent! We\'ll reply within 24 hours.');
+      toast.success('Message sent! We\'ll reply within 1 hour.');
       setFormData({ name: '', email: '', phone: '', company: '', service: '', message: '' });
     } catch {
       toast.error('Something went wrong. Please email us directly at hello@amajungle.com');

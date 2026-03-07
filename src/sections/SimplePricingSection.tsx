@@ -30,7 +30,7 @@ const packages = [
       includes: [
         'Bug fixes & troubleshooting',
         'Monthly health check (15-min call)',
-        'Email support (24-48hr response)',
+        'Email support (< 1hr response)',
         'Minor tweaks & adjustments',
         'Dependency updates',
       ],

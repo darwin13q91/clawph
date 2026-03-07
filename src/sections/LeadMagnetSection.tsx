@@ -70,7 +70,7 @@ export default function LeadMagnetSection() {
         'rEsGrRh2EGJZawfqI'
       );
       
-      toast.success('Audit request received! Check your email in 24-48 hours.');
+      toast.success('Audit request received! Check your email in less than 1 hour.');
       setSubmitted(true);
     } catch {
       toast.error('Something went wrong. Please email us directly at hello@amajungle.com');
@@ -145,7 +145,7 @@ export default function LeadMagnetSection() {
                   Request Your Free Audit
                 </h3>
                 <p className="text-warm-72 text-sm mb-8">
-                  We'll deliver your audit video within 24-48 hours.
+                  We'll deliver your audit video within 1 hour.
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
@@ -208,7 +208,7 @@ export default function LeadMagnetSection() {
                   Audit Requested!
                 </h3>
                 <p className="text-warm-72 mb-6">
-                  Check your inbox for confirmation. Your audit video will arrive within 24-48 hours.
+                  Check your inbox for confirmation. Your audit video will arrive within 1 hour.
                 </p>
                 <p className="text-neon text-sm font-mono">
                   While you wait, book a free call to discuss your goals →
