@@ -49,6 +49,29 @@ export default function ContactSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation
+    if (!formData.name.trim()) {
+      toast.error('Please enter your name');
+      return;
+    }
+    
+    if (!formData.email.trim()) {
+      toast.error('Please enter your email');
+      return;
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    
+    if (!formData.message.trim()) {
+      toast.error('Please enter a message');
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
@@ -114,13 +137,13 @@ export default function ContactSection() {
             </h2>
             
             <p className="text-warm-72 text-lg leading-relaxed mb-10">
-              Book a free 15-minute call. We'll learn about your business, 
+              Book a free 30-minute call. We'll learn about your business, 
               identify your biggest time-wasters, and show you exactly how 
               we can help — no pressure, no pitch.
             </p>
 
             <CalendlyButton className="mb-10">
-              Book Free 15-Min Call
+              Book Free 30-Min Call
             </CalendlyButton>
 
             <div className="space-y-5">

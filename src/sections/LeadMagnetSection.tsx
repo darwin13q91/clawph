@@ -48,9 +48,26 @@ export default function LeadMagnetSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Email validation
     if (!email) {
       toast.error('Please enter your email');
       return;
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    
+    // Store URL validation (if provided)
+    if (storeUrl) {
+      const amazonUrlRegex = /https?:\/\/(www\.)?(amazon\.(com|co\.[a-z]{2})|amzn\.to)\/.*/i;
+      if (!amazonUrlRegex.test(storeUrl)) {
+        toast.error('Please enter a valid Amazon URL (amazon.com, amazon.co.uk, etc.)');
+        return;
+      }
     }
     
     setIsSubmitting(true);

@@ -124,7 +124,7 @@ export default function SimpleFAQSection() {
             Still Have Questions?
           </h3>
           <p className="text-warm-72 mb-6">
-            Book a free 15-minute call. No pressure, just answers.
+            Book a free 30-minute call. No pressure, just answers.
           </p>
           <a
             href="mailto:hello@amajungle.com"

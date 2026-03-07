@@ -335,10 +335,10 @@ export default function SimplePricingSection() {
         {/* Bottom Note */}
         <div className="mt-12 text-center">
           <p className="text-warm-72 text-sm mb-4">
-            Not sure which is right? Book a free 15-min call and we'll help you decide.
+            Not sure which is right? Book a free 30-min call and we'll help you decide.
           </p>
           <CalendlyButton variant="secondary">
-            Free 15-Min Consultation
+            Free 30-Min Consultation
           </CalendlyButton>
         </div>
       </div>
