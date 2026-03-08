@@ -128,7 +128,7 @@ export default function LeadMagnetSection() {
             </h2>
             
             <p className="text-warm-72 text-lg mb-8 leading-relaxed">
-              Send us your store URL and we'll record a 5-10 minute video audit 
+              Send us your store URL and we'll deliver a detailed written audit 
               showing exactly what's hurting your sales and how to fix it.
             </p>
 
@@ -162,7 +162,7 @@ export default function LeadMagnetSection() {
                   Request Your Free Audit
                 </h3>
                 <p className="text-warm-72 text-sm mb-8">
-                  We'll deliver your audit video within 1 hour.
+                  We'll deliver your written audit within 1 hour.
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
@@ -225,7 +225,7 @@ export default function LeadMagnetSection() {
                   Audit Requested!
                 </h3>
                 <p className="text-warm-72 mb-6">
-                  Check your inbox for confirmation. Your audit video will arrive within 1 hour.
+                  Check your inbox for confirmation. Your audit report will arrive within 1 hour.
                 </p>
                 <p className="text-neon text-sm font-mono">
                   While you wait, book a free call to discuss your goals →
