@@ -67,24 +67,28 @@ export default function ContactSection() {
       return;
     }
     
-    if (!formData.message.trim()) {
-      toast.error('Please enter a message');
+    if (!formData.service.trim()) {
+      toast.error('Please select a service');
       return;
     }
     
     setIsSubmitting(true);
     
     try {
+      // Format subject line: "New Lead: {service} - {name} from {company}"
+      const subject = `New Lead: ${formData.service} - ${formData.name} from ${formData.company || 'N/A'}`;
+      
       await emailjs.send(
         'service_6j9tm4m',
         'template_yhii41g',
         {
           from_name: formData.name,
           from_email: formData.email,
-          phone: formData.phone,
-          company: formData.company,
+          phone: formData.phone || 'Not provided',
+          company: formData.company || 'Not provided',
           service: formData.service,
-          message: formData.message,
+          message: formData.message || 'No additional message provided',
+          subject: subject,
         },
         'rEsGrRh2EGJZawfqI'
       );
@@ -258,37 +262,37 @@ export default function ContactSection() {
 
               <div>
                 <label htmlFor="service" className="block text-warm text-sm font-medium mb-2">
-                  Service Interested In
+                  Service Interested In *
                 </label>
                 <select
                   id="service"
                   name="service"
                   value={formData.service}
                   onChange={handleChange}
+                  required
                   className="w-full px-4 py-3 rounded-xl bg-warm/5 border border-warm/20 text-warm focus:outline-none focus:border-neon transition-colors appearance-none"
                 >
                   <option value="" className="bg-jungle">Select a service...</option>
-                  <option value="AI Automation Setup" className="bg-jungle">AI Automation Setup — $997</option>
-                  <option value="Amazon Growth Management" className="bg-jungle">Amazon Growth Management — $999/mo</option>
-                  <option value="Brand Website Development" className="bg-jungle">Brand Website Development — $1,497</option>
-                  <option value="Free Audit" className="bg-jungle">Free Amazon Audit</option>
-                  <option value="Other" className="bg-jungle">Other / Not sure yet</option>
+                  <option value="ai_automation" className="bg-jungle">AI Automation Setup — $997</option>
+                  <option value="amazon_growth" className="bg-jungle">Amazon Growth Management — $999/mo</option>
+                  <option value="website_dev" className="bg-jungle">Brand Website Development — $1,497</option>
+                  <option value="audit" className="bg-jungle">Free Amazon Audit</option>
+                  <option value="other" className="bg-jungle">Other / Not sure yet</option>
                 </select>
               </div>
 
               <div>
                 <label htmlFor="message" className="block text-warm text-sm font-medium mb-2">
-                  Message *
+                  Tell us more about what you need (optional)
                 </label>
                 <textarea
                   id="message"
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
-                  required
                   rows={4}
                   className="w-full px-4 py-3 rounded-xl bg-warm/5 border border-warm/20 text-warm placeholder-warm/40 focus:outline-none focus:border-neon transition-colors resize-none"
-                  placeholder="Tell us about your biggest challenge..."
+                  placeholder="Example: I spend 10 hours a week on PPC monitoring and inventory tracking..."
                 />
               </div>
 
