@@ -73,6 +73,9 @@ export default function LeadMagnetSection() {
     setIsSubmitting(true);
     
     try {
+      // Format subject for Echo intent detection
+      const subject = `New Lead: audit - Audit Request from ${email.split('@')[0]}`;
+      
       await emailjs.send(
         'service_6j9tm4m',
         'template_yhii41g',
@@ -81,7 +84,8 @@ export default function LeadMagnetSection() {
           from_email: email,
           phone: '',
           company: storeUrl || 'Not provided',
-          service: 'Free Amazon Audit',
+          service: 'audit',
+          subject: subject,
           message: `Store URL: ${storeUrl || 'Not provided'}\n\nRequesting a free Amazon store audit.`,
         },
         'rEsGrRh2EGJZawfqI'
