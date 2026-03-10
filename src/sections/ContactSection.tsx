@@ -3,8 +3,10 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Send, Mail, Phone, MapPin, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
-import emailjs from '@emailjs/browser';
 import CalendlyButton from '../components/CalendlyButton';
+
+// API endpoint for sending emails
+const API_ENDPOINT = 'https://amajungle-email-api.vercel.app/api/send-email';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -78,20 +80,27 @@ export default function ContactSection() {
       // Format subject line: "New Lead: {service} - {name} from {company}"
       const subject = `New Lead: ${formData.service} - ${formData.name} from ${formData.company || 'N/A'}`;
       
-      await emailjs.send(
-        'service_6j9tm4m',
-        'template_yhii41g',
-        {
-          from_name: formData.name,
-          from_email: formData.email,
-          phone: formData.phone || 'Not provided',
-          company: formData.company || 'Not provided',
-          service: formData.service,
-          message: formData.message || 'No additional message provided',
-          subject: subject,
+      const response = await fetch(API_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        'rEsGrRh2EGJZawfqI'
-      );
+        body: JSON.stringify({
+          to_email: formData.email,
+          subject: subject,
+          from_name: formData.name,
+          service: formData.service,
+          client_name: formData.name,
+          client_email: formData.email,
+          client_phone: formData.phone || 'Not provided',
+          client_company: formData.company || 'Not provided',
+          client_message: formData.message || 'No additional message provided',
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to send email');
+      }
       
       toast.success('Message sent! We\'ll reply within 1 hour.');
       setFormData({ name: '', email: '', phone: '', company: '', service: '', message: '' });

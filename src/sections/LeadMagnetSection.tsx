@@ -3,7 +3,9 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Check, ArrowRight, Mail, Search, TrendingUp, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import emailjs from '@emailjs/browser';
+
+// API endpoint for sending emails
+const API_ENDPOINT = 'https://amajungle-email-api.vercel.app/api/send-email';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -76,20 +78,27 @@ export default function LeadMagnetSection() {
       // Format subject for Echo intent detection
       const subject = `New Lead: audit - Audit Request from ${email.split('@')[0]}`;
       
-      await emailjs.send(
-        'service_6j9tm4m',
-        'template_yhii41g',
-        {
-          from_name: 'Audit Request',
-          from_email: email,
-          phone: '',
-          company: storeUrl || 'Not provided',
-          service: 'audit',
-          subject: subject,
-          message: `Store URL: ${storeUrl || 'Not provided'}\n\nRequesting a free Amazon store audit.`,
+      const response = await fetch(API_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        'rEsGrRh2EGJZawfqI'
-      );
+        body: JSON.stringify({
+          to_email: email,
+          subject: subject,
+          from_name: 'Audit Request',
+          service: 'audit',
+          client_name: email.split('@')[0],
+          client_email: email,
+          client_phone: '',
+          client_company: storeUrl || 'Not provided',
+          client_message: `Store URL: ${storeUrl || 'Not provided'}\n\nRequesting a free Amazon store audit.`,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to send email');
+      }
       
       toast.success('Audit request received! Check your email in less than 1 hour.');
       setSubmitted(true);
