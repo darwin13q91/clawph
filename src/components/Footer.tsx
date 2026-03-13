@@ -51,6 +51,9 @@ export default function Footer() {
             <HashLink to="/#faq" className="text-warm-72 hover:text-warm transition-colors text-sm">
               FAQ
             </HashLink>
+            <a href="/compliance.html" className="text-warm-72 hover:text-warm transition-colors text-sm">
+              Compliance
+            </a>
             <HashLink to="/#contact" className="text-warm-72 hover:text-warm transition-colors text-sm">
               Contact
             </HashLink>
