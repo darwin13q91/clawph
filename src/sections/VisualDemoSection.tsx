@@ -111,7 +111,7 @@ export default function VisualDemoSection() {
             From Chaos to <span className="text-neon">Calm</span>
           </h2>
           <p className="text-warm-72 text-lg max-w-2xl mx-auto">
-            See how our AI intelligence transforms your daily workflow from overwhelming manual tasks to clear, actionable insights.
+            See how our AI intelligence transforms your daily workflow from overwhelming manual tasks to clear, actionable insights. <strong className="text-warm">We analyze. You decide. You execute.</strong>
           </p>
         </div>
 
@@ -162,18 +162,24 @@ export default function VisualDemoSection() {
               </div>
               <div>
                 <h3 className="font-display text-lg font-bold text-warm uppercase">
-                  Real-Time Analytics
+                  Intelligence Dashboard
                 </h3>
-                <p className="text-warm-72 text-sm">Track performance at a glance</p>
+                <p className="text-warm-72 text-sm">Insights and alerts — you make the decisions</p>
               </div>
             </div>
-            <div className="rounded-2xl overflow-hidden border border-warm/10">
+            <div className="rounded-2xl overflow-hidden border border-warm/10 relative">
               <img
                 src="/images/dashboard-mockup.png"
-                alt="Dashboard showing sales growth, PPC performance, inventory levels, and conversion rates"
+                alt="Intelligence dashboard showing inventory insights, PPC analysis, and pricing alerts — recommendations only, no automated actions"
                 className="w-full h-auto"
                 loading="lazy"
               />
+              {/* Compliance Badge Overlay */}
+              <div className="absolute bottom-4 left-4 right-4 bg-jungle/90 backdrop-blur-sm rounded-lg px-4 py-3 border border-neon/20">
+                <p className="text-neon text-xs font-mono text-center">
+                  ✓ Insights Only • No Seller Central Access • You Control All Actions
+                </p>
+              </div>
             </div>
           </div>
         </div>
