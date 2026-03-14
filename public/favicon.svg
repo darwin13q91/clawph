@@ -2,9 +2,22 @@
   <!-- Dark background for contrast -->
   <rect width="100" height="100" rx="15" fill="#0B3A2C"/>
   
-  <!-- Neon A letter for Amajungle -->
-  <text x="50" y="72" font-family="Arial, sans-serif" font-size="70" font-weight="bold" text-anchor="middle" fill="#CFFF00">A</text>
-  
-  <!-- Subtle leaf accent -->
-  <path d="M70 25 Q75 20 80 25 Q75 35 70 30 Z" fill="#CFFF00"/>
+  <!-- Jungle leaf A logo in neon lime -->
+  <g fill="#CFFF00">
+    <!-- Left leaf -->
+    <path d="M15 85 Q10 60 25 40 Q35 25 48 20 L48 50 Q35 55 25 70 Q18 80 15 85 Z"/>
+    <!-- Right leaf -->
+    <path d="M85 85 Q90 60 75 40 Q65 25 52 20 L52 50 Q65 55 75 70 Q82 80 85 85 Z"/>
+    
+    <!-- Top of A -->
+    <path d="M35 85 L50 20 L65 85 L55 85 L50 55 L45 85 Z"/>
+    <!-- Crossbar of A -->
+    <rect x="38" y="60" width="24" height="8" rx="2"/>
+    
+    <!-- Leaf veins/details -->
+    <path d="M25 45 L30 50" stroke="#0B3A2C" stroke-width="2" fill="none"/>
+    <path d="M22 60 L28 62" stroke="#0B3A2C" stroke-width="2" fill="none"/>
+    <path d="M75 45 L70 50" stroke="#0B3A2C" stroke-width="2" fill="none"/>
+    <path d="M78 60 L72 62" stroke="#0B3A2C" stroke-width="2" fill="none"/>
+  </g>
 </svg>
