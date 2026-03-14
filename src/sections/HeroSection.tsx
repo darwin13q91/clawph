@@ -14,44 +14,44 @@ export default function HeroSection() {
   const ctaRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
 
-  // Auto-play entrance animation on load
+  // Auto-play entrance animation on load - Standardized 0.6s duration with 0.1s stagger
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.6 } });
 
       tl.fromTo(
         bgRef.current,
         { opacity: 0, scale: 1.06 },
-        { opacity: 1, scale: 1, duration: 0.8 },
+        { opacity: 1, scale: 1 },
         0
       );
 
       tl.fromTo(
         headlineRef.current,
         { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6 },
-        0.2
+        { y: 0, opacity: 1 },
+        0.1
       );
 
       tl.fromTo(
         painPointsRef.current,
         { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5 },
-        0.4
+        { y: 0, opacity: 1 },
+        0.2
       );
 
       tl.fromTo(
         solutionRef.current,
         { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5 },
-        0.55
+        { y: 0, opacity: 1 },
+        0.3
       );
 
       tl.fromTo(
         ctaRef.current,
         { y: 15, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.45 },
-        0.7
+        { y: 0, opacity: 1 },
+        0.4
       );
     }, sectionRef);
 

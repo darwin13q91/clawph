@@ -55,7 +55,7 @@ export default function CalendlyButton({
               <button
                 onClick={() => setIsOpen(false)}
                 aria-label="Close scheduling dialog"
-                className="w-10 h-10 rounded-full bg-warm/5 flex items-center justify-center text-warm-72 hover:bg-warm/10 hover:text-warm transition-colors"
+                className="w-10 h-10 rounded-full bg-warm/5 flex items-center justify-center text-warm-72 hover:bg-warm/10 hover:text-warm transition-colors duration-300"
               >
                 <X size={20} />
               </button>

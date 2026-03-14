@@ -108,7 +108,7 @@ export default function HowItWorksSection() {
             <div
               key={step.number}
               ref={(el) => { stepsRef.current[index] = el; }}
-              className="flex flex-col sm:flex-row items-start gap-6 p-6 lg:p-8 rounded-3xl bg-warm/5 border border-warm/10 hover:border-neon/30 transition-colors"
+              className="flex flex-col sm:flex-row items-start gap-6 p-6 lg:p-8 rounded-3xl bg-warm/5 border border-warm/10 hover:border-neon/30 transition-colors duration-300"
             >
               {/* Number & Icon */}
               <div className="flex items-center gap-4 sm:w-48 flex-shrink-0">

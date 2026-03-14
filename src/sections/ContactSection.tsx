@@ -216,7 +216,7 @@ export default function ContactSection() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 rounded-xl bg-warm/5 border border-warm/20 text-warm placeholder-warm/40 focus:outline-none focus:border-neon transition-colors"
+                  className="w-full px-4 py-3 rounded-xl bg-warm/5 border border-warm/20 text-warm placeholder-warm/40 focus:outline-none focus:border-neon transition-colors duration-300"
                   placeholder="Your name"
                 />
               </div>
@@ -232,7 +232,7 @@ export default function ContactSection() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 rounded-xl bg-warm/5 border border-warm/20 text-warm placeholder-warm/40 focus:outline-none focus:border-neon transition-colors"
+                  className="w-full px-4 py-3 rounded-xl bg-warm/5 border border-warm/20 text-warm placeholder-warm/40 focus:outline-none focus:border-neon transition-colors duration-300"
                   placeholder="you@company.com"
                 />
               </div>
@@ -248,7 +248,7 @@ export default function ContactSection() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl bg-warm/5 border border-warm/20 text-warm placeholder-warm/40 focus:outline-none focus:border-neon transition-colors"
+                    className="w-full px-4 py-3 rounded-xl bg-warm/5 border border-warm/20 text-warm placeholder-warm/40 focus:outline-none focus:border-neon transition-colors duration-300"
                     placeholder="+1 (555) 000-0000"
                   />
                 </div>
@@ -263,7 +263,7 @@ export default function ContactSection() {
                     name="company"
                     value={formData.company}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl bg-warm/5 border border-warm/20 text-warm placeholder-warm/40 focus:outline-none focus:border-neon transition-colors"
+                    className="w-full px-4 py-3 rounded-xl bg-warm/5 border border-warm/20 text-warm placeholder-warm/40 focus:outline-none focus:border-neon transition-colors duration-300"
                     placeholder="Your brand or store"
                   />
                 </div>
@@ -280,7 +280,7 @@ export default function ContactSection() {
                     value={formData.service}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 pr-12 rounded-xl bg-warm/5 border border-warm/20 text-warm focus:outline-none focus:border-neon transition-colors appearance-none cursor-pointer"
+                    className="w-full px-4 py-3 pr-12 rounded-xl bg-warm/5 border border-warm/20 text-warm focus:outline-none focus:border-neon transition-colors duration-300 appearance-none cursor-pointer"
                   >
                     <option value="" className="bg-jungle">Select a service...</option>
                     <option value="ai_automation" className="bg-jungle">AI Intelligence Setup — $997</option>
@@ -303,7 +303,7 @@ export default function ContactSection() {
                   value={formData.message}
                   onChange={handleChange}
                   rows={4}
-                  className="w-full px-4 py-3 rounded-xl bg-warm/5 border border-warm/20 text-warm placeholder-warm/40 focus:outline-none focus:border-neon transition-colors resize-none"
+                  className="w-full px-4 py-3 rounded-xl bg-warm/5 border border-warm/20 text-warm placeholder-warm/40 focus:outline-none focus:border-neon transition-colors duration-300 resize-none"
                   placeholder="Example: I spend 10 hours a week on PPC monitoring and inventory tracking..."
                 />
               </div>

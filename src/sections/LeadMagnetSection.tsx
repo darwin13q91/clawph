@@ -190,7 +190,7 @@ export default function LeadMagnetSection() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@yourstore.com"
-                        className="w-full pl-12 pr-4 py-4 rounded-xl bg-warm/5 border border-warm/20 text-warm placeholder-warm/40 focus:outline-none focus:border-neon transition-colors"
+                        className="w-full pl-12 pr-4 py-4 rounded-xl bg-warm/5 border border-warm/20 text-warm placeholder-warm/40 focus:outline-none focus:border-neon transition-colors duration-300"
                         required
                       />
                     </div>
@@ -205,7 +205,7 @@ export default function LeadMagnetSection() {
                       value={storeUrl}
                       onChange={(e) => setStoreUrl(e.target.value)}
                       placeholder="https://www.amazon.com/dp/B08N5WRWNW or https://amazon.com/sp?seller=..."
-                      className="w-full px-4 py-4 rounded-xl bg-warm/5 border border-warm/20 text-warm placeholder-warm/40 focus:outline-none focus:border-neon transition-colors"
+                      className="w-full px-4 py-4 rounded-xl bg-warm/5 border border-warm/20 text-warm placeholder-warm/40 focus:outline-none focus:border-neon transition-colors duration-300"
                     />
                   </div>
 

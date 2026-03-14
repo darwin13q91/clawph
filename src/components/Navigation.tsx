@@ -56,31 +56,31 @@ export default function Navigation() {
           <div className="hidden md:flex items-center gap-8">
             <button
               onClick={() => scrollToSection('audit')}
-              className="text-warm-72 hover:text-warm transition-colors text-sm font-medium"
+              className="text-warm-72 hover:text-warm transition-colors duration-300 text-sm font-medium"
             >
               Free Audit
             </button>
             <button
               onClick={() => scrollToSection('demo')}
-              className="text-warm-72 hover:text-warm transition-colors text-sm font-medium"
+              className="text-warm-72 hover:text-warm transition-colors duration-300 text-sm font-medium"
             >
               See Demo
             </button>
             <button
               onClick={() => scrollToSection('process')}
-              className="text-warm-72 hover:text-warm transition-colors text-sm font-medium"
+              className="text-warm-72 hover:text-warm transition-colors duration-300 text-sm font-medium"
             >
               How It Works
             </button>
             <button
               onClick={() => scrollToSection('pricing')}
-              className="text-warm-72 hover:text-warm transition-colors text-sm font-medium"
+              className="text-warm-72 hover:text-warm transition-colors duration-300 text-sm font-medium"
             >
               Pricing
             </button>
             <Link
               to="/about"
-              className="text-warm-72 hover:text-warm transition-colors text-sm font-medium"
+              className="text-warm-72 hover:text-warm transition-colors duration-300 text-sm font-medium"
             >
               About
             </Link>
@@ -118,32 +118,32 @@ export default function Navigation() {
         <div className="flex flex-col items-center justify-center h-full gap-6 pt-20">
           <button
             onClick={() => scrollToSection('audit')}
-            className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
+            className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
           >
             Free Audit
           </button>
           <button
             onClick={() => scrollToSection('demo')}
-            className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
+            className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
           >
             See Demo
           </button>
           <button
             onClick={() => scrollToSection('process')}
-            className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
+            className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
           >
             How It Works
           </button>
           <button
             onClick={() => scrollToSection('pricing')}
-            className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
+            className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
           >
             Pricing
           </button>
           <Link
             to="/about"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
+            className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
           >
             About
           </Link>

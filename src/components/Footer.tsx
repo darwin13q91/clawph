@@ -42,19 +42,19 @@ export default function Footer() {
 
           {/* Links */}
           <div className="flex flex-wrap items-center justify-center gap-6">
-            <HashLink to="/#demo" className="text-warm-72 hover:text-warm transition-colors text-sm">
+            <HashLink to="/#demo" className="text-warm-72 hover:text-warm transition-colors duration-300 text-sm">
               Demo
             </HashLink>
-            <HashLink to="/#pricing" className="text-warm-72 hover:text-warm transition-colors text-sm">
+            <HashLink to="/#pricing" className="text-warm-72 hover:text-warm transition-colors duration-300 text-sm">
               Pricing
             </HashLink>
-            <HashLink to="/#faq" className="text-warm-72 hover:text-warm transition-colors text-sm">
+            <HashLink to="/#faq" className="text-warm-72 hover:text-warm transition-colors duration-300 text-sm">
               FAQ
             </HashLink>
-            <a href="/compliance.html" className="text-warm-72 hover:text-warm transition-colors text-sm">
+            <a href="/compliance.html" className="text-warm-72 hover:text-warm transition-colors duration-300 text-sm">
               Compliance
             </a>
-            <HashLink to="/#contact" className="text-warm-72 hover:text-warm transition-colors text-sm">
+            <HashLink to="/#contact" className="text-warm-72 hover:text-warm transition-colors duration-300 text-sm">
               Contact
             </HashLink>
           </div>
