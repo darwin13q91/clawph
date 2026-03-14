@@ -304,7 +304,7 @@ export default function AboutPage() {
             </p>
             <p>
               Our founder, Allysa Kate Estardo, spent over a decade in the Amazon ecosystem. 
-              She started at Teleperformance, helping sellers navigate account concerns, subscription fees, 
+              She started as an Amazon Seller Support, helping sellers navigate account concerns, subscription fees, 
               listings, and shipment discrepancies across FBM, FBA, and ILAC platforms.
             </p>
             <p>
