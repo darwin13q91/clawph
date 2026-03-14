@@ -67,19 +67,24 @@
       gap: 12px;
       text-decoration: none;
       color: var(--warm);
+      transition: opacity 0.3s ease;
     }
-    
+
+    .logo:hover {
+      opacity: 0.8;
+    }
+
     .logo-icon {
       width: 40px;
       height: 40px;
-      background: linear-gradient(135deg, var(--neon) 0%, var(--jungle-light) 100%);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
+      filter: drop-shadow(0 0 8px rgba(207, 255, 0, 0.5));
     }
-    
+
+    .logo-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
     .logo-text {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 24px;
@@ -251,10 +256,89 @@
     
     /* Footer */
     footer {
-      text-align: center;
-      padding: 40px 0;
+      background: var(--jungle-dark);
+      border-top: 1px solid rgba(207, 255, 0, 0.1);
+      padding: 48px 0;
+    }
+
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--warm);
+      transition: opacity 0.3s ease;
+    }
+
+    .footer-logo:hover {
+      opacity: 0.8;
+    }
+
+    .footer-logo-icon {
+      width: 32px;
+      height: 32px;
+      filter: drop-shadow(0 0 6px rgba(207, 255, 0, 0.4));
+    }
+
+    .footer-logo-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .footer-logo-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      color: var(--warm-72);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--warm);
+    }
+
+    .footer-divider {
+      width: 100%;
+      max-width: 600px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(207, 255, 0, 0.2), transparent);
+    }
+
+    .footer-copyright {
       color: var(--warm-48);
       font-size: 14px;
+    }
+
+    .footer-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--warm-48);
+      font-size: 12px;
+    }
+
+    .footer-badge .divider {
+      color: rgba(246, 247, 235, 0.3);
     }
     
     /* Responsive */
@@ -278,7 +362,58 @@
     <div class="container">
       <div class="header-content">
         <a href="/" class="logo">
-          <div class="logo-icon">🌿</div>
+          <div class="logo-icon">
+            <svg viewBox="0 0 100 100" width="40" height="40">
+              <!-- Circuit paths -->
+              <g fill="none" stroke="#CFFF00" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <!-- Main stem -->
+                <path d="M50 85 L50 50" />
+                <!-- Left side branches -->
+                <path d="M50 50 L30 40 L20 35" />
+                <path d="M50 50 L35 55 L25 60" />
+                <path d="M50 50 L40 45 L28 42" />
+                <path d="M50 65 L35 70 L25 75" />
+                <path d="M50 35 L38 30 L28 25" />
+                <!-- Right side branches -->
+                <path d="M50 50 L70 40 L80 35" />
+                <path d="M50 50 L65 55 L75 60" />
+                <path d="M50 50 L60 45 L72 42" />
+                <path d="M50 65 L65 70 L75 75" />
+                <path d="M50 35 L62 30 L72 25" />
+                <!-- Cross connections -->
+                <path d="M30 40 L35 55" />
+                <path d="M70 40 L65 55" />
+                <path d="M35 70 L40 45" />
+                <path d="M65 70 L60 45" />
+                <path d="M38 30 L42 25" />
+                <path d="M62 30 L58 25" />
+              </g>
+              <!-- Glowing nodes -->
+              <g fill="#CFFF00">
+                <!-- Center hub -->
+                <circle cx="50" cy="50" r="4" />
+                <!-- Stem nodes -->
+                <circle cx="50" cy="65" r="2.5" />
+                <circle cx="50" cy="35" r="2.5" />
+                <!-- Left nodes -->
+                <circle cx="30" cy="40" r="2" />
+                <circle cx="20" cy="35" r="2" />
+                <circle cx="25" cy="60" r="2" />
+                <circle cx="28" cy="42" r="2" />
+                <circle cx="25" cy="75" r="2" />
+                <circle cx="28" cy="25" r="2" />
+                <!-- Right nodes -->
+                <circle cx="70" cy="40" r="2" />
+                <circle cx="80" cy="35" r="2" />
+                <circle cx="75" cy="60" r="2" />
+                <circle cx="72" cy="42" r="2" />
+                <circle cx="75" cy="75" r="2" />
+                <circle cx="72" cy="25" r="2" />
+              </g>
+              <!-- Outer glow ring -->
+              <circle cx="50" cy="50" r="42" fill="none" stroke="#CFFF00" stroke-width="0.5" opacity="0.2" />
+            </svg>
+          </div>
           <span class="logo-text">amajungle</span>
         </a>
         <a href="/" class="back-link">← Back to Home</a>
@@ -396,9 +531,87 @@
 
   <footer>
     <div class="container">
-      <p>Last updated: March 2026 | Amajungle Compliance Team</p>
-      <p style="margin-top: 8px;"><span style="font-size: 16px;">🌊</span> Powered by River AI Technology | 23 specialized Amazon intelligence modes | Compliance-first</p>
-      <p style="margin-top: 8px;"><a href="/" style="color: var(--neon); text-decoration: none;">← Back to Amajungle</a></p>
+      <div class="footer-content">
+        <!-- Footer Logo -->
+        <a href="/" class="footer-logo">
+          <div class="footer-logo-icon">
+            <svg viewBox="0 0 100 100" width="32" height="32">
+              <!-- Circuit paths -->
+              <g fill="none" stroke="#CFFF00" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <!-- Main stem -->
+                <path d="M50 85 L50 50" />
+                <!-- Left side branches -->
+                <path d="M50 50 L30 40 L20 35" />
+                <path d="M50 50 L35 55 L25 60" />
+                <path d="M50 50 L40 45 L28 42" />
+                <path d="M50 65 L35 70 L25 75" />
+                <path d="M50 35 L38 30 L28 25" />
+                <!-- Right side branches -->
+                <path d="M50 50 L70 40 L80 35" />
+                <path d="M50 50 L65 55 L75 60" />
+                <path d="M50 50 L60 45 L72 42" />
+                <path d="M50 65 L65 70 L75 75" />
+                <path d="M50 35 L62 30 L72 25" />
+                <!-- Cross connections -->
+                <path d="M30 40 L35 55" />
+                <path d="M70 40 L65 55" />
+                <path d="M35 70 L40 45" />
+                <path d="M65 70 L60 45" />
+                <path d="M38 30 L42 25" />
+                <path d="M62 30 L58 25" />
+              </g>
+              <!-- Glowing nodes -->
+              <g fill="#CFFF00">
+                <!-- Center hub -->
+                <circle cx="50" cy="50" r="4" />
+                <!-- Stem nodes -->
+                <circle cx="50" cy="65" r="2.5" />
+                <circle cx="50" cy="35" r="2.5" />
+                <!-- Left nodes -->
+                <circle cx="30" cy="40" r="2" />
+                <circle cx="20" cy="35" r="2" />
+                <circle cx="25" cy="60" r="2" />
+                <circle cx="28" cy="42" r="2" />
+                <circle cx="25" cy="75" r="2" />
+                <circle cx="28" cy="25" r="2" />
+                <!-- Right nodes -->
+                <circle cx="70" cy="40" r="2" />
+                <circle cx="80" cy="35" r="2" />
+                <circle cx="75" cy="60" r="2" />
+                <circle cx="72" cy="42" r="2" />
+                <circle cx="75" cy="75" r="2" />
+                <circle cx="72" cy="25" r="2" />
+              </g>
+              <!-- Outer glow ring -->
+              <circle cx="50" cy="50" r="42" fill="none" stroke="#CFFF00" stroke-width="0.5" opacity="0.2" />
+            </svg>
+          </div>
+          <span class="footer-logo-text">amajungle</span>
+        </a>
+
+        <!-- Footer Links -->
+        <nav class="footer-links">
+          <a href="/">Home</a>
+          <a href="/compliance.html">Compliance</a>
+          <a href="/#contact">Contact</a>
+        </nav>
+
+        <!-- Divider -->
+        <div class="footer-divider"></div>
+
+        <!-- Copyright -->
+        <p class="footer-copyright">© 2026 amajungle. All rights reserved.</p>
+
+        <!-- River AI Technology Badge -->
+        <div class="footer-badge">
+          <span style="font-size: 16px;">🌊</span>
+          <span>Powered by River AI Technology</span>
+          <span class="divider">|</span>
+          <span>23 specialized Amazon intelligence modes</span>
+          <span class="divider">|</span>
+          <span>Compliance-first recommendations</span>
+        </div>
+      </div>
     </div>
   </footer>
 </body>
