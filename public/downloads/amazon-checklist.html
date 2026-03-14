@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon Seller's Pre-Launch Checklist | Amajungle</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=League+Spartan:wght@700;800;900&display=swap');
+    
+    :root {
+      --jungle-green: #0B3A2C;
+      --jungle-light: #165C46;
+      --violet: #6E2E8C;
+      --neon-lime: #CFFF00;
+      --neon-light: #E5FF66;
+      --warm-white: #F6F7EB;
+      --warm-gray: #C5C7B8;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--jungle-green);
+      color: var(--warm-white);
+      line-height: 1.6;
+    }
+    
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      padding: 40px 50px;
+      background: var(--jungle-green);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Decorative elements */
+    .glow-top {
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(207,255,0,0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    
+    .glow-bottom {
+      position: absolute;
+      bottom: -150px;
+      left: -150px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(110,46,140,0.2) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 40px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--neon-lime), #9FE870);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'League Spartan', sans-serif;
+      font-weight: 900;
+      font-size: 24px;
+      color: var(--jungle-green);
+    }
+    
+    .logo-text {
+      font-family: 'League Spartan', sans-serif;
+      font-weight: 800;
+      font-size: 28px;
+      letter-spacing: -0.02em;
+    }
+    
+    .header-tag {
+      background: rgba(207,255,0,0.1);
+      border: 1px solid rgba(207,255,0,0.3);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--neon-lime);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Title Section */
+    .title-section {
+      text-align: center;
+      margin-bottom: 50px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .title-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(207,255,0,0.1);
+      padding: 10px 20px;
+      border-radius: 30px;
+      margin-bottom: 24px;
+    }
+    
+    .title-badge svg {
+      width: 16px;
+      height: 16px;
+      color: var(--neon-lime);
+    }
+    
+    .title-badge span {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--neon-lime);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    h1 {
+      font-family: 'League Spartan', sans-serif;
+      font-weight: 900;
+      font-size: 42px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    
+    .gradient-text {
+      background: linear-gradient(135deg, var(--neon-lime) 0%, #9FE870 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .subtitle {
+      font-size: 18px;
+      color: var(--warm-gray);
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    /* Intro Box */
+    .intro-box {
+      background: linear-gradient(135deg, rgba(110,46,140,0.3), rgba(22,92,70,0.3));
+      border: 1px solid rgba(207,255,0,0.2);
+      border-radius: 16px;
+      padding: 24px 30px;
+      margin-bottom: 40px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .intro-box p {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--warm-white);
+    }
+    
+    .intro-box strong {
+      color: var(--neon-lime);
+    }
+    
+    /* Checklist Items */
+    .checklist {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .checklist-item {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 28px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid rgba(246,247,235,0.1);
+    }
+    
+    .checklist-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    
+    .item-number {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--neon-lime), #9FE870);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'League Spartan', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      color: var(--jungle-green);
+      flex-shrink: 0;
+    }
+    
+    .item-content h3 {
+      font-family: 'League Spartan', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: var(--warm-white);
+    }
+    
+    .item-content p {
+      font-size: 14px;
+      color: var(--warm-gray);
+      line-height: 1.6;
+    }
+    
+    .item-content .tip {
+      margin-top: 10px;
+      padding: 10px 14px;
+      background: rgba(207,255,0,0.08);
+      border-left: 3px solid var(--neon-lime);
+      border-radius: 0 8px 8px 0;
+      font-size: 13px;
+      color: var(--warm-white);
+    }
+    
+    .item-content .tip strong {
+      color: var(--neon-lime);
+    }
+    
+    /* Page 2 Styles */
+    .page-2 .checklist-item:first-child .item-number {
+      background: linear-gradient(135deg, var(--violet), #8B4FA3);
+      color: var(--warm-white);
+    }
+    
+    /* CTA Section */
+    .cta-section {
+      background: linear-gradient(135deg, rgba(207,255,0,0.1), rgba(110,46,140,0.2));
+      border: 2px solid rgba(207,255,0,0.3);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      margin-top: 50px;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .cta-section h2 {
+      font-family: 'League Spartan', sans-serif;
+      font-weight: 800;
+      font-size: 28px;
+      margin-bottom: 16px;
+    }
+    
+    .cta-section p {
+      font-size: 15px;
+      color: var(--warm-gray);
+      margin-bottom: 24px;
+      max-width: 450px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, var(--neon-lime), #9FE870);
+      color: var(--jungle-green);
+      font-weight: 700;
+      font-size: 16px;
+      padding: 16px 32px;
+      border-radius: 12px;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(207,255,0,0.3);
+    }
+    
+    /* Footer */
+    .footer {
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(246,247,235,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .footer-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--neon-lime), #9FE870);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'League Spartan', sans-serif;
+      font-weight: 900;
+      font-size: 16px;
+      color: var(--jungle-green);
+    }
+    
+    .footer-info h4 {
+      font-family: 'League Spartan', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 2px;
+    }
+    
+    .footer-info p {
+      font-size: 12px;
+      color: var(--warm-gray);
+    }
+    
+    .footer-right {
+      text-align: right;
+    }
+    
+    .footer-right p {
+      font-size: 12px;
+      color: var(--warm-gray);
+    }
+    
+    .footer-right a {
+      color: var(--neon-lime);
+      text-decoration: none;
+    }
+    
+    /* Print Styles */
+    @media print {
+      .page {
+        width: 100%;
+        margin: 0;
+        padding: 30px 40px;
+      }
+      
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+    
+    /* Page break */
+    .page-break {
+      page-break-before: always;
+    }
+  </style>
+</head>
+<body>
+  <!-- Page 1 -->
+  <div class="page">
+    <div class="glow-top"></div>
+    <div class="glow-bottom"></div>
+    
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">A</div>
+        <div class="logo-text">amajungle</div>
+      </div>
+      <div class="header-tag">Free Resource</div>
+    </header>
+    
+    <section class="title-section">
+      <div class="title-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>The 12-Point Checklist</span>
+      </div>
+      <h1>
+        Amazon Seller's<br>
+        <span class="gradient-text">Pre-Launch Checklist</span>
+      </h1>
+      <p class="subtitle">The critical checkpoints that separate sellers who launch to crickets from sellers who hit the ground running</p>
+    </section>
+    
+    <div class="intro-box">
+      <p><strong>Most Amazon sellers skip 3-4 of these steps.</strong> Then they wonder why their product ranks on page 5, gets no reviews, and bleeds money on PPC. This checklist isn't theory — it's the exact process used by 7-figure sellers to launch products that convert from day one.</p>
+    </div>
+    
+    <div class="checklist">
+      <!-- Items 1-6 -->
+      <div class="checklist-item">
+        <div class="item-number">01</div>
+        <div class="item-content">
+          <h3>Validate Demand Beyond "It Looks Good"</h3>
+          <p>Don't trust your gut. Use tools like Helium 10 or Jungle Scout to verify monthly search volume (aim for 3K+), check sales velocity, and analyze the revenue distribution among top sellers.</p>
+          <div class="tip"><strong>Red Flag:</strong> If the top 3 sellers own 80%+ of the market, it's likely too concentrated.</div>
+        </div>
+      </div>
+      
+      <div class="checklist-item">
+        <div class="item-number">02</div>
+        <div class="item-content">
+          <h3>Calculate True Profit Margins (Not Just "Seems Good")</h3>
+          <p>Include ALL costs: COGS, FBA fees, shipping to Amazon, PPC (15-30% of revenue), returns (5-10%), and storage fees. Target 25%+ net margin after everything.</p>
+          <div class="tip"><strong>Use the formula:</strong> Sale Price - (COGS + FBA + PPC + Returns + Storage) = True Profit</div>
+        </div>
+      </div>
+      
+      <div class="checklist-item">
+        <div class="item-number">03</div>
+        <div class="item-content">
+          <h3>Analyze Reviews for Weaknesses</h3>
+          <p>Read 50+ reviews of your top 5 competitors. Look for recurring complaints — these are product improvements waiting to happen. Also note what's praised; that's your baseline.</p>
+          <div class="tip"><strong>Pro Move:</strong> Create a spreadsheet categorizing complaints by frequency. Address the top 3 in your product design.</div>
+        </div>
+      </div>
+      
+      <div class="checklist-item">
+        <div class="item-number">04</div>
+        <div class="item-content">
+          <h3>Verify Your Differentiation Is Real</h3>
+          <p>"Better quality" isn't differentiation. "Comes with X accessory" is. Your unique angle must be visible in the main image and stated in the title.</p>
+          <div class="tip"><strong>Test It:</strong> Can someone understand why they should buy yours in 3 seconds? If not, sharpen your angle.</div>
+        </div>
+      </div>
+      
+      <div class="checklist-item">
+        <div class="item-number">05</div>
+        <div class="item-content">
+          <h3>Design Images for Mobile-First Shopping</h3>
+          <p>60%+ of Amazon shopping happens on mobile. Your main image needs to communicate value at thumbnail size. Lifestyle images should show the product IN USE, not just floating on white.</p>
+          <div class="tip"><strong>Checklist:</strong> Main image shows product in context? Text readable on phone? 7 images total with infographics?</div>
+        </div>
+      </div>
+      
+      <div class="checklist-item">
+        <div class="item-number">06</div>
+        <div class="item-content">
+          <h3>Write Bullets That Sell Benefits, Not Features</h3>
+          <p>Don't say "Made of 100% cotton." Say "Sleep cooler with breathable 100% cotton that wicks away moisture." Lead with the outcome, support with the feature.</p>
+          <div class="tip"><strong>Formula:</strong> [Benefit] + [Feature] + [Proof/Result]. Apply to all 5 bullets.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Page 2 -->
+  <div class="page page-2">
+    <div class="glow-top"></div>
+    
+    <div class="checklist">
+      <!-- Items 7-12 -->
+      <div class="checklist-item">
+        <div class="item-number">07</div>
+        <div class="item-content">
+          <h3>Master Backend Keywords (Most Sellers Skip This)</h3>
+          <p>Use all 249 bytes in your backend search terms. Include synonyms, misspellings, Spanish terms, and related uses. Don't repeat words from your title or bullets — it's wasted space.</p>
+          <div class="tip"><strong>Hidden Gem:</strong> Use spaces, not commas, to maximize character usage. "water bottle sport" > "water,bottle,sport"</div>
+        </div>
+      </div>
+      
+      <div class="checklist-item">
+        <div class="item-number">08</div>
+        <div class="item-content">
+          <h3>Plan Your Launch Budget (PPC Isn't Optional)</h3>
+          <p>You need 50-100 units for giveaways/rebates and $500-1000 for PPC in month one. If you can't afford this, delay launch. A product without momentum dies.</p>
+          <div class="tip"><strong>Budget Rule:</strong> Have 2x your COGS available in cash for launch activities. This covers giveaways, PPC, and initial ad spend.</div>
+        </div>
+      </div>
+      
+      <div class="checklist-item">
+        <div class="item-number">09</div>
+        <div class="item-content">
+          <h3>Set Up Your Review Generation System</h3>
+          <p>You need 10-15 reviews for social proof. Use the Request a Review button manually, or better, set up automated follow-up sequences. Have a plan for getting those first critical reviews.</p>
+          <div class="tip"><strong>Ethical Hack:</strong> Launch at a slight discount to drive volume faster. Volume = more review opportunities.</div>
+        </div>
+      </div>
+      
+      <div class="checklist-item">
+        <div class="item-number">10</div>
+        <div class="item-content">
+          <h3>Check for IP/Hazmat/Restricted Issues</h3>
+          <p>Before you order inventory, verify your product isn't restricted, hazmat, or IP-protected. One surprise here can kill your entire investment.</p>
+          <div class="tip"><strong>Verify:</strong> Search Amazon's restricted products list, check for patents/trademarks, and confirm your supplier has the right certifications.</div>
+        </div>
+      </div>
+      
+      <div class="checklist-item">
+        <div class="item-number">11</div>
+        <div class="item-content">
+          <h3>Create Your Brand Story (A+ Content)</h3>
+          <p>If you're Brand Registered, A+ Content can increase conversion by 5-10%. Tell your brand story, show comparison charts, and add lifestyle imagery. Do this BEFORE launch.</p>
+          <div class="tip"><strong>Structure:</strong> Brand Story (emotional) → Product Comparison (rational) → Lifestyle Images (aspirational).</div>
+        </div>
+      </div>
+      
+      <div class="checklist-item">
+        <div class="item-number">12</div>
+        <div class="item-content">
+          <h3>Build Your Post-Launch Monitoring System</h3>
+          <p>Set up alerts for Buy Box loss, negative reviews, and inventory levels. Know your key metrics (conversion rate, ACOS, sessions) and check them weekly minimum.</p>
+          <div class="tip"><strong>Automation:</strong> Use tools like Helium 10 Alerts or build custom notifications. The faster you catch issues, the faster you fix them.</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="cta-section">
+      <h2>Want to <span class="gradient-text">Automate</span> This Process?</h2>
+      <p>Building a successful Amazon business means repeating this process for every product. What if AI handled the repetitive work — monitoring, alerts, PPC adjustments — while you focused on strategy?</p>
+      <a href="https://amajungle.com" class="cta-button">
+        Book a Free Strategy Call
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
+      </a>
+    </div>
+    
+    
+    <footer class="footer">
+      <div class="footer-left">
+        <div class="footer-logo">A</div>
+        <div class="footer-info">
+          <h4>amajungle</h4>
+          <p>AI Automation for Amazon Sellers</p>
+        </div>
+      </div>
+      <div class="footer-right">
+        <p>hello@amajungle.com</p>
+        <p><a href="https://amajungle.com">amajungle.com</a></p>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

@@ -8,6 +8,7 @@ import { Analytics } from '@vercel/analytics/react';
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
+import LeadMagnetPopup from './components/LeadMagnetPopup';
 
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -123,6 +124,13 @@ function App() {
       <div className="relative bg-jungle min-h-screen">
         {/* Grain overlay */}
         <div className="grain-overlay" />
+
+        {/* Lead Magnet Popup - Exit Intent & Timer */}
+        <LeadMagnetPopup 
+          delayMs={30000}  // Show after 30 seconds
+          exitIntent={true} // Also show on exit intent
+          cookieDays={7}   // Don't show again for 7 days if dismissed
+        />
 
         {/* Toast notifications */}
         <Toaster 
