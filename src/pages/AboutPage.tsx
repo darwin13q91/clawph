@@ -45,7 +45,7 @@ const whyDifferent = [
   {
     title: 'VAs need training & management',
     subtitle: 'AI delivers insights 24/7 instantly',
-    description: 'Virtual assistants are great but need oversight. AI intelligence just... works. Monitoring while you sleep, recommendations when you wake.',
+    description: 'Virtual assistants are great but need oversight. AI intelligence just... works. Continuous monitoring, instant recommendations when you need them.',
   },
 ];
 

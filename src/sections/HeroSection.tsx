@@ -122,7 +122,7 @@ export default function HeroSection() {
     '❌ Spending 10+ hours/week on repetitive Amazon tasks',
     '❌ PPC campaigns bleeding money with no ROI',
     '❌ Listings that don\'t convert or rank',
-    '❌ Missing opportunities while you sleep',
+    '❌ Missing opportunities you don't have bandwidth to catch',
   ];
 
   return (
