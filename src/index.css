@@ -44,12 +44,17 @@
   
   html {
     scroll-behavior: smooth;
+    height: 100%;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
   }
   
   body {
     @apply bg-[#0B3A2C] text-[#F6F7EB];
     font-family: 'Inter', sans-serif;
     overflow-x: hidden;
+    min-height: 100%;
+    position: relative;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -347,6 +352,21 @@
 :focus-visible {
   outline: 2px solid var(--neon-lime);
   outline-offset: 2px;
+}
+
+/* Ensure root element allows scrolling */
+#root {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Prevent scroll blocking from fixed overlays */
+.fixed-overlay {
+  pointer-events: none;
+}
+
+.fixed-overlay > * {
+  pointer-events: auto;
 }
 
 /* Remove default focus outline for mouse users */

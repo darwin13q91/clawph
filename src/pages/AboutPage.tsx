@@ -1,4 +1,4 @@
-import { useRef, useLayoutEffect, useState } from 'react';
+import { useRef, useLayoutEffect, useState, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowLeft, Clock, Shield, Zap, MessageCircle, Menu, X } from 'lucide-react';
@@ -57,73 +57,90 @@ export default function AboutPage() {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Handle body scroll lock when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
+
   const handleHashLink = (e: React.MouseEvent, to: string) => {
     e.preventDefault();
     navigate(to);
   };
 
   useLayoutEffect(() => {
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
     const ctx = gsap.context(() => {
+      // Simpler animations without scrub for smoother scroll
       gsap.fromTo(
         heroRef.current,
-        { y: '4vh', opacity: 0 },
+        { y: 30, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          duration: 0.8,
+          duration: 0.6,
+          ease: 'power2.out',
           scrollTrigger: {
             trigger: heroRef.current,
-            start: 'top 80%',
-            end: 'top 50%',
-            scrub: 0.5,
+            start: 'top 85%',
+            toggleActions: 'play none none none',
           },
         }
       );
 
       gsap.fromTo(
         storyRef.current,
-        { y: '6vh', opacity: 0 },
+        { y: 30, opacity: 0 },
         {
           y: 0,
           opacity: 1,
           duration: 0.6,
+          ease: 'power2.out',
           scrollTrigger: {
             trigger: storyRef.current,
-            start: 'top 80%',
-            end: 'top 55%',
-            scrub: 0.5,
+            start: 'top 85%',
+            toggleActions: 'play none none none',
           },
         }
       );
 
       gsap.fromTo(
         valuesRef.current,
-        { y: '6vh', opacity: 0 },
+        { y: 30, opacity: 0 },
         {
           y: 0,
           opacity: 1,
           duration: 0.6,
+          ease: 'power2.out',
           scrollTrigger: {
             trigger: valuesRef.current,
-            start: 'top 80%',
-            end: 'top 55%',
-            scrub: 0.5,
+            start: 'top 85%',
+            toggleActions: 'play none none none',
           },
         }
       );
 
       gsap.fromTo(
         differentRef.current,
-        { y: '6vh', opacity: 0 },
+        { y: 30, opacity: 0 },
         {
           y: 0,
           opacity: 1,
           duration: 0.6,
+          ease: 'power2.out',
           scrollTrigger: {
             trigger: differentRef.current,
-            start: 'top 80%',
-            end: 'top 55%',
-            scrub: 0.5,
+            start: 'top 85%',
+            toggleActions: 'play none none none',
           },
         }
       );
@@ -133,7 +150,7 @@ export default function AboutPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-jungle">
+    <div className="min-h-screen bg-jungle overflow-x-hidden">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-jungle/90 backdrop-blur-md py-4">
         <div className="w-full px-6 lg:px-12 flex items-center justify-between">
@@ -166,47 +183,47 @@ export default function AboutPage() {
       </nav>
 
       {/* Mobile Menu */}
-      <div
-        className={`fixed inset-0 z-40 bg-jungle/98 backdrop-blur-lg transition-all duration-300 md:hidden ${
-          isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
-        }`}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Mobile navigation menu"
-        onKeyDown={(e) => {
-          if (e.key === 'Escape') {
-            setIsMobileMenuOpen(false);
-          }
-        }}
-      >
-        <div className="flex flex-col items-center justify-center h-full gap-6 pt-20">
-          <Link 
-            to="/" 
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="flex items-center gap-2 text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
-          >
-            <ArrowLeft size={20} />
-            Back to home
-          </Link>
-          <Link 
-            to="/#pricing" 
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
-          >
-            Pricing
-          </Link>
-          <Link 
-            to="/#contact" 
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
-          >
-            Contact
-          </Link>
-          <div onClick={() => setIsMobileMenuOpen(false)} className="mt-4">
-            <CalendlyButton>Book a Call</CalendlyButton>
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-jungle/98 backdrop-blur-lg md:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobile navigation menu"
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              setIsMobileMenuOpen(false);
+            }
+          }}
+        >
+          <div className="flex flex-col items-center justify-center h-full gap-6 pt-20">
+            <Link 
+              to="/" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center gap-2 text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
+            >
+              <ArrowLeft size={20} />
+              Back to home
+            </Link>
+            <Link 
+              to="/#pricing" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
+            >
+              Pricing
+            </Link>
+            <Link 
+              to="/#contact" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
+            >
+              Contact
+            </Link>
+            <div onClick={() => setIsMobileMenuOpen(false)} className="mt-4">
+              <CalendlyButton>Book a Call</CalendlyButton>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-6 lg:px-12">
@@ -241,40 +258,40 @@ export default function AboutPage() {
             </h2>
           </div>
           
-          {/* Team Section */}
+          {/* Team Section - Fixed Image Alignment */}
           <div className="my-12">
             <h3 className="text-center text-warm font-display text-2xl font-bold uppercase mb-8">Meet the Team</h3>
-            <div className="flex flex-col md:flex-row justify-center items-center gap-8">
+            <div className="flex flex-col md:flex-row justify-center items-start gap-8 md:gap-12">
               {/* Founder Photo */}
-              <div className="relative">
-                <div className="w-48 h-64 md:w-56 md:h-72 rounded-2xl overflow-hidden border-4 border-neon/30 shadow-lg shadow-neon/10">
+              <div className="flex flex-col items-center">
+                <div className="w-56 h-72 rounded-2xl overflow-hidden border-4 border-neon/30 shadow-lg shadow-neon/10 bg-jungle-light">
                   <img 
                     src="/images/founder.png" 
                     alt="Allysa Kate Estardo — Founder of amajungle" 
-                    className="w-full h-full object-cover object-[center_15%]"
+                    className="w-full h-full object-cover object-center"
                     loading="lazy"
                   />
                 </div>
                 <div className="mt-4 text-center">
-                  <p className="text-warm font-medium">Allysa Kate Estardo</p>
+                  <p className="text-warm font-medium text-lg">Allysa Kate Estardo</p>
                   <p className="text-warm-72 text-sm">Founder & CEO</p>
                 </div>
               </div>
 
               {/* River AI Team Member */}
-              <div className="relative">
-                <div className="w-48 h-64 md:w-56 md:h-72 rounded-2xl overflow-hidden border-4 border-neon/30 shadow-lg shadow-neon/10 bg-jungle-light flex items-center justify-center">
+              <div className="flex flex-col items-center">
+                <div className="w-56 h-72 rounded-2xl overflow-hidden border-4 border-neon/30 shadow-lg shadow-neon/10 bg-jungle-light flex items-center justify-center">
                   <div className="text-center p-6">
-                    <div className="text-6xl mb-4">🌊</div>
-                    <div className="w-20 h-20 rounded-full bg-neon/20 flex items-center justify-center mx-auto mb-4">
-                      <span className="text-4xl">🏞️</span>
+                    <div className="w-24 h-24 rounded-full bg-neon/20 flex items-center justify-center mx-auto mb-4">
+                      <span className="text-5xl">🤖</span>
                     </div>
+                    <div className="text-4xl mb-2">🌊</div>
                   </div>
                 </div>
                 <div className="mt-4 text-center">
-                  <p className="text-warm font-medium">River</p>
+                  <p className="text-warm font-medium text-lg">River</p>
                   <p className="text-neon text-sm">Lead Amazon Strategist</p>
-                  <p className="text-warm-72 text-xs mt-2 max-w-[200px]">23 specialized Amazon analysis modes. Compliance-first recommendations. River analyzes 10,000+ data points per account.</p>
+                  <p className="text-warm-72 text-xs mt-2 max-w-[224px]">23 specialized Amazon analysis modes. Compliance-first recommendations. River analyzes 10,000+ data points per account.</p>
                 </div>
               </div>
             </div>
@@ -314,13 +331,13 @@ export default function AboutPage() {
             </p>
           </div>
 
-          {/* Signature */}
+          {/* Signature - Fixed Image Alignment */}
           <div className="mt-12 flex items-center gap-4 justify-center">
-            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-neon/30">
+            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-neon/30 flex-shrink-0 bg-jungle-light">
               <img 
                 src="/images/founder.png" 
                 alt="Allysa Kate Estardo" 
-                className="w-full h-full object-cover object-top"
+                className="w-full h-full object-cover object-center"
                 loading="lazy"
               />
             </div>
