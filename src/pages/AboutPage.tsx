@@ -44,8 +44,8 @@ const whyDifferent = [
   },
   {
     title: 'VAs need training & management',
-    subtitle: 'AI works 24/7 instantly',
-    description: 'Virtual assistants are great but need oversight. AI agents just... work. While you sleep.',
+    subtitle: 'AI delivers insights 24/7 instantly',
+    description: 'Virtual assistants are great but need oversight. AI intelligence just... works. Monitoring while you sleep, recommendations when you wake.',
   },
 ];
 
@@ -165,7 +165,7 @@ export default function AboutPage() {
           <p className="text-warm-72 text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed">
             amajungle is built on a decade of hands-on Amazon experience — from Seller Central support 
             to managing multi-marketplace accounts across the US, UK, and EU. We combined that expertise 
-            with AI automation so you can scale faster with less effort.
+            with AI intelligence so you can scale faster with less effort.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <CalendlyButton>Book a free call</CalendlyButton>
@@ -228,7 +228,7 @@ export default function AboutPage() {
             </p>
             <p className="text-warm font-medium">
               After 10 years of solving the same problems manually, she built amajungle 
-              to combine deep Amazon expertise with AI automation — so sellers can finally 
+              to combine deep Amazon expertise with AI intelligence — so sellers can finally 
               focus on growth instead of busywork.
             </p>
           </div>
@@ -329,7 +329,7 @@ export default function AboutPage() {
               Within 30 days, your AI agent must:
             </p>
             <ul className="space-y-2 text-warm">
-              <li>✓ Run at least 1 successful automation per day</li>
+              <li>✓ Receive at least 1 actionable insight per day</li>
               <li>✓ Save you a minimum of 5 hours per week</li>
               <li>✓ Work via Telegram as demonstrated</li>
             </ul>
@@ -343,7 +343,7 @@ export default function AboutPage() {
             </ul>
           </div>
           <p className="text-warm-72 text-sm italic">
-            "We spent a decade managing Amazon accounts. Now we automate them."
+            "We spent a decade managing Amazon accounts. Now we deliver intelligence that helps you manage them better."
           </p>
         </div>
       </section>

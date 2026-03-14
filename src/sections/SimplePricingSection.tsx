@@ -10,7 +10,7 @@ const packages = [
   {
     id: 'ai',
     icon: Zap,
-    name: 'AI Automation',
+    name: 'AI Intelligence',
     tagline: 'Let AI run your business 24/7',
     price: '$997',
     originalPrice: '$1,997',
@@ -19,7 +19,7 @@ const packages = [
     features: [
       'Custom AI agent built for YOUR workflow',
       'Telegram control — text it like an assistant',
-      '5 automations configured (email, reports, alerts)',
+      '5 intelligent workflows configured (email, reports, insights)',
       'Runs on your hardware — you own everything',
       '48-hour white-glove setup',
       '30-day satisfaction guarantee',

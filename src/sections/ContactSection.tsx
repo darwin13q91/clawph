@@ -282,7 +282,7 @@ export default function ContactSection() {
                   className="w-full px-4 py-3 rounded-xl bg-warm/5 border border-warm/20 text-warm focus:outline-none focus:border-neon transition-colors appearance-none"
                 >
                   <option value="" className="bg-jungle">Select a service...</option>
-                  <option value="ai_automation" className="bg-jungle">AI Automation Setup — $997</option>
+                  <option value="ai_automation" className="bg-jungle">AI Intelligence Setup — $997</option>
                   <option value="amazon_growth" className="bg-jungle">Amazon Growth Management — $999/mo</option>
                   <option value="website_dev" className="bg-jungle">Brand Website Development — $1,497</option>
                   <option value="audit" className="bg-jungle">Free Amazon Audit</option>

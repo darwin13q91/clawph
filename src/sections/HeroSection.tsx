@@ -204,7 +204,10 @@ export default function HeroSection() {
               style={{ opacity: 0 }}
             >
               <p className="text-warm text-xl lg:text-2xl font-medium mb-2">
-                AI automation • Amazon management • Brand websites
+                AI insights • Amazon management • Brand websites
+              </p>
+              <p className="text-neon text-sm font-mono mb-2">
+                We analyze. You decide. You execute.
               </p>
               <p className="text-warm-72 text-base">
                 Everything you need to grow — from a founder who's been there

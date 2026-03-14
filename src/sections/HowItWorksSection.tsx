@@ -28,7 +28,7 @@ const steps = [
     number: '04',
     icon: Headphones,
     title: 'Ongoing Support',
-    description: 'Monthly check-ins, optimizations, and new automations as your business grows.',
+    description: 'Monthly check-ins, optimizations, and new insights as your business grows.',
   },
 ];
 

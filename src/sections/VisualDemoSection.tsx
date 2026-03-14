@@ -9,7 +9,7 @@ const benefits = [
   { icon: Clock, value: '10+', label: 'Hours Saved Weekly' },
   { icon: MessageSquare, value: '24/7', label: 'AI Monitoring' },
   { icon: TrendingUp, value: '35%', label: 'Avg. Efficiency Gain' },
-  { icon: Shield, value: '100%', label: 'You Own Everything' },
+  { icon: Shield, value: '100%', label: 'You Control Everything' },
 ];
 
 export default function VisualDemoSection() {
@@ -111,7 +111,7 @@ export default function VisualDemoSection() {
             From Chaos to <span className="text-neon">Calm</span>
           </h2>
           <p className="text-warm-72 text-lg max-w-2xl mx-auto">
-            See how our AI agents transform your daily workflow from overwhelming manual tasks to effortless automation.
+            See how our AI intelligence transforms your daily workflow from overwhelming manual tasks to clear, actionable insights.
           </p>
         </div>
 
@@ -120,7 +120,7 @@ export default function VisualDemoSection() {
           <div className="relative rounded-3xl overflow-hidden border border-warm/10 shadow-2xl">
             <img
               src="/images/before-after.png"
-              alt="Before and after comparison showing the transformation from manual work to AI automation"
+              alt="Before and after comparison showing the transformation from manual work to AI-powered insights"
               className="w-full h-auto"
               loading="lazy"
             />
@@ -139,15 +139,15 @@ export default function VisualDemoSection() {
               </div>
               <div>
                 <h3 className="font-display text-lg font-bold text-warm uppercase">
-                  Control Via Telegram
+                  Your Intelligence Feed
                 </h3>
-                <p className="text-warm-72 text-sm">Text your AI like an assistant</p>
+                <p className="text-warm-72 text-sm">Insights and recommendations via Telegram</p>
               </div>
             </div>
             <div className="rounded-2xl overflow-hidden border border-warm/10">
               <img
                 src="/images/telegram-mockup.png"
-                alt="Telegram bot interface showing inventory alerts, PPC reports, and pricing updates"
+                alt="Telegram interface showing inventory insights, PPC analysis, and pricing notifications - you control all actions"
                 className="w-full h-auto"
                 loading="lazy"
               />

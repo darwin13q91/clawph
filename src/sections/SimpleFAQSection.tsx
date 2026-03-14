@@ -8,23 +8,23 @@ gsap.registerPlugin(ScrollTrigger);
 const faqs = [
   {
     question: 'Do I need to know how to code?',
-    answer: 'Nope. We handle all the technical setup. You control your AI agent through Telegram — just text it like a smart assistant. We also provide a 30-minute training session to make sure you\'re comfortable.',
+    answer: 'Nope. We handle all the technical setup. You access your intelligence dashboard through Telegram — just text it for insights like a smart assistant. We also provide a 30-minute training session to make sure you\'re comfortable.',
   },
   {
     question: 'What if it doesn\'t work for me?',
-    answer: '30-day money-back guarantee, no questions asked. If your AI agent isn\'t saving you at least 5 hours/week within 30 days, we\'ll refund 100% of your setup fee. You even keep the system.',
+    answer: '30-day money-back guarantee, no questions asked. If your intelligence system isn\'t saving you at least 5 hours/week within 30 days, we\'ll refund 100% of your setup fee. You even keep the system.',
   },
   {
     question: 'How is this different from other AI tools?',
-    answer: 'Most AI tools are SaaS products you rent monthly. We build a custom agent that runs on YOUR hardware. You own it, control it, and there are no recurring fees (just ~$10-20/mo in API costs).',
+    answer: 'Most AI tools are SaaS products you rent monthly. We build a custom intelligence system that runs on YOUR hardware. You own it, control it, and there are no recurring fees (just ~$10-20/mo in API costs).',
   },
   {
     question: 'How long does setup take?',
-    answer: 'AI Automation: 48 hours from our kickoff call. Amazon Growth: 1-2 weeks for initial optimization, then ongoing monthly management.',
+    answer: 'AI Intelligence: 48 hours from our kickoff call. Amazon Growth: 1-2 weeks for initial optimization, then ongoing monthly management.',
   },
   {
     question: 'Can I upgrade or change packages later?',
-    answer: 'Absolutely. Start with AI Automation, add Amazon management later. Or vice versa. We\'ll credit what you\'ve already paid toward the upgrade.',
+    answer: 'Absolutely. Start with AI Intelligence, add Amazon management later. Or vice versa. We\'ll credit what you\'ve already paid toward the upgrade.',
   },
   {
     question: 'Who are you? Why should I trust you?',
