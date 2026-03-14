@@ -200,10 +200,10 @@ export default function HeroSection() {
               className="mb-10"
             >
               <p className="text-warm text-xl lg:text-2xl font-medium mb-2">
-                AI insights • Amazon management • Brand websites
+                River-powered intelligence • Amazon management • Brand websites
               </p>
               <p className="text-neon text-sm font-mono mb-2">
-                We analyze. You decide. You execute.
+                Powered by River, our 23-mode analysis engine
               </p>
               <p className="text-warm-72 text-base">
                 Everything you need to grow — from a founder who's been there
@@ -234,6 +234,12 @@ export default function HeroSection() {
               <span className="text-neon">● 30-Day Guarantee</span>
               <span className="text-warm/30">|</span>
               <span className="text-warm-72">● No Contracts</span>
+            </div>
+
+            {/* River Badge */}
+            <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-warm/5 border border-warm/10">
+              <span className="text-lg">🌊</span>
+              <span className="text-warm-72 text-sm">Powered by River AI — 23 specialized Amazon intelligence modes</span>
             </div>
           </div>
         </div>

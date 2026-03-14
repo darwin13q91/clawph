@@ -162,15 +162,20 @@ export default function VisualDemoSection() {
               </div>
               <div>
                 <h3 className="font-display text-lg font-bold text-warm uppercase">
-                  Intelligence Dashboard
+                  River Intelligence Dashboard
                 </h3>
-                <p className="text-warm-72 text-sm">Insights and alerts — you make the decisions</p>
+                <p className="text-warm-72 text-sm">River's real-time intelligence dashboard — you make the decisions</p>
               </div>
             </div>
             <div className="rounded-2xl overflow-hidden border border-warm/10 relative">
+              {/* Powered by River AI Badge */}
+              <div className="absolute top-4 right-4 z-10 bg-jungle/90 backdrop-blur-sm rounded-full px-3 py-1.5 border border-neon/30 flex items-center gap-2">
+                <span className="text-lg">🌊</span>
+                <span className="text-neon text-xs font-mono font-bold">Powered by River AI</span>
+              </div>
               <img
                 src="/images/dashboard-mockup.png"
-                alt="Intelligence dashboard showing inventory insights, PPC analysis, and pricing alerts — recommendations only, no automated actions"
+                alt="River's real-time intelligence dashboard showing inventory insights, PPC analysis, and pricing alerts — recommendations only, no automated actions"
                 className="w-full h-auto"
                 loading="lazy"
               />
@@ -181,6 +186,9 @@ export default function VisualDemoSection() {
                 </p>
               </div>
             </div>
+            <p className="text-warm-72 text-xs text-center mt-3">
+              River analyzes 10,000+ data points per account across 23 specialized Amazon intelligence modes
+            </p>
           </div>
         </div>
 

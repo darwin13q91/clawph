@@ -241,16 +241,41 @@ export default function AboutPage() {
             </h2>
           </div>
           
-          {/* Founder Photo */}
-          <div className="my-12 flex justify-center">
-            <div className="relative">
-              <div className="w-48 h-64 md:w-56 md:h-72 rounded-2xl overflow-hidden border-4 border-neon/30 shadow-lg shadow-neon/10">
-                <img 
-                  src="/images/founder.png" 
-                  alt="Allysa Kate Estardo — Founder of amajungle" 
-                  className="w-full h-full object-cover object-[center_15%]"
-                  loading="lazy"
-                />
+          {/* Team Section */}
+          <div className="my-12">
+            <h3 className="text-center text-warm font-display text-2xl font-bold uppercase mb-8">Meet the Team</h3>
+            <div className="flex flex-col md:flex-row justify-center items-center gap-8">
+              {/* Founder Photo */}
+              <div className="relative">
+                <div className="w-48 h-64 md:w-56 md:h-72 rounded-2xl overflow-hidden border-4 border-neon/30 shadow-lg shadow-neon/10">
+                  <img 
+                    src="/images/founder.png" 
+                    alt="Allysa Kate Estardo — Founder of amajungle" 
+                    className="w-full h-full object-cover object-[center_15%]"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="mt-4 text-center">
+                  <p className="text-warm font-medium">Allysa Kate Estardo</p>
+                  <p className="text-warm-72 text-sm">Founder & CEO</p>
+                </div>
+              </div>
+
+              {/* River AI Team Member */}
+              <div className="relative">
+                <div className="w-48 h-64 md:w-56 md:h-72 rounded-2xl overflow-hidden border-4 border-neon/30 shadow-lg shadow-neon/10 bg-jungle-light flex items-center justify-center">
+                  <div className="text-center p-6">
+                    <div className="text-6xl mb-4">🌊</div>
+                    <div className="w-20 h-20 rounded-full bg-neon/20 flex items-center justify-center mx-auto mb-4">
+                      <span className="text-4xl">🏞️</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 text-center">
+                  <p className="text-warm font-medium">River</p>
+                  <p className="text-neon text-sm">Lead Amazon Strategist</p>
+                  <p className="text-warm-72 text-xs mt-2 max-w-[200px]">23 specialized Amazon analysis modes. Compliance-first recommendations. River analyzes 10,000+ data points per account.</p>
+                </div>
               </div>
             </div>
           </div>

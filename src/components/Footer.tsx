@@ -65,6 +65,16 @@ export default function Footer() {
             © {currentYear} amajungle. All rights reserved.
           </p>
         </div>
+
+        {/* River AI Technology Badge */}
+        <div className="mt-6 flex items-center justify-center gap-2 text-warm-72 text-xs">
+          <span className="text-lg">🌊</span>
+          <span>Powered by River AI Technology</span>
+          <span className="text-warm/30">|</span>
+          <span>23 specialized Amazon intelligence modes</span>
+          <span className="text-warm/30">|</span>
+          <span>Compliance-first recommendations</span>
+        </div>
       </div>
     </footer>
   );
