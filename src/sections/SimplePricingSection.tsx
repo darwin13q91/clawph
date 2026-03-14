@@ -176,7 +176,7 @@ export default function SimplePricingSection() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch">
           {packages.map((pkg, index) => (
             <div
               key={pkg.id}

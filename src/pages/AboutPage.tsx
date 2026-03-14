@@ -1,7 +1,7 @@
-import { useRef, useLayoutEffect } from 'react';
+import { useRef, useLayoutEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowLeft, Clock, Shield, Zap, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Clock, Shield, Zap, MessageCircle, Menu, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import CalendlyButton from '../components/CalendlyButton';
 import AnimatedLogo from '../components/AnimatedLogo';
@@ -55,6 +55,7 @@ export default function AboutPage() {
   const valuesRef = useRef<HTMLDivElement>(null);
   const differentRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleHashLink = (e: React.MouseEvent, to: string) => {
     e.preventDefault();
@@ -142,15 +143,70 @@ export default function AboutPage() {
               amajungle
             </span>
           </Link>
+          
+          {/* Desktop Back Link */}
           <Link 
             to="/" 
-            className="flex items-center gap-2 text-warm-72 hover:text-warm transition-colors"
+            className="hidden md:flex items-center gap-2 text-warm-72 hover:text-warm transition-colors"
           >
             <ArrowLeft size={18} />
             <span className="text-sm">Back to home</span>
           </Link>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden text-warm p-2 rounded-lg hover:bg-warm/10 transition-colors"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isMobileMenuOpen}
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
       </nav>
+
+      {/* Mobile Menu */}
+      <div
+        className={`fixed inset-0 z-40 bg-jungle/98 backdrop-blur-lg transition-all duration-300 md:hidden ${
+          isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
+        }`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile navigation menu"
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            setIsMobileMenuOpen(false);
+          }
+        }}
+      >
+        <div className="flex flex-col items-center justify-center h-full gap-6 pt-20">
+          <Link 
+            to="/" 
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="flex items-center gap-2 text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
+          >
+            <ArrowLeft size={20} />
+            Back to home
+          </Link>
+          <Link 
+            to="/#pricing" 
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
+          >
+            Pricing
+          </Link>
+          <Link 
+            to="/#contact" 
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
+          >
+            Contact
+          </Link>
+          <div onClick={() => setIsMobileMenuOpen(false)} className="mt-4">
+            <CalendlyButton>Book a Call</CalendlyButton>
+          </div>
+        </div>
+      </div>
 
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-6 lg:px-12">

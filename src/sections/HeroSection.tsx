@@ -28,28 +28,28 @@ export default function HeroSection() {
 
       tl.fromTo(
         headlineRef.current,
-        { y: '4vh', opacity: 0 },
+        { y: 30, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.6 },
         0.2
       );
 
       tl.fromTo(
         painPointsRef.current,
-        { y: '3vh', opacity: 0 },
+        { y: 20, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.5 },
         0.4
       );
 
       tl.fromTo(
         solutionRef.current,
-        { y: '3vh', opacity: 0 },
+        { y: 20, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.5 },
         0.55
       );
 
       tl.fromTo(
         ctaRef.current,
-        { y: '2vh', opacity: 0 },
+        { y: 15, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.45 },
         0.7
       );
@@ -135,7 +135,6 @@ export default function HeroSection() {
       <div
         ref={bgRef}
         className="absolute inset-0 w-full h-full"
-        style={{ opacity: 0 }}
       >
         <img
           src="/images/hero_leaf_bg.jpg"
@@ -178,7 +177,6 @@ export default function HeroSection() {
             <h1
               ref={headlineRef}
               className="font-display text-[clamp(36px,5vw,72px)] font-black text-warm uppercase tracking-tight leading-[0.95] mb-6"
-              style={{ opacity: 0 }}
             >
               Stop Drowning in<br />
               <span className="text-neon">Amazon Busywork</span>
@@ -188,7 +186,6 @@ export default function HeroSection() {
             <div
               ref={painPointsRef}
               className="space-y-3 mb-8"
-              style={{ opacity: 0 }}
             >
               {painPoints.map((point, i) => (
                 <p key={i} className="text-warm-72 text-base lg:text-lg">
@@ -201,7 +198,6 @@ export default function HeroSection() {
             <div
               ref={solutionRef}
               className="mb-10"
-              style={{ opacity: 0 }}
             >
               <p className="text-warm text-xl lg:text-2xl font-medium mb-2">
                 AI insights • Amazon management • Brand websites
@@ -218,7 +214,6 @@ export default function HeroSection() {
             <div
               ref={ctaRef}
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
-              style={{ opacity: 0 }}
             >
               <CalendlyButton className="w-full sm:w-auto justify-center">
                 Book Free 30-Min Audit

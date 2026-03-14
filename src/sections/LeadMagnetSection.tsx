@@ -1,7 +1,7 @@
 import { useRef, useLayoutEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Check, ArrowRight, Mail, Search, TrendingUp, AlertCircle } from 'lucide-react';
+import { Check, ArrowRight, Mail, Search, TrendingUp, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 // API endpoint for sending emails
@@ -212,10 +212,13 @@ export default function LeadMagnetSection() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? (
-                      <span className="animate-pulse">Sending...</span>
+                      <>
+                        <Loader2 className="animate-spin" size={18} />
+                        <span>Sending...</span>
+                      </>
                     ) : (
                       <>
                         Get My Free Audit

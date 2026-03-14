@@ -94,7 +94,7 @@ function HomePage() {
   }, []);
 
   return (
-    <main className="relative">
+    <main id="main-content" className="relative">
       {/* Pinned Hero */}
       <HeroSection />
 

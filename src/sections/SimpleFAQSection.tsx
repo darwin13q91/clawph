@@ -105,13 +105,16 @@ export default function SimpleFAQSection() {
                 />
               </button>
               <div
-                className={`overflow-hidden transition-all duration-300 ${
-                  openIndex === index ? 'max-h-96' : 'max-h-0'
-                }`}
+                className="grid transition-all duration-300 ease-out"
+                style={{
+                  gridTemplateRows: openIndex === index ? '1fr' : '0fr',
+                }}
               >
-                <p className="px-6 pb-6 text-warm-72 leading-relaxed">
-                  {faq.answer}
-                </p>
+                <div className="overflow-hidden">
+                  <p className="px-6 pb-6 text-warm-72 leading-relaxed">
+                    {faq.answer}
+                  </p>
+                </div>
               </div>
             </div>
           ))}

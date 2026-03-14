@@ -1,7 +1,7 @@
 import { useRef, useLayoutEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Send, Mail, Phone, MapPin, MessageSquare } from 'lucide-react';
+import { Send, Mail, Phone, MapPin, MessageSquare, ChevronDown, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import CalendlyButton from '../components/CalendlyButton';
 
@@ -269,25 +269,28 @@ export default function ContactSection() {
                 </div>
               </div>
 
-              <div>
+              <div className="relative">
                 <label htmlFor="service" className="block text-warm text-sm font-medium mb-2">
                   Service Interested In *
                 </label>
-                <select
-                  id="service"
-                  name="service"
-                  value={formData.service}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 rounded-xl bg-warm/5 border border-warm/20 text-warm focus:outline-none focus:border-neon transition-colors appearance-none"
-                >
-                  <option value="" className="bg-jungle">Select a service...</option>
-                  <option value="ai_automation" className="bg-jungle">AI Intelligence Setup — $997</option>
-                  <option value="amazon_growth" className="bg-jungle">Amazon Growth Management — $999/mo</option>
-                  <option value="website_dev" className="bg-jungle">Brand Website Development — $1,497</option>
-                  <option value="audit" className="bg-jungle">Free Amazon Audit</option>
-                  <option value="other" className="bg-jungle">Other / Not sure yet</option>
-                </select>
+                <div className="relative">
+                  <select
+                    id="service"
+                    name="service"
+                    value={formData.service}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 pr-12 rounded-xl bg-warm/5 border border-warm/20 text-warm focus:outline-none focus:border-neon transition-colors appearance-none cursor-pointer"
+                  >
+                    <option value="" className="bg-jungle">Select a service...</option>
+                    <option value="ai_automation" className="bg-jungle">AI Intelligence Setup — $997</option>
+                    <option value="amazon_growth" className="bg-jungle">Amazon Growth Management — $999/mo</option>
+                    <option value="website_dev" className="bg-jungle">Brand Website Development — $1,497</option>
+                    <option value="audit" className="bg-jungle">Free Amazon Audit</option>
+                    <option value="other" className="bg-jungle">Other / Not sure yet</option>
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-warm/40 pointer-events-none" size={20} />
+                </div>
               </div>
 
               <div>
@@ -308,10 +311,13 @@ export default function ContactSection() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden"
               >
                 {isSubmitting ? (
-                  <span className="animate-pulse">Sending...</span>
+                  <>
+                    <Loader2 className="animate-spin" size={18} />
+                    <span>Sending...</span>
+                  </>
                 ) : (
                   <>
                     Send Message
