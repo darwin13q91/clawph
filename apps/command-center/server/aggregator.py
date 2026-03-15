@@ -61,7 +61,7 @@ def get_service_status():
     services = {
         "no-sleep": {"cmd": "systemctl is-active no-sleep.service", "name": "24/7 Mode"},
         "gateway": {"cmd": "pgrep -f 'openclaw-gateway'", "name": "OpenClaw Gateway"},
-        "dashboard": {"cmd": "curl -s http://127.0.0.1:8789 > /dev/null && echo 'active'", "name": "Dashboard"},
+        "dashboard": {"cmd": "curl -s http://127.0.0.1:8888 > /dev/null && echo 'active'", "name": "Command Center"},
         "polymarket": {"cmd": "test -f /home/darwin/.openclaw/data/scan.json && echo 'active'", "name": "Market Scanner"},
         "paper-trading": {"cmd": "test -f /home/darwin/.openclaw/data/paper_trades.json && echo 'active'", "name": "Paper Trading"},
     }
@@ -77,6 +77,66 @@ def get_service_status():
         }
     
     return status
+
+def get_agents_status():
+    """Check status of all AI agents"""
+    agents = {
+        "allysa": {
+            "name": "Allysa",
+            "role": "Master / Contrarian Strategist",
+            "status": "🟢 Active",
+            "location": "/SOUL.md"
+        },
+        "aishi": {
+            "name": "Aishi", 
+            "role": "Research & Analysis",
+            "status": "🟢 Ready",
+            "location": "/sub-agents/aishi/SOUL.md"
+        },
+        "namie": {
+            "name": "Namie",
+            "role": "Strategy & Design", 
+            "status": "🟢 Ready",
+            "location": "/sub-agents/namie/SOUL.md"
+        },
+        "shiko": {
+            "name": "Shiko",
+            "role": "Execution & Building",
+            "status": "🟢 Ready",
+            "location": "/sub-agents/shiko/SOUL.md"
+        },
+        "husband": {
+            "name": "Husband",
+            "role": "Personal Executive Assistant",
+            "status": "🟢 Active",
+            "location": "/business/agents/husband/SOUL.md",
+            "skills": ["task-tracker", "budget-monitor", "calendar-guardian", "kate-bot (Darwin)", "build-assistant", "automation-scout"]
+        },
+        "core": {
+            "name": "Core",
+            "role": "Base Agent Template",
+            "status": "🟢 Template",
+            "location": "/core/SOUL.md"
+        },
+        "paper-trader": {
+            "name": "Paper Trader",
+            "role": "Market Scanner (no real trades)",
+            "status": "📋 Config",
+            "location": "/agent-paper-trader/AGENTS.md"
+        }
+    }
+    
+    # Check which agents have valid SOUL files
+    for key, agent in agents.items():
+        soul_path = f"/home/darwin/.openclaw/workspace{agent['location']}"
+        if os.path.exists(soul_path):
+            agent["soul_exists"] = True
+        else:
+            agent["soul_exists"] = False
+            if agent["status"] == "🟢 Ready":
+                agent["status"] = "🔴 Missing SOUL"
+    
+    return agents
 
 def get_trading_stats():
     """Get paper trading statistics"""
@@ -167,6 +227,12 @@ def get_system_effectiveness():
             "score": 10,
             "reason": "Never sleeps, always available",
             "trend": "excellent"
+        },
+        "husband_agent": {
+            "name": "Husband (Personal Exec)",
+            "score": 5,
+            "reason": "Just activated - calibrating to preferences",
+            "trend": "warming_up"
         }
     }
     
@@ -183,16 +249,130 @@ def get_system_effectiveness():
         ]
     }
 
+def get_subagent_stats():
+    """Get subagent statistics from runs.json"""
+    stats = {
+        "active": 0,
+        "recent": 0,
+        "completed": 0,
+        "tokensToday": 0,
+        "totalRuns": 0,
+        "recentRuns": []
+    }
+    
+    try:
+        import json
+        runs_path = "/home/darwin/.openclaw/subagents/runs.json"
+        
+        if os.path.exists(runs_path):
+            with open(runs_path) as f:
+                data = json.load(f)
+            
+            runs = data.get("runs", {})
+            now = datetime.now().timestamp() * 1000  # Convert to ms
+            one_hour_ago = now - (60 * 60 * 1000)
+            one_day_ago = now - (24 * 60 * 60 * 1000)
+            
+            # Calculate stats
+            runs_list = list(runs.values())
+            stats["totalRuns"] = len(runs_list)
+            stats["active"] = len([r for r in runs_list if r.get("startedAt") and not r.get("endedAt")])
+            stats["recent"] = len([r for r in runs_list if r.get("startedAt", 0) > one_hour_ago or r.get("endedAt", 0) > one_hour_ago])
+            stats["completed"] = len([r for r in runs_list if r.get("endedAt") and r.get("outcome", {}).get("status") == "ok"])
+            
+            # Estimate tokens (25k per run as approximation)
+            today_runs = len([r for r in runs_list if r.get("startedAt", 0) > one_day_ago])
+            stats["tokensToday"] = today_runs * 25000
+            
+            # Get recent runs
+            recent = sorted(runs_list, key=lambda r: r.get("startedAt", 0), reverse=True)[:5]
+            stats["recentRuns"] = [{
+                "name": r.get("label", r.get("task", "Unknown")[:30]),
+                "duration": round((r.get("endedAt", now) - r.get("startedAt", now)) / 1000) if r.get("endedAt") else None,
+                "tokens": 25000,
+                "status": "completed" if r.get("endedAt") else "running"
+            } for r in recent]
+            
+    except Exception as e:
+        stats["error"] = str(e)
+    
+    return stats
+
+def get_cfo_data():
+    """Get CFO/financial data"""
+    try:
+        import json
+        cfo_path = f"{DATA_DIR}/cfo.json"
+        
+        if os.path.exists(cfo_path):
+            with open(cfo_path) as f:
+                data = json.load(f)
+            
+            # Calculate derived values
+            income = data.get("monthly_income", 0)
+            expenses = data.get("monthly_expenses", 0)
+            
+            return {
+                "net_worth": data.get("current_balance", data.get("net_worth", 0)),
+                "monthly_income": income,
+                "monthly_expenses": expenses,
+                "monthly_surplus": income - expenses,
+                "paper_trading_bankroll": data.get("paper_trading_bankroll", 100),
+                "vps_cost": data.get("vps_cost", 5),
+                "days_remaining": 30 - datetime.now().day,
+                "budget_status": "healthy" if data.get("current_balance", 0) > 100 else "warning"
+            }
+    except Exception as e:
+        return {"error": str(e)}
+    
+    return {"net_worth": 210, "monthly_income": 1800, "monthly_expenses": 1450}
+
+def get_piper_data():
+    """Get Piper email campaign data from Dashboard API"""
+    try:
+        import urllib.request
+        import json
+        
+        # Fetch from Dashboard API (port 8789)
+        req = urllib.request.Request(
+            'http://127.0.0.1:8789/api/piper/dashboard',
+            headers={'Accept': 'application/json'}
+        )
+        
+        with urllib.request.urlopen(req, timeout=5) as response:
+            data = json.loads(response.read().decode('utf-8'))
+            
+            return {
+                "email_campaigns": data.get('email_campaigns', {}),
+                "lead_pipeline": data.get('lead_pipeline', {}),
+                "revenue": data.get('revenue', {}),
+                "active_campaigns": data.get('active_campaigns', {}),
+                "status": "connected"
+            }
+    except Exception as e:
+        return {
+            "status": "disconnected",
+            "error": str(e),
+            "email_campaigns": {},
+            "lead_pipeline": {},
+            "revenue": {}
+        }
+
 def generate_unified_report():
     """Generate comprehensive unified report"""
     report = {
         "timestamp": datetime.now().isoformat(),
         "overall_status": "🟢 All Systems Operational",
+        "healthy": True,
         "health": get_system_health(),
         "services": get_service_status(),
+        "agents": get_agents_status(),
         "trading": get_trading_stats(),
         "opportunities": get_recent_opportunities(),
-        "effectiveness": get_system_effectiveness()
+        "effectiveness": get_system_effectiveness(),
+        "subagents": get_subagent_stats(),
+        "cfo": get_cfo_data(),
+        "piper": get_piper_data()
     }
     
     # Determine overall status
@@ -200,10 +380,12 @@ def generate_unified_report():
     for svc in critical_services:
         if not report["services"].get(svc, {}).get("active", False):
             report["overall_status"] = "🔴 Critical Issues Detected"
+            report["healthy"] = False
             break
     else:
         if any(not s["active"] for s in report["services"].values()):
             report["overall_status"] = "🟡 Some Services Down"
+            report["healthy"] = False
     
     return report
 

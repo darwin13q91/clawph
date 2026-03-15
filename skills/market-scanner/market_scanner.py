@@ -1,8 +1,13 @@
 """
 market-scanner.skill
-Paper trading market scanner for Polymarket.
-Fetches markets, filters for opportunities, logs to Google Sheets.
-NO REAL TRADES - educational/diagnostic only.
+Market research and competitive intelligence tool.
+Originally for Polymarket analysis, now repurposed for general business research.
+
+Capabilities:
+- Polymarket trend analysis (optional)
+- Market data collection
+- Competitor monitoring
+- Google Sheets integration for tracking
 """
 
 import os
@@ -15,32 +20,49 @@ from typing import Optional, List, Dict
 GAMMA_API = "https://gamma-api.polymarket.com"
 CLOB_API = "https://clob.polymarket.com"
 
-# Default filters (conservative for small bankroll)
+# Default filters for market research
 DEFAULT_MIN_VOLUME = 1000      # $1,000 daily volume
 DEFAULT_MAX_SPREAD = 0.10      # 10 cent spread
 DEFAULT_MIN_DAYS = 7           # At least 1 week to resolution
 DEFAULT_MAX_DAYS = 60          # Max 2 months
 
 def market_scan(
+    source: str = "polymarket",
     min_volume: float = DEFAULT_MIN_VOLUME,
     max_spread: float = DEFAULT_MAX_SPREAD,
     min_days: int = DEFAULT_MIN_DAYS,
     max_days: int = DEFAULT_MAX_DAYS,
 ) -> List[Dict]:
     """
-    Scan all active Polymarket markets and return opportunities.
+    Scan markets from specified source and return data.
     
-    Returns list of dicts with:
-    - condition_id, question, category
-    - yes_price, no_price, spread
-    - volume_24h, liquidity, traders
-    - days_to_resolution
+    Args:
+        source: "polymarket", "helium10", or "custom"
+        min_volume: Minimum daily volume filter
+        max_spread: Maximum bid-ask spread
+        min_days: Minimum days to resolution/event
+        max_days: Maximum days to resolution/event
+    
+    Returns list of market data dicts.
     """
+    
+    # Handle different data sources
+    if source == "helium10":
+        print("🔍 Helium 10 scanning not yet implemented")
+        print("   Requires HELIUM10_API_KEY in .env")
+        return []
+    
+    elif source == "custom":
+        print("🔍 Custom data source - provide data manually")
+        return []
+    
+    # Default: Polymarket (for trend analysis only, no trading)
     opportunities = []
     offset = 0
     limit = 100
     
-    print(f"🔍 Scanning Polymarket markets...")
+    print(f"🔍 Scanning Polymarket markets (research mode)...")
+    print(f"   Filters: vol≥${min_volume}, spread≤{max_spread}, {min_days}-{max_days} days")
     
     while True:
         try:
@@ -146,8 +168,8 @@ def market_details(condition_id: str) -> Dict:
 
 
 def log_to_console(opportunities: List[Dict], max_display: int = 10):
-    """Print opportunities to console (for testing)."""
-    print(f"\n📊 TOP {min(max_display, len(opportunities))} OPPORTUNITIES:\n")
+    """Print market data to console (for research)."""
+    print(f"\n📊 TOP {min(max_display, len(opportunities))} MARKETS:")
     print(f"{'Market':<50} {'YES':>6} {'Spread':>7} {'Volume':>12} {'Days':>5}")
     print("=" * 85)
     

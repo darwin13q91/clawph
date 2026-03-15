@@ -67,7 +67,7 @@ async function initDatabase() {
 
     CREATE TABLE IF NOT EXISTS portfolio (
       id INTEGER PRIMARY KEY,
-      balance REAL NOT NULL DEFAULT 100000,
+      balance REAL NOT NULL DEFAULT 1000,
       totalPnL REAL NOT NULL DEFAULT 0,
       dayPnL REAL NOT NULL DEFAULT 0
     );
@@ -84,7 +84,7 @@ async function initDatabase() {
       PRIMARY KEY (symbol, timeframe, time)
     );
 
-    INSERT OR IGNORE INTO portfolio (id, balance, totalPnL, dayPnL) VALUES (1, 100000, 0, 0);
+    INSERT OR IGNORE INTO portfolio (id, balance, totalPnL, dayPnL) VALUES (1, 1000, 0, 0);
   `);
 
   console.log('Database initialized');

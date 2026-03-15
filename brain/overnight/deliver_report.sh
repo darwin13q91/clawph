@@ -1,6 +1,6 @@
 #!/bin/bash
 # Deliver overnight report at 6AM
-REPORT="/home/darwin/.openclaw/workspace/brain/overnight/reports/20260301_report.txt"
+REPORT="/home/darwin/.openclaw/workspace/brain/overnight/reports/20260311_report.txt"
 if [ -f "$REPORT" ]; then
     cat "$REPORT"
     # Mark as delivered

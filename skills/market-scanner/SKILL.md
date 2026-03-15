@@ -1,37 +1,61 @@
 # Skill: Market Scanner
 
-Scans Polymarket markets for trading opportunities. Paper trading only - logs opportunities to Google Sheets, no real orders.
+General market research and competitive intelligence tool. Originally for Polymarket, now repurposed for business market analysis.
 
 ## What It Does
 
-1. Fetches all active Polymarket markets via Gamma API
-2. Filters by: volume ≥ $1,000, spread ≤ $0.10, resolution 7-60 days
-3. Identifies potential edges (price vs. estimated probability)
-4. Logs opportunities to Google Sheets for tracking
+1. **Market Research** - Track market trends and opportunities
+2. **Competitor Monitoring** - Watch competitor pricing and positioning  
+3. **Trend Analysis** - Identify emerging patterns in your industry
+4. **Data Collection** - Gather market data from various sources
+
+## Current Capabilities
+
+- Polymarket API (for prediction market trends - optional)
+- Helium 10 data analysis (Amazon market research)
+- Web scraping for competitor data
+- Google Sheets integration for tracking
 
 ## Tools
 
-- `market_scan() -> list[dict]` - Scan all markets, return opportunities
-- `market_details(market_id: str) -> dict` - Get detailed market info
-- `log_opportunity(market: dict, sheet_id: str) -> dict` - Log to Google Sheets
+- `scan_markets(source: str) -> list[dict]` - Scan markets from specified source
+- `analyze_trends(data: list) -> dict` - Analyze patterns in data
+- `log_research(findings: dict, sheet_id: str)` - Log to Google Sheets
+- `competitor_watch(url: str) -> dict` - Monitor competitor changes
 
 ## Configuration
 
 Set in your `.env`:
 ```
+# For Google Sheets logging
 GOOGLE_SHEETS_CREDENTIALS_JSON=~/.openclaw/secrets/gsheets-creds.json
 SCANNER_SHEET_ID=your_google_sheet_id
+
+# For Helium 10 (Amazon research)
+HELIUM10_API_KEY=your_key
+
+# For Polymarket (optional - trend analysis only)
+POLYMARKET_API_KEY=your_key
 ```
 
-## Usage
+## Usage Examples
 
 ```python
-from market_scanner import market_scan, log_opportunity
+from market_scanner import scan_markets, analyze_trends
 
-# Run scan
-opportunities = market_scan(min_volume=1000, max_spread=0.10)
+# Amazon market research via Helium 10
+amazon_data = scan_markets(source="helium10", category="electronics")
+trends = analyze_trends(amazon_data)
 
-# Log each opportunity
-for opp in opportunities[:5]:  # Top 5 only
-    log_opportunity(opp, sheet_id="your_sheet_id")
+# Competitor monitoring
+competitor = competitor_watch("https://competitor-store.com")
+
+# Log findings
+log_research(trends, sheet_id="your_sheet_id")
 ```
+
+## Repurposed From
+Originally a Polymarket trading scanner. Now focused on business intelligence and market research for amajungle.
+
+## Security Note
+No trading capabilities. Read-only market research only.

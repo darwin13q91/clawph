@@ -1,0 +1,16 @@
+[Unit]
+Description=OpenClaw AI Handler (Local)
+After=network.target
+
+[Service]
+Type=simple
+User=darwin
+WorkingDirectory=/home/darwin/.openclaw/workspace/ai-gateway
+ExecStart=/usr/bin/python3 /home/darwin/.openclaw/workspace/ai-gateway/tunnel-server/ai_handler.py --port 9999 --host 0.0.0.0
+Restart=always
+RestartSec=5
+StandardOutput=append:/home/darwin/.openclaw/workspace/ai-gateway/ai_handler.log
+StandardError=append:/home/darwin/.openclaw/workspace/ai-gateway/ai_handler.log
+
+[Install]
+WantedBy=multi-user.target

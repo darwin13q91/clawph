@@ -3,7 +3,6 @@
 
 ---
 
-## 📋 **For Bob's Restaurant Example:**
 
 ### **Step 1: Create the Client**
 
@@ -11,7 +10,6 @@
 curl -X POST https://webhook.amajungle.com/admin/clients \
   -H "Content-Type: application/json" \
   -d '{
-    "business_name": "Bob'"'"'s Restaurant",
     "bot_token": "123456:ABC-DEF1234...",
     "chat_id": "123456789"
   }'
@@ -36,12 +34,7 @@ curl -X POST https://webhook.amajungle.com/admin/clients/client_abc123.../config
   -H "Content-Type: application/json" \
   -d '{
     "custom_responses": {
-      "greeting": "Welcome to Bob'"'"'s Restaurant! 🍽️ We serve the best pasta in town. How can I help you?",
       "hours": "🕐 We'"'"'re open:\nMon-Thu: 10 AM - 10 PM\nFri-Sat: 10 AM - 11 PM\nSun: 11 AM - 9 PM",
-      "menu": "📋 Our specialties:\n• Spaghetti Bolognese - $12\n• Margherita Pizza - $10\n• Caesar Salad - $8\n\nFull menu: bobsrestaurant.com/menu",
-      "contact": "📞 Call us: (555) 123-4567\n📧 Email: hello@bobsrestaurant.com\n📍 Location: 123 Main St",
-      "reservation": "🪑 To make a reservation:\n1. Call (555) 123-4567\n2. Or book online: bobsrestaurant.com/book",
-      "fallback": "Thanks for messaging Bob'"'"'s Restaurant! A staff member will reply shortly. 👋"
     }
   }'
 ```

@@ -3,6 +3,13 @@
 
 cd /home/darwin/.openclaw/workspace/apps/dashboard || exit 1
 
+# Load environment variables from secure config
+if [ -f server/config/.env ]; then
+    set -a
+    source server/config/.env
+    set +a
+fi
+
 # Kill existing
 pkill -f "node.*dashboard/server" 2>/dev/null || true
 sleep 1

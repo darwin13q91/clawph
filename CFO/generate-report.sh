@@ -7,12 +7,16 @@ FOUNDATION="$CFO_DIR/data/financial-foundation.md"
 REPORT_DIR="$CFO_DIR/reports/$(date +%Y-%m)"
 REPORT_FILE="$REPORT_DIR/CFO-Report-$(date +%Y%m%d).md"
 
+# Set date variables before heredoc
+MONTH_YEAR=$(date +"%B %Y")
+MONTH_DAY=$(date +"%B %d, %Y")
+
 mkdir -p "$REPORT_DIR"
 
-cat > "$REPORT_FILE" <> EOF
-# Monthly CFO Report - $(date +"%B %Y")
+cat > "$REPORT_FILE" << 'EOF'
+# Monthly CFO Report - MONTH_YEAR_PLACEHOLDER
 
-**Report Date:** $(date +"%B %d, %Y")  
+**Report Date:** MONTH_DAY_PLACEHOLDER  
 **Prepared by:** Your Personal CFO  
 **For:** mylabs husband 💍
 
@@ -147,6 +151,10 @@ Your goals require an extra $200/month. Where will it come from?
 
 *Remember: Awareness without action is just anxiety. Let's move.* 💪
 EOF
+
+# Replace placeholders with actual dates
+sed -i "s/MONTH_YEAR_PLACEHOLDER/$MONTH_YEAR/g" "$REPORT_FILE"
+sed -i "s/MONTH_DAY_PLACEHOLDER/$MONTH_DAY/g" "$REPORT_FILE"
 
 echo "✅ CFO Report generated: $REPORT_FILE"
 cat "$REPORT_FILE"

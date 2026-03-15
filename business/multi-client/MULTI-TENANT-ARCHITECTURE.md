@@ -87,7 +87,6 @@ For 20-50 clients, this is most cost-effective.
 │   │   │   └── analytics/      # Usage stats
 │   │   ├── skills/             # Custom skills
 │   │   └── logs/
-│   ├── client-002-bobs-bistro/
 │   ├── client-003-charlies-shop/
 │   └── ... (up to 50)
 │
