@@ -405,6 +405,10 @@
                         <span class="dashboard-nav-icon">💰</span>
                         <span>Finance</span>
                     </a>
+                    <a href="http://127.0.0.1:3001" class="dashboard-nav-item" target="_blank">
+                        <span class="dashboard-nav-icon">📈</span>
+                        <span>Trading</span>
+                    </a>
                     <a href="#health" class="dashboard-nav-item" data-section="health">
                         <span class="dashboard-nav-icon">💓</span>
                         <span>Health</span>
@@ -907,7 +911,7 @@
             <!-- Footer -->
             <footer class="footer">
                 <p>🌿 Amajungle AI Systems • Real-time Agent Status</p>
-                <p style="margin-top: 4px;">Dashboard v3.1 • <span id="footer-time">--</span></p>
+                <p style="margin-top: 4px;">Dashboard v3.2 • <span id="footer-time">--</span></p>
             </footer>
             </section><!-- End Dashboard Section -->
 
@@ -1091,7 +1095,22 @@
         let isFetching = false;
         let cachedData = { agents: null, health: null, rapidapi: null, crm: null };
         let lastFetchTimes = { agents: null, health: null, rapidapi: null, crm: null };
+        
+        // Error tracking with consecutive failure counters for graceful degradation
         let errorCounts = { agents: 0, health: 0, rapidapi: 0, crm: 0 };
+        let consecutiveFailures = { agents: 0, health: 0, rapidapi: 0, crm: 0 };
+        let lastErrorToastTime = 0;
+        let hasShownInitialError = false;
+        
+        // Configuration for error handling
+        const ERROR_CONFIG = {
+            // Only show toast after this many consecutive failures
+            toastThreshold: 3,
+            // Min seconds between error toasts
+            toastCooldownMs: 30000,
+            // Consider API critical if these many consecutive failures
+            criticalThreshold: 5
+        };
         
         // SSE State
         let eventSource = null;
@@ -1116,6 +1135,86 @@
             document.querySelectorAll('[data-api]').forEach(card => card.classList.add('loading'));
         }
 
+        // Toast Notification System - Only shows for critical failures
+        function showToast(message, type = 'error', duration = 5000) {
+            // Check cooldown to prevent toast spam
+            const now = Date.now();
+            if (now - lastErrorToastTime < ERROR_CONFIG.toastCooldownMs) {
+                return;
+            }
+            lastErrorToastTime = now;
+            
+            // Remove existing toast if present
+            const existingToast = document.querySelector('.dashboard-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `dashboard-toast toast-${type}`;
+            toast.innerHTML = `
+                <span class="toast-icon">${type === 'error' ? '⚠️' : type === 'warning' ? '⚡' : 'ℹ️'}</span>
+                <span class="toast-message">${message}</span>
+                <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            
+            // Add styles if not already present
+            if (!document.getElementById('toast-styles')) {
+                const style = document.createElement('style');
+                style.id = 'toast-styles';
+                style.textContent = `
+                    .dashboard-toast {
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        padding: 12px 16px;
+                        background: var(--bg-elevated);
+                        border: 1px solid var(--border-color);
+                        border-radius: var(--radius);
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        z-index: 10000;
+                        animation: slideInRight 0.3s ease;
+                        max-width: 400px;
+                    }
+                    .dashboard-toast.toast-error { border-left: 4px solid var(--status-danger); }
+                    .dashboard-toast.toast-warning { border-left: 4px solid var(--status-warning); }
+                    .dashboard-toast.toast-info { border-left: 4px solid var(--status-info); }
+                    .toast-icon { font-size: 18px; }
+                    .toast-message { flex: 1; font-size: var(--text-sm); }
+                    .toast-close {
+                        background: none;
+                        border: none;
+                        color: var(--text-muted);
+                        font-size: 20px;
+                        cursor: pointer;
+                        padding: 0 4px;
+                    }
+                    .toast-close:hover { color: var(--text-primary); }
+                    @keyframes slideInRight {
+                        from { opacity: 0; transform: translateX(100%); }
+                        to { opacity: 1; transform: translateX(0); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(toast);
+            
+            // Auto-remove after duration
+            if (duration > 0) {
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.style.animation = 'slideInRight 0.3s ease reverse';
+                        setTimeout(() => toast.remove(), 300);
+                    }
+                }, duration);
+            }
+        }
+
         function hideLoading() {
             const btn = document.getElementById('refresh-btn');
             const icon = document.getElementById('refresh-icon');
@@ -1126,7 +1225,7 @@
             if (btn) btn.disabled = false;
             if (icon) icon.textContent = '🔄';
             if (dot) {
-                const hasErrors = Object.values(errorCounts).some(c => c > 0);
+                const hasErrors = Object.values(consecutiveFailures).some(c => c >= ERROR_CONFIG.criticalThreshold);
                 dot.className = hasErrors ? 'status-dot warning' : 'status-dot online';
             }
             if (text) text.textContent = 'Live';
@@ -1136,17 +1235,41 @@
         }
 
         function showErrorState(apiName) {
+            // Increment consecutive failures
+            consecutiveFailures[apiName]++;
+            
             const badge = document.getElementById(`${apiName}-badge`);
             if (badge) {
                 badge.className = 'badge badge-danger';
                 badge.textContent = 'Error';
             }
             
-            const totalErrors = Object.values(errorCounts).reduce((a, b) => a + b, 0);
-            if (totalErrors > 1) {
-                const dot = document.getElementById('connection-dot');
-                const text = document.getElementById('connection-text');
-                const badgeEl = document.getElementById('connection-status-badge');
+            // Only show toast for critical failures (after threshold)
+            const totalConsecutive = Object.values(consecutiveFailures).reduce((a, b) => a + b, 0);
+            const maxConsecutive = Math.max(...Object.values(consecutiveFailures));
+            
+            // Update connection status based on failure severity
+            const dot = document.getElementById('connection-dot');
+            const text = document.getElementById('connection-text');
+            const badgeEl = document.getElementById('connection-status-badge');
+            
+            if (maxConsecutive >= ERROR_CONFIG.criticalThreshold) {
+                // Critical state - multiple APIs failing repeatedly
+                if (dot) dot.className = 'status-dot offline';
+                if (text) text.textContent = 'Degraded';
+                if (badgeEl) badgeEl.className = 'badge badge-danger';
+                
+                // Show toast only for critical failures
+                if (!hasShownInitialError && maxConsecutive >= ERROR_CONFIG.toastThreshold) {
+                    hasShownInitialError = true;
+                    const failedApis = Object.entries(consecutiveFailures)
+                        .filter(([_, count]) => count >= ERROR_CONFIG.toastThreshold)
+                        .map(([name, _]) => name.toUpperCase())
+                        .join(', ');
+                    showToast(`Connection issues detected with ${failedApis}. Using cached data.`, 'warning', 8000);
+                }
+            } else if (totalConsecutive > 0) {
+                // Partial degradation - some APIs having trouble
                 if (dot) dot.className = 'status-dot warning';
                 if (text) text.textContent = 'Partial';
                 if (badgeEl) badgeEl.className = 'badge badge-warning';
@@ -1154,11 +1277,26 @@
         }
 
         function clearErrorState(apiName) {
+            // Reset consecutive failures on success
+            consecutiveFailures[apiName] = 0;
             errorCounts[apiName] = 0;
+            
             const badge = document.getElementById(`${apiName}-badge`);
             if (badge) {
                 badge.className = 'badge badge-success';
                 badge.textContent = apiName === 'health' ? 'Good' : apiName === 'rapidapi' ? 'Healthy' : 'Active';
+            }
+            
+            // Check if all APIs are now healthy
+            const allHealthy = Object.values(consecutiveFailures).every(c => c === 0);
+            if (allHealthy) {
+                hasShownInitialError = false;
+                const dot = document.getElementById('connection-dot');
+                const text = document.getElementById('connection-text');
+                const badgeEl = document.getElementById('connection-status-badge');
+                if (dot) dot.className = 'status-dot online';
+                if (text) text.textContent = 'Live';
+                if (badgeEl) badgeEl.className = 'badge badge-success';
             }
         }
 
@@ -1403,7 +1541,8 @@
                 };
                 
                 eventSource.onerror = (err) => {
-                    console.error('[SSE] Connection error:', err);
+                    // Only log as warning - SSE failures are non-critical
+                    console.warn('[SSE] Connection issue, will retry or fallback:', err);
                     sseConnected = false;
                     
                     // Close current connection
@@ -1412,11 +1551,10 @@
                         eventSource = null;
                     }
                     
-                    // Fall back to polling
+                    // Fall back to polling silently (don't spam activities with this)
                     if (useSSE) {
-                        console.log('[SSE] Falling back to polling');
+                        console.log('[SSE] Falling back to polling mode');
                         useSSE = false;
-                        addActivity('warning', '⚠️', 'Live Updates', 'Switched to polling mode');
                         startActivityPolling();
                     }
                 };
@@ -1550,7 +1688,7 @@
             }
         }
 
-        // Dashboard v3.1 - Cache bust: 20260315
+        // Dashboard v3.2 - Cache bust: 20260316 - Fixed aggressive error handling
         function updateRapidApiUI(data) {
             if (!data) {
                 console.warn('[DASHBOARD] RapidAPI data is null');
@@ -1624,32 +1762,52 @@
             });
         }
 
-        // API Functions
+        // API Functions with exponential backoff and graceful error handling
         async function fetchWithRetry(url, options = {}, apiName) {
             const maxRetries = 3;
-            const retryDelay = 3000;
+            const baseDelay = 1000;
             
             for (let attempt = 1; attempt <= maxRetries; attempt++) {
                 try {
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 5000);
+                    const timeoutId = setTimeout(() => controller.abort(), 8000);
                     
                     const response = await fetch(url, { ...options, signal: controller.signal });
                     clearTimeout(timeoutId);
                     
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    if (!response.ok) {
+                        // Don't treat 404s as failures - endpoint might not exist yet
+                        if (response.status === 404) {
+                            console.log(`[${apiName}] Endpoint not found (404) - treating as empty data`);
+                            clearErrorState(apiName);
+                            return { success: true, data: null, isEmpty: true };
+                        }
+                        throw new Error(`HTTP ${response.status}`);
+                    }
                     
                     const data = await response.json();
                     clearErrorState(apiName);
                     return { success: true, data };
                 } catch (error) {
-                    if (attempt < maxRetries) {
-                        await new Promise(resolve => setTimeout(resolve, retryDelay));
+                    const isLastAttempt = attempt === maxRetries;
+                    
+                    // Don't log abort errors as they're intentional timeouts
+                    if (error.name === 'AbortError') {
+                        console.warn(`[${apiName}] Request timed out (attempt ${attempt}/${maxRetries})`);
                     } else {
+                        console.warn(`[${apiName}] Fetch error (attempt ${attempt}/${maxRetries}):`, error.message);
+                    }
+                    
+                    if (isLastAttempt) {
+                        // Track error but don't spam toasts
                         errorCounts[apiName]++;
                         showErrorState(apiName);
                         return { success: false, error };
                     }
+                    
+                    // Exponential backoff: 1s, 2s, 4s
+                    const delay = baseDelay * Math.pow(2, attempt - 1);
+                    await new Promise(resolve => setTimeout(resolve, delay));
                 }
             }
         }
@@ -1657,13 +1815,19 @@
         async function fetchAgents() {
             const result = await fetchWithRetry('/api/agents', {}, 'agents');
             if (result.success) {
-                cachedData.agents = result.data.agents;
-                renderAgents(result.data.agents);
-                const onlineCount = result.data.agents?.filter(a => a.status === 'online').length || 0;
+                // Handle empty data gracefully - use cached or default
+                const agents = result.data?.agents || cachedData.agents || [];
+                cachedData.agents = agents;
+                renderAgents(agents);
+                const onlineCount = agents.filter(a => a.status === 'online').length || 0;
                 const badge = document.getElementById('agents-count-badge');
                 if (badge) badge.textContent = `${onlineCount} Online`;
                 updateTimestamp('agents');
                 return true;
+            }
+            // Use cached data on failure - no toast
+            if (cachedData.agents) {
+                renderAgents(cachedData.agents);
             }
             return false;
         }
@@ -1671,10 +1835,17 @@
         async function fetchHealth() {
             const result = await fetchWithRetry('/api/system-health', {}, 'health');
             if (result.success) {
-                cachedData.health = result.data;
-                updateHealthUI(result.data);
-                updateTimestamp('health');
+                const data = result.data || cachedData.health;
+                if (data) {
+                    cachedData.health = data;
+                    updateHealthUI(data);
+                    updateTimestamp('health');
+                }
                 return true;
+            }
+            // Use cached data on failure
+            if (cachedData.health) {
+                updateHealthUI(cachedData.health);
             }
             return false;
         }
@@ -1682,10 +1853,17 @@
         async function fetchRapidAPI() {
             const result = await fetchWithRetry('/api/rapidapi/status', {}, 'rapidapi');
             if (result.success) {
-                cachedData.rapidapi = result.data;
-                updateRapidApiUI(result.data);
-                updateTimestamp('rapidapi');
+                const data = result.data || cachedData.rapidapi;
+                if (data) {
+                    cachedData.rapidapi = data;
+                    updateRapidApiUI(data);
+                    updateTimestamp('rapidapi');
+                }
                 return true;
+            }
+            // Use cached data on failure
+            if (cachedData.rapidapi) {
+                updateRapidApiUI(cachedData.rapidapi);
             }
             return false;
         }
@@ -1693,14 +1871,22 @@
         async function fetchCRM() {
             const result = await fetchWithRetry('/api/crm/stats', {}, 'crm');
             if (result.success) {
-                updateCRMStats(result.data.stats);
-                updateTimestamp('crm');
-                updateTimestamp('contacts');
-                updateTimestamp('conversion');
-                updateTimestamp('pipeline');
-                updateTimestamp('deals');
-                updateTimestamp('pipeline-card');
+                const stats = result.data?.stats || cachedData.crm;
+                if (stats) {
+                    cachedData.crm = stats;
+                    updateCRMStats(stats);
+                    updateTimestamp('crm');
+                    updateTimestamp('contacts');
+                    updateTimestamp('conversion');
+                    updateTimestamp('pipeline');
+                    updateTimestamp('deals');
+                    updateTimestamp('pipeline-card');
+                }
                 return true;
+            }
+            // Use cached data on failure
+            if (cachedData.crm) {
+                updateCRMStats(cachedData.crm);
             }
             return false;
         }
@@ -1718,16 +1904,30 @@
                 
                 const [agentsOk, healthOk, rapidapiOk, crmOk] = results.map(r => r.status === 'fulfilled' && r.value);
                 
+                // Always use cached data as fallback - no errors shown for transient failures
                 if (!agentsOk && cachedData.agents) renderAgents(cachedData.agents);
                 if (!healthOk && cachedData.health) updateHealthUI(cachedData.health);
                 if (!rapidapiOk && cachedData.rapidapi) updateRapidApiUI(cachedData.rapidapi);
                 if (!crmOk && cachedData.crm) updateCRMStats(cachedData.crm);
 
-                // Update unified timestamp
-                updateUnifiedTimestamp();
+                // Update unified timestamp only if at least one succeeded
+                if (agentsOk || healthOk || rapidapiOk || crmOk) {
+                    updateUnifiedTimestamp();
+                }
+                
+                // Log silent failures for debugging (not user-facing)
+                const failures = [];
+                if (!agentsOk) failures.push('agents');
+                if (!healthOk) failures.push('health');
+                if (!rapidapiOk) failures.push('rapidapi');
+                if (!crmOk) failures.push('crm');
+                
+                if (failures.length > 0) {
+                    console.log(`[DASHBOARD] Some endpoints unavailable: ${failures.join(', ')}. Using cached data.`);
+                }
                 
             } catch (e) {
-                console.error('[DASHBOARD] fetchData error:', e);
+                console.error('[DASHBOARD] Unexpected error in fetchData:', e);
             } finally {
                 isFetching = false;
                 hideLoading();
@@ -1736,8 +1936,11 @@
 
         // Utility Functions
         function refreshDashboard() {
+            // Reset consecutive failures on manual refresh to allow fresh error detection
+            Object.keys(consecutiveFailures).forEach(key => consecutiveFailures[key] = 0);
+            hasShownInitialError = false;
+            
             addActivity('info', '🔄', 'Dashboard Refreshed', 'Manual refresh triggered');
-            Object.keys(errorCounts).forEach(key => errorCounts[key] = 0);
             fetchData();
         }
 
