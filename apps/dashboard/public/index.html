@@ -192,12 +192,94 @@
         .stage-label { font-size: var(--text-xs); color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
         .stage-count { font-size: 24px; font-weight: 700; }
 
-        /* Dashboard Grid */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: var(--space-6);
-            margin-bottom: var(--space-6);
+        /* Activity Feed Styles */
+        .activity-feed {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-3);
+            padding: var(--space-3);
+            background: var(--bg-elevated);
+            border-radius: var(--radius);
+            border-left: 3px solid var(--border-color);
+            transition: var(--transition);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .activity-item:hover {
+            background: var(--bg-secondary);
+            transform: translateX(4px);
+        }
+
+        .activity-item.success { border-left-color: var(--status-online); }
+        .activity-item.error { border-left-color: var(--status-danger); }
+        .activity-item.warning { border-left-color: var(--status-warning); }
+        .activity-item.info { border-left-color: var(--status-info); }
+
+        .activity-icon {
+            font-size: 20px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            font-size: var(--text-sm);
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .activity-desc {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .activity-time {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+            flex-shrink: 0;
+            font-family: var(--font-mono);
+        }
+
+        /* Activity Type Indicator */
+        .activity-type-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-left: var(--space-1);
         }
 
         /* CRM Section */
@@ -565,6 +647,12 @@
         let cachedData = { agents: null, health: null, rapidapi: null, crm: null };
         let lastFetchTimes = { agents: null, health: null, rapidapi: null, crm: null };
         let errorCounts = { agents: 0, health: 0, rapidapi: 0, crm: 0 };
+        
+        // SSE State
+        let eventSource = null;
+        let sseConnected = false;
+        let useSSE = true; // Will fall back to polling if SSE fails
+        let activityPollingInterval = null;
 
         // Loading State Management
         function showLoading() {
@@ -706,11 +794,56 @@
                 icon,
                 title,
                 description,
-                time: new Date().toLocaleTimeString()
+                timestamp: Date.now()
             };
             activities.unshift(activity);
-            if (activities.length > 10) activities.pop();
+            if (activities.length > 20) activities.pop();
             renderActivities();
+        }
+
+        // Format relative time (e.g., "2 minutes ago", "just now")
+        function getRelativeTime(timestamp) {
+            if (!timestamp) return '--:--';
+            
+            const now = Date.now();
+            const diff = now - timestamp;
+            
+            // Less than 1 minute
+            if (diff < 60000) {
+                return 'just now';
+            }
+            
+            // Less than 1 hour
+            if (diff < 3600000) {
+                const mins = Math.floor(diff / 60000);
+                return `${mins} minute${mins !== 1 ? 's' : ''} ago`;
+            }
+            
+            // Less than 24 hours
+            if (diff < 86400000) {
+                const hours = Math.floor(diff / 3600000);
+                return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+            }
+            
+            // More than 24 hours
+            const days = Math.floor(diff / 86400000);
+            return `${days} day${days !== 1 ? 's' : ''} ago`;
+        }
+
+        // Get activity type styling
+        function getActivityTypeStyle(type) {
+            const styles = {
+                subagent: { icon: '🤖', color: '#B06CDB', label: 'Subagent' },
+                cron: { icon: '⏰', color: '#CFFF00', label: 'Cron' },
+                gateway: { icon: '🌐', color: '#22C55E', label: 'Gateway' },
+                channel: { icon: '💬', color: '#3B82F6', label: 'Channel' },
+                telegram: { icon: '📱', color: '#3B82F6', label: 'Telegram' },
+                discord: { icon: '💬', color: '#5865F2', label: 'Discord' },
+                system: { icon: '⚙️', color: '#6B7280', label: 'System' },
+                email: { icon: '📧', color: '#F59E0B', label: 'Email' },
+                trade: { icon: '📈', color: '#10B981', label: 'Trade' }
+            };
+            return styles[type?.toLowerCase()] || { icon: '📋', color: '#6B7280', label: 'Activity' };
         }
 
         function renderActivities() {
@@ -728,16 +861,125 @@
                     </div>
                 `;
             } else {
-                container.innerHTML = activities.map(a => `
-                    <div class="activity-item ${a.type}">
-                        <div class="activity-icon">${a.icon}</div>
+                container.innerHTML = activities.map(a => {
+                    const typeStyle = getActivityTypeStyle(a.type);
+                    const icon = a.icon || typeStyle.icon;
+                    const relativeTime = getRelativeTime(a.timestamp);
+                    const typeIndicator = `<span class="activity-type-indicator" style="background: ${typeStyle.color}" title="${typeStyle.label}"></span>`;
+                    
+                    return `
+                    <div class="activity-item ${a.status || 'info'}" data-activity-id="${a.id}">
+                        <div class="activity-icon">${icon}</div>
                         <div class="activity-content">
-                            <div class="activity-title">${a.title}</div>
+                            <div class="activity-title">${a.title} ${typeIndicator}</div>
                             <div class="activity-desc">${a.description}</div>
                         </div>
-                        <div class="activity-time">${a.time}</div>
+                        <div class="activity-time" title="${new Date(a.timestamp).toLocaleString()}">${relativeTime}</div>
                     </div>
-                `).join('');
+                `}).join('');
+            }
+        }
+        
+        // Initialize SSE connection
+        function initSSE() {
+            if (!useSSE || !window.EventSource) {
+                // Fallback to polling
+                useSSE = false;
+                startActivityPolling();
+                return;
+            }
+            
+            try {
+                eventSource = new EventSource('/api/activity/stream');
+                
+                eventSource.onopen = () => {
+                    sseConnected = true;
+                    console.log('[SSE] Connected to activity stream');
+                    addActivity('success', '🔗', 'Live Connection', 'Real-time activity updates enabled');
+                };
+                
+                eventSource.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        
+                        if (data.type === 'connected') {
+                            console.log('[SSE] Server acknowledged connection');
+                        } else if (data.type === 'initial') {
+                            // Initial activities load
+                            if (data.activities && data.activities.length > 0) {
+                                activities = data.activities;
+                                renderActivities();
+                            }
+                        } else if (data.type === 'activity') {
+                            // New activity received
+                            const activity = data.activity;
+                            activities.unshift(activity);
+                            if (activities.length > 20) activities.pop();
+                            renderActivities();
+                            
+                            // Update timestamp
+                            const timestampEl = document.getElementById('activity-timestamp');
+                            if (timestampEl) {
+                                timestampEl.textContent = 'Updated: just now';
+                            }
+                        }
+                    } catch (err) {
+                        console.error('[SSE] Error parsing message:', err);
+                    }
+                };
+                
+                eventSource.onerror = (err) => {
+                    console.error('[SSE] Connection error:', err);
+                    sseConnected = false;
+                    
+                    // Close current connection
+                    if (eventSource) {
+                        eventSource.close();
+                        eventSource = null;
+                    }
+                    
+                    // Fall back to polling
+                    if (useSSE) {
+                        console.log('[SSE] Falling back to polling');
+                        useSSE = false;
+                        addActivity('warning', '⚠️', 'Live Updates', 'Switched to polling mode');
+                        startActivityPolling();
+                    }
+                };
+            } catch (err) {
+                console.error('[SSE] Failed to initialize:', err);
+                useSSE = false;
+                startActivityPolling();
+            }
+        }
+        
+        // Start activity polling (fallback mode)
+        function startActivityPolling() {
+            // Initial fetch
+            fetchActivities();
+            
+            // Poll every 5 seconds
+            activityPollingInterval = setInterval(fetchActivities, 5000);
+        }
+        
+        // Fetch activities via polling
+        async function fetchActivities() {
+            try {
+                const response = await fetch('/api/activity?limit=20');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                if (data.activities && data.activities.length > 0) {
+                    activities = data.activities;
+                    renderActivities();
+                }
+                
+                const timestampEl = document.getElementById('activity-timestamp');
+                if (timestampEl) {
+                    timestampEl.textContent = 'Updated: just now';
+                }
+            } catch (err) {
+                console.error('[Activity] Fetch error:', err);
             }
         }
 
@@ -957,11 +1199,18 @@
             renderAgents();
             renderActivities();
             updateTime();
-            addActivity('success', '🌿', 'Dashboard Loaded', 'Real-time monitoring active • 5s refresh');
+            
+            // Initialize SSE for real-time activity updates
+            initSSE();
+            
+            // Fetch other dashboard data
             fetchData();
             setInterval(fetchData, 5000);
             setInterval(updateTime, 1000);
             startTimestampUpdates();
+            
+            // Update relative times every minute
+            setInterval(renderActivities, 60000);
         }
 
         if (document.readyState === 'loading') {
