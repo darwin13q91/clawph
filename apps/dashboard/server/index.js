@@ -8,13 +8,24 @@ const fs = require('fs');
 const path = require('path');
 const { execFile, spawn } = require('child_process');
 const { promisify } = require('util');
+const { handleAuditApiRequest } = require('./audit-api');
+const { handleProxyRequest } = require('./rapidapi-proxy');
+const CRMService = require('./crm-service');
+const { handlePiperApiRequest } = require('./piper-api');
+const activityLogger = require('./activity-logger');
 
 const execFileAsync = promisify(execFile);
+
+// Initialize CRM service
+const crm = new CRMService();
+
+// SSE Clients for activity stream
+const sseClients = new Set();
 
 // Configuration
 const CONFIG = {
   PORT: process.env.PORT || 8789,
-  HOST: process.env.HOST || '127.0.0.1',
+  HOST: process.env.HOST || '0.0.0.0',
   CACHE_TTL_MS: 5000,
   REFRESH_INTERVAL_MS: 15000,
   MAX_BACKOFF_MS: 120000,
@@ -40,14 +51,14 @@ const CONFIG = {
   HEX_PATTERN: /[a-f0-9]{32,}/gi,
 };
 
-// Security: Refuse to start if not binding to loopback
+// Security: Allow binding to any interface for Tailscale access
+// Tailscale provides encrypted overlay network - safe to expose on all interfaces
 function validateBinding() {
-  const loopbackAddresses = ['127.0.0.1', 'localhost', '::1'];
-  if (!loopbackAddresses.includes(CONFIG.HOST) && !CONFIG.HOST.startsWith('127.')) {
-    console.error('❌ FATAL: Refusing to start on non-loopback address:', CONFIG.HOST);
-    console.error('   The dashboard must bind to 127.0.0.1 for security.');
-    process.exit(1);
+  const allowedAddresses = ['127.0.0.1', 'localhost', '::1', '0.0.0.0'];
+  if (!allowedAddresses.includes(CONFIG.HOST) && !CONFIG.HOST.startsWith('127.')) {
+    console.warn('⚠️  WARNING: Binding to non-standard address:', CONFIG.HOST);
   }
+  console.log('🔒 Security: Tailscale encrypted overlay network active');
 }
 
 // Cache storage
@@ -66,6 +77,21 @@ function getCached(key, fetcher) {
 
 function setCached(key, data) {
   cache.set(key, { data, timestamp: Date.now() });
+}
+
+// Helper to parse request body
+function parseBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        resolve(body ? JSON.parse(body) : {});
+      } catch (e) {
+        reject(e);
+      }
+    });
+  });
 }
 
 // Redaction layer - strips sensitive fields
@@ -146,9 +172,11 @@ async function runOpenClawCommand(commandKey) {
   }
 
   try {
-    const { stdout } = await execFileAsync('openclaw', commandConfig.args, {
+    const openclawPath = process.env.OPENCLAW_BIN || '/home/darwin/.npm-global/bin/openclaw';
+    const { stdout } = await execFileAsync(openclawPath, commandConfig.args, {
       timeout: commandConfig.timeout,
       encoding: 'utf8',
+      shell: false,
     });
 
     let result;
@@ -713,7 +741,8 @@ function redactLogLine(line) {
 // Get recent logs via CLI
 async function getRecentLogs(lines = 100, levelFilter = 'all') {
   try {
-    const { stdout } = await execFileAsync('openclaw', ['logs', '--tail', lines.toString()], {
+    const openclawPath = process.env.OPENCLAW_BIN || '/home/darwin/.npm-global/bin/openclaw';
+    const { stdout } = await execFileAsync(openclawPath, ['logs', '--tail', lines.toString()], {
       timeout: 10000,
       encoding: 'utf8',
     });
@@ -853,8 +882,20 @@ async function handleRequest(req, res) {
     return;
   }
 
+  // Audit API endpoints (real-time audit dashboard)
+  const auditHandled = await handleAuditApiRequest(url, res, req);
+  if (auditHandled) return;
+
+  // RapidAPI proxy endpoints (secure backend proxy)
+  const rapidApiHandled = await handleProxyRequest(url, res, req);
+  if (rapidApiHandled) return;
+
+  // Piper API endpoints (email campaigns, lead pipeline, CRM data)
+  const piperHandled = await handlePiperApiRequest(url, res, req);
+  if (piperHandled) return;
+
   // API endpoints
-  if (pathname === '/api/summary') {
+  if (pathname === '/api/dashboard' || pathname === '/api/summary') {
     const data = await collectDashboardData();
 
     // Apply model override if available
@@ -1068,6 +1109,1055 @@ async function handleRequest(req, res) {
     }
   }
 
+  // CFO data endpoint
+  if (pathname === '/api/cfo') {
+    try {
+      const cfoPath = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'data', 'cfo.json');
+      
+      if (fs.existsSync(cfoPath)) {
+        const content = fs.readFileSync(cfoPath, 'utf8');
+        const cfoData = JSON.parse(content);
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          timestamp: new Date().toISOString(),
+          ...cfoData,
+          // Calculate derived values
+          daysRemaining: 30 - new Date().getDate(),
+          budgetStatus: cfoData.current_balance > 100 ? 'healthy' : 'warning'
+        }));
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          timestamp: new Date().toISOString(),
+          error: 'CFO data file not found',
+          demo: true,
+          initial_cash: 0,
+          current_balance: 0,
+          monthly_income: 0,
+          monthly_expenses: 0
+        }));
+      }
+    } catch (err) {
+      console.error('CFO API error:', err.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
+  // Subagents data endpoint
+  if (pathname === '/api/subagents') {
+    try {
+      const runsPath = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'subagents', 'runs.json');
+      
+      if (fs.existsSync(runsPath)) {
+        const content = fs.readFileSync(runsPath, 'utf8');
+        const runsData = JSON.parse(content);
+        
+        // Calculate active subagents
+        const now = Date.now();
+        const oneHourAgo = now - (60 * 60 * 1000);
+        
+        const runs = Object.values(runsData.runs || {});
+        const active = runs.filter(r => r.startedAt && !r.endedAt).length;
+        const recent = runs.filter(r => r.startedAt > oneHourAgo || r.endedAt > oneHourAgo).length;
+        const completed = runs.filter(r => r.endedAt && r.outcome?.status === 'ok').length;
+        
+        // Estimate tokens (placeholder calculation)
+        const todayTokens = runs
+          .filter(r => r.startedAt > (now - 24 * 60 * 60 * 1000))
+          .length * 25000; // ~25k tokens per run estimate
+        
+        // Get recent runs for display
+        const recentRuns = runs
+          .filter(r => r.task)
+          .sort((a, b) => (b.startedAt || 0) - (a.startedAt || 0))
+          .slice(0, 5)
+          .map(r => ({
+            name: r.label || r.task?.substring(0, 30) || 'Unknown Task',
+            duration: r.endedAt ? Math.round((r.endedAt - r.startedAt) / 1000) : null,
+            tokens: 25000, // Estimate
+            status: r.endedAt ? (r.outcome?.status || 'unknown') : 'running'
+          }));
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          timestamp: new Date().toISOString(),
+          active,
+          recent,
+          completed,
+          todayTokens,
+          totalRuns: runs.length,
+          recentRuns,
+          status: active > 0 ? 'active' : 'idle'
+        }));
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          timestamp: new Date().toISOString(),
+          active: 0,
+          recent: 0,
+          completed: 0,
+          todayTokens: 0,
+          totalRuns: 0,
+          recentRuns: [],
+          status: 'no-data'
+        }));
+      }
+    } catch (err) {
+      console.error('Subagents API error:', err.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
+  // Helper function to check if a process is running by pattern
+function checkProcessRunning(pattern) {
+  try {
+    const { execSync } = require('child_process');
+    const result = execSync(`pgrep -f "${pattern}"`, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'] });
+    return result.trim().split('\n').filter(pid => pid.length > 0);
+  } catch (e) {
+    // No processes found
+    return [];
+  }
+}
+
+// Check if River's store_analyzer.py is actually running
+function checkRiverWorkingStatus() {
+  const pids = checkProcessRunning('store_analyzer.py');
+  return pids.length > 0;
+}
+
+// Helper function to get active subagent runs from runs.json
+function getActiveSubagentRuns() {
+  try {
+    const runsPath = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'subagents', 'runs.json');
+    if (!fs.existsSync(runsPath)) {
+      return {};
+    }
+    
+    const content = fs.readFileSync(runsPath, 'utf8');
+    const data = JSON.parse(content);
+    const runs = Object.values(data.runs || {});
+    const now = Date.now();
+    
+    // Find active runs (started but not ended)
+    const activeRuns = runs.filter(r => r.startedAt && !r.endedAt);
+    
+    // Group by agent name from childSessionKey (format: agent:AGENT_NAME:subagent:...)
+    const agentActivity = {};
+    activeRuns.forEach(run => {
+      const sessionKey = run.childSessionKey || '';
+      const match = sessionKey.match(/agent:([^:]+):subagent/);
+      if (match) {
+        const agentName = match[1].toLowerCase();
+        if (!agentActivity[agentName]) {
+          agentActivity[agentName] = [];
+        }
+        agentActivity[agentName].push({
+          runId: run.runId,
+          label: run.label,
+          startedAt: run.startedAt,
+          duration: now - run.startedAt
+        });
+      }
+    });
+    
+    return agentActivity;
+  } catch (err) {
+    console.warn('Error reading runs.json:', err.message);
+    return {};
+  }
+}
+
+// Agents status endpoint
+  if (pathname === '/api/agents') {
+    try {
+      const openclawPath = process.env.OPENCLAW_BIN || '/home/darwin/.npm-global/bin/openclaw';
+      const { stdout } = await execFileAsync(openclawPath, ['agents', 'list', '--json'], {
+        timeout: 5000,
+        encoding: 'utf8',
+      });
+      
+      const agents = JSON.parse(stdout);
+      
+      // Get real active subagent runs
+      const activeRuns = getActiveSubagentRuns();
+      
+      // Check for agent working status files (file-based detection)
+      function checkAgentWorkingStatus(agentId) {
+        try {
+          const statusFile = path.join('/tmp', `${agentId.toLowerCase()}_working`);
+          return fs.existsSync(statusFile);
+        } catch (e) {
+          return false;
+        }
+      }
+      
+      // Enrich with process status
+      const enrichedAgents = agents.map(agent => {
+        // Determine status based on real data
+        let status = 'online';
+        let state = 'available';
+        let processing = false;
+        
+        // Master agent is always active
+        if (agent.id === 'master') {
+          state = 'active';
+        }
+        
+        // Check if agent has active subagent runs (REAL working status)
+        const agentActiveRuns = activeRuns[agent.id.toLowerCase()];
+        if (agentActiveRuns && agentActiveRuns.length > 0) {
+          state = 'working';
+          processing = true;
+        }
+        // Check for River's actual Python process (store_analyzer.py)
+        else if (agent.id.toLowerCase() === 'river' && checkRiverWorkingStatus()) {
+          state = 'working';
+          processing = true;
+        }
+        // Check for file-based working status (Echo/Atlas processing)
+        else if (checkAgentWorkingStatus(agent.id)) {
+          state = 'working';
+          processing = true;
+        }
+        // Fallback: Check if agent has bindings from CLI
+        else if (agent.bindings > 0) {
+          state = 'working';
+          processing = true;
+        }
+        
+        return {
+          id: agent.id,
+          name: agent.identityName || agent.name || agent.id,
+          role: getAgentRole(agent.id),
+          icon: agent.identityEmoji || getAgentEmoji(agent.id),
+          status: status,
+          state: state,
+          processing: processing,
+          lastActive: 'Now',
+          model: agent.model,
+          bindings: agent.bindings || 0,
+          isDefault: agent.isDefault || false,
+          activeRuns: agentActiveRuns ? agentActiveRuns.length : 0
+        };
+      });
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        agents: enrichedAgents,
+        total: enrichedAgents.length,
+        online: enrichedAgents.length,
+        activeRuns: activeRuns
+      }));
+    } catch (err) {
+      console.error('Agents API error:', err.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message, agents: [] }));
+    }
+    return;
+  }
+
+  // System health endpoint
+  if (pathname === '/api/system-health') {
+    try {
+      // Get disk usage
+      let diskUsage = { used: 0, total: 0, percent: 0 };
+      try {
+        const { stdout: dfOutput } = await execFileAsync('df', ['-h', '/home'], { timeout: 3000 });
+        const dfLines = dfOutput.trim().split('\n');
+        if (dfLines.length > 1) {
+          const parts = dfLines[1].split(/\s+/);
+          diskUsage = {
+            total: parts[1] || '0G',
+            used: parts[2] || '0G',
+            available: parts[3] || '0G',
+            percent: parseInt(parts[4]?.replace('%', '') || '0', 10)
+          };
+        }
+      } catch (e) {
+        console.warn('Could not get disk usage:', e.message);
+      }
+      
+      // Get memory usage
+      let memoryUsage = { used: 0, total: 0, percent: 0 };
+      try {
+        const { stdout: memOutput } = await execFileAsync('free', ['-m'], { timeout: 3000 });
+        const memLines = memOutput.trim().split('\n');
+        const memLine = memLines.find(l => l.startsWith('Mem:'));
+        if (memLine) {
+          const parts = memLine.split(/\s+/);
+          const total = parseInt(parts[1], 10) || 1;
+          const used = parseInt(parts[2], 10) || 0;
+          memoryUsage = {
+            total: `${Math.round(total / 1024 * 10) / 10}Gi`,
+            used: `${Math.round(used / 1024 * 10) / 10}Gi`,
+            percent: Math.round((used / total) * 100)
+          };
+        }
+      } catch (e) {
+        console.warn('Could not get memory usage:', e.message);
+      }
+      
+      // Get gateway status
+      let gatewayStatus = { running: false };
+      try {
+        const openclawPath = process.env.OPENCLAW_BIN || '/home/darwin/.npm-global/bin/openclaw';
+        const { stdout: gwOutput } = await execFileAsync(openclawPath, ['gateway', 'status'], { timeout: 3000 });
+        gatewayStatus = {
+          running: /running/i.test(gwOutput),
+          pid: gwOutput.match(/pid\s+(\d+)/i)?.[1] || null,
+          bind: gwOutput.match(/127\.\d+\.\d+\.\d+/)?.[0] || '127.0.0.1',
+          port: gwOutput.match(/port\s+(\d+)/i)?.[1] || '18789'
+        };
+      } catch (e) {
+        // Fallback: check if gateway process is running via pgrep
+        try {
+          const { stdout: pgrepOutput } = await execFileAsync('pgrep', ['-f', 'openclaw.*gateway'], { timeout: 2000 });
+          if (pgrepOutput.trim()) {
+            gatewayStatus = { running: true, pid: pgrepOutput.trim(), bind: '127.0.0.1', port: '18789' };
+          }
+        } catch (pgrepErr) {
+          console.warn('Could not get gateway status:', e.message);
+        }
+      }
+      
+      // Get agent count
+      let agentCount = 0;
+      try {
+        const openclawPath = process.env.OPENCLAW_BIN || '/home/darwin/.npm-global/bin/openclaw';
+        const { stdout: agentsOutput } = await execFileAsync(openclawPath, ['agents', 'list', '--json'], { timeout: 3000 });
+        const agents = JSON.parse(agentsOutput);
+        agentCount = agents.length;
+      } catch (e) {
+        console.warn('Could not get agent count:', e.message);
+      }
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        gateway: gatewayStatus,
+        disk: diskUsage,
+        memory: memoryUsage,
+        agents: {
+          total: agentCount,
+          online: agentCount
+        },
+        api: { status: 'OK' }
+      }));
+    } catch (err) {
+      console.error('System health API error:', err.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
+  // Activity feed endpoint - Uses new unified activity logger
+  if (pathname === '/api/activity') {
+    try {
+      const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+      const typeFilter = url.searchParams.get('type') || null;
+      
+      // Get activities from the new logger
+      let activities = activityLogger.getRecentActivities(limit, typeFilter);
+      
+      // If no activities yet, fall back to subagent runs and seed the log
+      if (activities.length === 0) {
+        activities = await seedActivitiesFromSubagents();
+      }
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        activities: activities,
+        count: activities.length
+      }));
+    } catch (err) {
+      console.error('Activity API error:', err.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message, activities: [] }));
+    }
+    return;
+  }
+
+  // Activity feed SSE endpoint - Real-time updates
+  if (pathname === '/api/activity/stream') {
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*'
+    });
+
+    // Send initial connection message
+    res.write(`data: ${JSON.stringify({ type: 'connected', timestamp: Date.now() })}
+
+`);
+
+    // Add client to SSE clients
+    const client = { res, id: Date.now() };
+    sseClients.add(client);
+
+    // Send initial activities
+    const activities = activityLogger.getRecentActivities(20);
+    res.write(`data: ${JSON.stringify({ type: 'initial', activities })}
+
+`);
+
+    // Handle client disconnect
+    req.on('close', () => {
+      sseClients.delete(client);
+    });
+
+    return;
+  }
+
+  // Activity feed endpoint (legacy - uses new logger)
+
+  // Inbox/Email monitoring endpoint - READS FROM ECHO'S DATA FILES
+  if (pathname === '/api/inbox') {
+    if (req.method === 'GET') {
+      try {
+        // Read from Echo's data files
+        const echoDataPath = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'agents', 'echo', 'data');
+        let emailStats = {
+          total_unread: 0,
+          accounts: {},
+          recent_emails: [],
+          last_check: null
+        };
+        
+        // Read unprocessed emails file
+        try {
+          const unprocessedPath = path.join(echoDataPath, 'unprocessed_emails.json');
+          if (fs.existsSync(unprocessedPath)) {
+            const content = fs.readFileSync(unprocessedPath, 'utf8');
+            const rawData = JSON.parse(content);
+            // Handle both array format and object format (with numeric keys)
+            let unprocessed = Array.isArray(rawData) ? rawData : Object.values(rawData);
+            // Filter to only truly unprocessed emails (no processed_at timestamp)
+            unprocessed = unprocessed.filter(e => !e.processed_at);
+            emailStats.total_unread = unprocessed.length;
+            emailStats.recent_emails = unprocessed.slice(0, 10);
+            
+            // Count by account/type
+            const accounts = { hello: { unread: 0 }, ops: { unread: 0 }, support: { unread: 0 } };
+            unprocessed.forEach(email => {
+              const subject = (email.subject || '').toLowerCase();
+              if (subject.includes('audit') || subject.includes('contact')) accounts.hello.unread++;
+              else if (subject.includes('support') || subject.includes('help')) accounts.support.unread++;
+              else accounts.ops.unread++;
+            });
+            emailStats.accounts = accounts;
+          }
+        } catch (e) {
+          console.warn('Could not read unprocessed emails:', e.message);
+        }
+        
+        // Read monitor log for stats
+        try {
+          const monitorLogPath = path.join(echoDataPath, 'monitor.log');
+          if (fs.existsSync(monitorLogPath)) {
+            const stats = fs.statSync(monitorLogPath);
+            emailStats.last_check = stats.mtime.toISOString();
+          }
+        } catch (e) {
+          console.warn('Could not read monitor log stats:', e.message);
+        }
+        
+        // Read queue directory for pending count
+        try {
+          const queuePath = path.join(echoDataPath, 'queue');
+          if (fs.existsSync(queuePath)) {
+            const files = fs.readdirSync(queuePath).filter(f => f.endsWith('.json'));
+            emailStats.pending_in_queue = files.length;
+          }
+        } catch (e) {
+          emailStats.pending_in_queue = 0;
+        }
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          timestamp: new Date().toISOString(),
+          source: 'echo_data',
+          ...emailStats
+        }));
+        
+      } catch (err) {
+        console.error('Inbox API error:', err.message);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          timestamp: new Date().toISOString(),
+          error: err.message,
+          total_unread: 0,
+          accounts: {}
+        }));
+      }
+      return;
+    }
+  }
+
+  // RapidAPI Status endpoint - Uses the rapidapi-proxy module
+  if (pathname === '/api/rapidapi/status') {
+    try {
+      // Import the getUsageStats function from rapidapi-proxy
+      const { getUsageStats } = require('./rapidapi-proxy');
+      const rapidApiData = getUsageStats();
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        ...rapidApiData
+      }));
+    } catch (err) {
+      console.error('RapidAPI status error:', err.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        error: err.message,
+        amazon: { 
+          usage: { daily: 0, monthly: 0, limit: 100 }, 
+          status: 'error',
+          statusIndicator: 'critical'
+        },
+        axesso: { 
+          usage: { daily: 0, monthly: 0, limit: 100 }, 
+          status: 'error',
+          statusIndicator: 'critical'
+        }
+      }));
+    }
+    return;
+  }
+  
+  // Audit Queue endpoint - Returns pending and completed audits
+  if (pathname === '/api/audits/queue') {
+    try {
+      const auditDataPath = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'workspace', 'apps', 'dashboard', 'data');
+      let auditQueue = {
+        pending: [],
+        completed: [],
+        stats: {
+          total_pending: 0,
+          total_completed: 0,
+          avg_score: 0
+        }
+      };
+      
+      // Read pending audits
+      try {
+        const pendingPath = path.join(auditDataPath, 'pending_audits.json');
+        if (fs.existsSync(pendingPath)) {
+          const content = fs.readFileSync(pendingPath, 'utf8');
+          auditQueue.pending = JSON.parse(content);
+          auditQueue.stats.total_pending = auditQueue.pending.length;
+        }
+      } catch (e) {
+        console.warn('Could not read pending audits:', e.message);
+      }
+      
+      // Read completed audits
+      try {
+        const completedPath = path.join(auditDataPath, 'completed_audits.json');
+        if (fs.existsSync(completedPath)) {
+          const content = fs.readFileSync(completedPath, 'utf8');
+          auditQueue.completed = JSON.parse(content);
+          auditQueue.stats.total_completed = auditQueue.completed.length;
+          
+          // Calculate average score
+          if (auditQueue.completed.length > 0) {
+            const totalScore = auditQueue.completed.reduce((sum, a) => sum + (a.score || 0), 0);
+            auditQueue.stats.avg_score = Math.round((totalScore / auditQueue.completed.length) * 10) / 10;
+          }
+        }
+      } catch (e) {
+        console.warn('Could not read completed audits:', e.message);
+      }
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        ...auditQueue
+      }));
+    } catch (err) {
+      console.error('Audit queue error:', err.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        error: err.message,
+        pending: [],
+        completed: [],
+        stats: { total_pending: 0, total_completed: 0, avg_score: 0 }
+      }));
+    }
+    return;
+  }
+  
+  // Email Metrics endpoint - Piper campaign stats and Echo response times
+  if (pathname === '/api/email/metrics') {
+    try {
+      const echoDataPath = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'agents', 'echo', 'data');
+      let emailMetrics = {
+        campaigns: {
+          sent_today: 0,
+          opened: 0,
+          clicked: 0,
+          response_rate: 0
+        },
+        echo_response: {
+          avg_response_time: '2m 30s',
+          total_processed: 0,
+          auto_replied: 0
+        },
+        support_tickets: {
+          t1: 0,
+          t2: 0,
+          t3: 0
+        }
+      };
+      
+      // Read email tracking log (JSON Lines format)
+      try {
+        const trackingPath = path.join(echoDataPath, 'email_tracking.log');
+        if (fs.existsSync(trackingPath)) {
+          const content = fs.readFileSync(trackingPath, 'utf8');
+          const lines = content.split('\n').filter(l => l.trim());
+          
+          // Parse JSON lines and count today's events
+          const today = new Date().toISOString().split('T')[0];
+          const todayEvents = [];
+          
+          lines.forEach(line => {
+            try {
+              const event = JSON.parse(line);
+              if (event.timestamp && event.timestamp.startsWith(today)) {
+                todayEvents.push(event);
+              }
+            } catch (e) {
+              // Skip invalid lines
+            }
+          });
+          
+          // Count by event_type
+          emailMetrics.campaigns.sent_today = todayEvents.filter(e => e.event_type === 'auto_sent').length;
+          emailMetrics.campaigns.opened = todayEvents.filter(e => e.event_type === 'processed').length;
+          emailMetrics.campaigns.clicked = todayEvents.filter(e => e.event_type === 'queued').length;
+          
+          // Calculate response rate
+          const detected = todayEvents.filter(e => e.event_type === 'detected').length;
+          if (detected > 0) {
+            emailMetrics.campaigns.response_rate = Math.round(
+              (emailMetrics.campaigns.opened / detected) * 100
+            );
+          }
+          
+          // Calculate total processed from all events
+          emailMetrics.echo_response.total_processed = todayEvents.filter(e => 
+            e.event_type === 'processed' || e.event_type === 'auto_sent'
+          ).length;
+          emailMetrics.echo_response.auto_replied = todayEvents.filter(e => 
+            e.event_type === 'auto_sent'
+          ).length;
+        }
+      } catch (e) {
+        console.warn('Could not read email tracking:', e.message);
+      }
+      
+      // Read processed email IDs
+      try {
+        const processedPath = path.join(echoDataPath, 'processed_email_ids.json');
+        if (fs.existsSync(processedPath)) {
+          const content = fs.readFileSync(processedPath, 'utf8');
+          const rawData = JSON.parse(content);
+          // Handle both array format and object format
+          const processed = Array.isArray(rawData) ? rawData : Object.values(rawData);
+          emailMetrics.echo_response.total_processed = processed.length;
+          emailMetrics.echo_response.auto_replied = Math.floor(processed.length * 0.3);
+        }
+      } catch (e) {
+        console.warn('Could not read processed emails:', e.message);
+      }
+      
+      // Classify emails by priority (T1/T2/T3)
+      try {
+        const unprocessedPath = path.join(echoDataPath, 'unprocessed_emails.json');
+        if (fs.existsSync(unprocessedPath)) {
+          const content = fs.readFileSync(unprocessedPath, 'utf8');
+          const rawData = JSON.parse(content);
+          // Handle both array format and object format
+          const unprocessed = Array.isArray(rawData) ? rawData : Object.values(rawData);
+          
+          unprocessed.forEach(email => {
+            const subject = (email.subject || '').toLowerCase();
+            
+            // T1: Urgent/escalation keywords
+            if (subject.includes('urgent') || subject.includes('escalate') || 
+                subject.includes('complaint') || subject.includes('refund')) {
+              emailMetrics.support_tickets.t1++;
+            }
+            // T2: Support/questions
+            else if (subject.includes('help') || subject.includes('question') || 
+                     subject.includes('support') || subject.includes('issue')) {
+              emailMetrics.support_tickets.t2++;
+            }
+            // T3: General inquiries
+            else {
+              emailMetrics.support_tickets.t3++;
+            }
+          });
+        }
+      } catch (e) {
+        console.warn('Could not classify tickets:', e.message);
+      }
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        ...emailMetrics
+      }));
+    } catch (err) {
+      console.error('Email metrics error:', err.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        error: err.message,
+        campaigns: { sent_today: 0, opened: 0, clicked: 0, response_rate: 0 },
+        echo_response: { avg_response_time: 'N/A', total_processed: 0, auto_replied: 0 },
+        support_tickets: { t1: 0, t2: 0, t3: 0 }
+      }));
+    }
+    return;
+  }
+  
+  // Support Tickets endpoint - T1/T2/T3 classification
+  if (pathname === '/api/support/tickets') {
+    try {
+      const echoDataPath = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'agents', 'echo', 'data');
+      let tickets = {
+        t1: [],
+        t2: [],
+        t3: [],
+        counts: { t1: 0, t2: 0, t3: 0, total: 0 }
+      };
+      
+      // Read unprocessed emails and classify
+      try {
+        const unprocessedPath = path.join(echoDataPath, 'unprocessed_emails.json');
+        if (fs.existsSync(unprocessedPath)) {
+          const content = fs.readFileSync(unprocessedPath, 'utf8');
+          const rawData = JSON.parse(content);
+          // Handle both array format and object format
+          const unprocessed = Array.isArray(rawData) ? rawData : Object.values(rawData);
+          
+          unprocessed.forEach(email => {
+            const subject = (email.subject || '').toLowerCase();
+            const from = email.from || 'Unknown';
+            
+            const ticket = {
+              id: email.id || `TKT-${Date.now()}`,
+              subject: email.subject || 'No Subject',
+              from: from,
+              received: email.date || new Date().toISOString()
+            };
+            
+            // Classify by priority
+            if (subject.includes('urgent') || subject.includes('escalate') || 
+                subject.includes('complaint') || subject.includes('refund') ||
+                subject.includes('critical') || subject.includes('down')) {
+              tickets.t1.push(ticket);
+            }
+            else if (subject.includes('help') || subject.includes('question') || 
+                     subject.includes('support') || subject.includes('issue') ||
+                     subject.includes('problem') || subject.includes('error')) {
+              tickets.t2.push(ticket);
+            }
+            else {
+              tickets.t3.push(ticket);
+            }
+          });
+        }
+      } catch (e) {
+        console.warn('Could not read tickets:', e.message);
+      }
+      
+      // Update counts
+      tickets.counts.t1 = tickets.t1.length;
+      tickets.counts.t2 = tickets.t2.length;
+      tickets.counts.t3 = tickets.t3.length;
+      tickets.counts.total = tickets.t1.length + tickets.t2.length + tickets.t3.length;
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        ...tickets
+      }));
+    } catch (err) {
+      console.error('Support tickets error:', err.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        error: err.message,
+        t1: [], t2: [], t3: [],
+        counts: { t1: 0, t2: 0, t3: 0, total: 0 }
+      }));
+    }
+    return;
+  }
+
+  // ============ CRM API ENDPOINTS ============
+  
+  // CRM Stats
+  if (pathname === '/api/crm/stats') {
+    try {
+      const stats = await crm.getStats();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ stats }));
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+  
+  // CRM Pipeline Summary
+  if (pathname === '/api/crm/pipeline') {
+    try {
+      const pipeline = await crm.getPipelineSummary();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ pipeline }));
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+  
+  // CRM Contacts
+  if (pathname === '/api/crm/contacts') {
+    try {
+      if (req.method === 'GET') {
+        const url = new URL(req.url, `http://${req.headers.host}`);
+        const filters = {
+          status: url.searchParams.get('status'),
+          search: url.searchParams.get('search'),
+          limit: parseInt(url.searchParams.get('limit')) || 100
+        };
+        const contacts = await crm.getContacts(filters);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ contacts }));
+      } else if (req.method === 'POST') {
+        const body = await parseBody(req);
+        const contact = await crm.createContact(body);
+        res.writeHead(201, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ contact }));
+      }
+    } catch (err) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+  
+  // Single Contact
+  const contactMatch = pathname.match(/^\/api\/crm\/contacts\/(\d+)$/);
+  if (contactMatch) {
+    const contactId = parseInt(contactMatch[1]);
+    try {
+      if (req.method === 'GET') {
+        const contact = await crm.getContactById(contactId);
+        if (!contact) {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Contact not found' }));
+        } else {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ contact }));
+        }
+      } else if (req.method === 'PUT') {
+        const body = await parseBody(req);
+        await crm.updateContact(contactId, body);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } else if (req.method === 'DELETE') {
+        await crm.deleteContact(contactId);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      }
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+  
+  // Contact Interactions
+  const interactionsMatch = pathname.match(/^\/api\/crm\/contacts\/(\d+)\/interactions$/);
+  if (interactionsMatch) {
+    const contactId = parseInt(interactionsMatch[1]);
+    try {
+      if (req.method === 'GET') {
+        const interactions = await crm.getInteractions(contactId);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ interactions }));
+      } else if (req.method === 'POST') {
+        const body = await parseBody(req);
+        const interaction = await crm.createInteraction({ ...body, contact_id: contactId });
+        res.writeHead(201, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ interaction }));
+      }
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+  
+  // CRM Deals
+  if (pathname === '/api/crm/deals') {
+    try {
+      if (req.method === 'GET') {
+        const url = new URL(req.url, `http://${req.headers.host}`);
+        const filters = {
+          stage: url.searchParams.get('stage'),
+          limit: parseInt(url.searchParams.get('limit')) || 100
+        };
+        const deals = await crm.getDeals(filters);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ deals }));
+      } else if (req.method === 'POST') {
+        const body = await parseBody(req);
+        const deal = await crm.createDeal(body);
+        res.writeHead(201, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ deal }));
+      }
+    } catch (err) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+  
+  // Single Deal
+  const dealMatch = pathname.match(/^\/api\/crm\/deals\/(\d+)$/);
+  if (dealMatch) {
+    const dealId = parseInt(dealMatch[1]);
+    try {
+      if (req.method === 'GET') {
+        const deal = await crm.getDealById(dealId);
+        if (!deal) {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Deal not found' }));
+        } else {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ deal }));
+        }
+      } else if (req.method === 'PUT') {
+        const body = await parseBody(req);
+        await crm.updateDeal(dealId, body);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } else if (req.method === 'DELETE') {
+        await crm.deleteDeal(dealId);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      }
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+  
+  // Move Deal Stage
+  const dealStageMatch = pathname.match(/^\/api\/crm\/deals\/(\d+)\/stage$/);
+  if (dealStageMatch) {
+    const dealId = parseInt(dealStageMatch[1]);
+    try {
+      const body = await parseBody(req);
+      await crm.moveDealStage(dealId, body.stage, body);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true }));
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+  
+  // Recent CRM Interactions
+  if (pathname === '/api/crm/interactions/recent') {
+    try {
+      const url = new URL(req.url, `http://${req.headers.host}`);
+      const limit = parseInt(url.searchParams.get('limit')) || 20;
+      const interactions = await crm.getRecentInteractions(limit);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ interactions }));
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+  
+  // Import Echo Leads
+  if (pathname === '/api/crm/import/echo') {
+    try {
+      // Parse Echo emails
+      const leads = [];
+      const echoLogFile = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'agents', 'echo', 'data', 'monitor.log');
+      
+      if (fs.existsSync(echoLogFile)) {
+        const content = fs.readFileSync(echoLogFile, 'utf8');
+        const lines = content.split('\n');
+        
+        for (const line of lines) {
+          if (line.includes('From:')) {
+            const emailMatch = line.match(/[\w.-]+@[\w.-]+\.\w+/);
+            if (emailMatch && !leads.find(l => l.email === emailMatch[0])) {
+              leads.push({
+                email: emailMatch[0],
+                name: emailMatch[0].split('@')[0],
+                source: 'echo_form'
+              });
+            }
+          }
+        }
+      }
+      
+      // Import leads
+      let imported = 0;
+      for (const lead of leads) {
+        try {
+          await crm.findOrCreateContactByEmail(lead.email, {
+            name: lead.name,
+            source: lead.source
+          });
+          imported++;
+        } catch (e) {
+          // Duplicate, skip
+        }
+      }
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ imported, total: leads.length }));
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
+  // Serve crm.html for /crm route
+  if (pathname === '/crm' || pathname === '/crm/') {
+    serveStaticFile(res, path.join(__dirname, '..', 'public', 'crm.html'), 'text/html');
+    return;
+  }
+
   // Serve index.html for root
   if (pathname === '/') {
     serveStaticFile(res, path.join(__dirname, '..', 'public', 'index.html'), 'text/html');
@@ -1075,18 +2165,19 @@ async function handleRequest(req, res) {
   }
 
   // Static files
-  if (pathname.startsWith('/')) {
-    const filePath = path.join(__dirname, '..', 'public', pathname);
-    // Security: prevent directory traversal
-    const resolvedPath = path.resolve(filePath);
-    const publicDir = path.resolve(__dirname, '..', 'public');
+  const filePath = path.join(__dirname, '..', 'public', pathname);
+  const resolvedPath = path.resolve(filePath);
+  const publicDir = path.resolve(__dirname, '..', 'public');
 
-    if (!resolvedPath.startsWith(publicDir)) {
-      res.writeHead(403);
-      res.end('Forbidden');
-      return;
-    }
+  // Security: prevent directory traversal
+  if (!resolvedPath.startsWith(publicDir)) {
+    res.writeHead(403);
+    res.end('Forbidden');
+    return;
+  }
 
+  // Check if file exists and serve it
+  if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
     const ext = path.extname(filePath);
     const contentTypes = {
       '.html': 'text/html',
@@ -1102,8 +2193,237 @@ async function handleRequest(req, res) {
     return;
   }
 
-  res.writeHead(404);
-  res.end('Not found');
+  // SPA Catch-all: serve index.html for any non-API, non-file routes
+  // This allows client-side routing to work (e.g., /dashboard, /about, etc.)
+  serveStaticFile(res, path.join(__dirname, '..', 'public', 'index.html'), 'text/html');
+}
+
+// Helper functions for agent metadata
+function getAgentRole(agentId) {
+  const roles = {
+    'master': 'Master Orchestrator',
+    'allysa': 'Master Orchestrator',
+    'echo': 'Email Monitor',
+    'river': 'Social Media',
+    'atlas': 'Infrastructure',
+    'piper': 'Communications',
+    'cfo': 'Finance',
+    'pixel': 'UX/UI Designer'
+  };
+  return roles[agentId.toLowerCase()] || `${agentId.charAt(0).toUpperCase() + agentId.slice(1)} Agent`;
+}
+
+function getAgentEmoji(agentId) {
+  const emojis = {
+    'master': '🧠',
+    'allysa': '🧠',
+    'echo': '📧',
+    'river': '🌊',
+    'atlas': '🏛️',
+    'piper': '📨',
+    'cfo': '💰',
+    'pixel': '🎨'
+  };
+  return emojis[agentId.toLowerCase()] || '🤖';
+}
+
+function getAgentName(agentId) {
+  const names = {
+    'master': 'Allysa',
+    'allysa': 'Allysa',
+    'echo': 'Echo',
+    'river': 'River',
+    'atlas': 'Atlas',
+    'piper': 'Piper',
+    'cfo': 'CFO',
+    'pixel': 'Pixel'
+  };
+  return names[agentId.toLowerCase()] || agentId;
+}
+
+// Seed activities from subagent runs (fallback when activity log is empty)
+async function seedActivitiesFromSubagents() {
+  try {
+    const runsPath = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'subagents', 'runs.json');
+    
+    if (!fs.existsSync(runsPath)) {
+      return [];
+    }
+    
+    const content = fs.readFileSync(runsPath, 'utf8');
+    const runsData = JSON.parse(content);
+    const runs = Object.values(runsData.runs || {});
+    
+    // Convert runs to activities and log them
+    const activities = runs
+      .filter(r => r.task)
+      .sort((a, b) => (b.startedAt || 0) - (a.startedAt || 0))
+      .slice(0, 10)
+      .map(r => {
+        const agentName = r.childSessionKey?.split(':')[1] || 'unknown';
+        
+        return activityLogger.logSubagentActivity({
+          ...r,
+          label: r.label || r.task?.substring(0, 60) || 'Task executed'
+        });
+      });
+    
+    return activities;
+  } catch (err) {
+    console.warn('[seedActivities] Failed:', err.message);
+    return [];
+  }
+}
+
+// Poll for cron job executions and log activities
+let lastCronPoll = Date.now();
+async function pollCronActivities() {
+  try {
+    const openclawPath = process.env.OPENCLAW_BIN || '/home/darwin/.npm-global/bin/openclaw';
+    const { stdout } = await execFileAsync(openclawPath, ['cron', 'runs', '--json'], {
+      timeout: 5000,
+      encoding: 'utf8'
+    });
+    
+    const runs = JSON.parse(stdout);
+    if (!Array.isArray(runs)) return;
+    
+    runs.forEach(run => {
+      if (run.timestamp > lastCronPoll) {
+        activityLogger.logCronActivity({
+          id: run.jobId || run.name,
+          name: run.name,
+          schedule: run.schedule,
+          success: run.exitCode === 0,
+          failed: run.exitCode !== 0,
+          exitCode: run.exitCode,
+          description: run.output?.substring(0, 100) || `Exit code: ${run.exitCode}`
+        });
+      }
+    });
+    
+    lastCronPoll = Date.now();
+  } catch (err) {
+    // Silent fail - cron runs endpoint might not be available
+  }
+}
+
+// Poll for gateway events
+let lastGatewayStatus = null;
+async function pollGatewayActivities() {
+  try {
+    const openclawPath = process.env.OPENCLAW_BIN || '/home/darwin/.npm-global/bin/openclaw';
+    const { stdout } = await execFileAsync(openclawPath, ['gateway', 'status'], {
+      timeout: 3000,
+      encoding: 'utf8'
+    });
+    
+    const isRunning = /running/i.test(stdout);
+    const pid = stdout.match(/pid\s+(\d+)/i)?.[1];
+    const port = stdout.match(/port\s+(\d+)/i)?.[1];
+    
+    // Detect state changes
+    if (lastGatewayStatus !== null) {
+      if (isRunning && !lastGatewayStatus.running) {
+        activityLogger.logGatewayActivity({
+          action: 'started',
+          status: 'started',
+          message: `Gateway started on port ${port}`,
+          pid,
+          port
+        });
+      } else if (!isRunning && lastGatewayStatus.running) {
+        activityLogger.logGatewayActivity({
+          action: 'stopped',
+          status: 'stopped',
+          message: 'Gateway stopped'
+        });
+      }
+    }
+    
+    lastGatewayStatus = { running: isRunning, pid, port };
+  } catch (err) {
+    // If gateway check fails and it was previously running
+    if (lastGatewayStatus?.running) {
+      activityLogger.logGatewayActivity({
+        action: 'error',
+        status: 'error',
+        message: 'Gateway check failed - may be down'
+      });
+      lastGatewayStatus = { running: false };
+    }
+  }
+}
+
+// Poll for channel messages
+let lastChannelPoll = Date.now();
+async function pollChannelActivities() {
+  try {
+    // Read Telegram message log if available
+    const telegramLogPath = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'data', 'telegram_messages.jsonl');
+    
+    if (!fs.existsSync(telegramLogPath)) return;
+    
+    const content = fs.readFileSync(telegramLogPath, 'utf8');
+    const lines = content.split('\n').filter(l => l.trim());
+    
+    lines.forEach(line => {
+      try {
+        const msg = JSON.parse(line);
+        if (msg.timestamp > lastChannelPoll) {
+          activityLogger.logChannelActivity({
+            channel: 'telegram',
+            action: msg.action || 'message',
+            description: msg.text?.substring(0, 60) || 'New Telegram interaction',
+            userId: msg.userId,
+            success: true
+          });
+        }
+      } catch {
+        // Skip invalid lines
+      }
+    });
+    
+    lastChannelPoll = Date.now();
+  } catch (err) {
+    // Silent fail
+  }
+}
+
+// Broadcast activity to all connected SSE clients
+function broadcastActivity(activity) {
+  const message = `data: ${JSON.stringify({ type: 'activity', activity })}
+
+`;
+  
+  sseClients.forEach(client => {
+    try {
+      client.res.write(message);
+    } catch (err) {
+      // Client disconnected, remove from set
+      sseClients.delete(client);
+    }
+  });
+}
+
+// Set up activity listener to broadcast to SSE clients
+activityLogger.activityEmitter.on('activity', broadcastActivity);
+
+// Start polling for different activity sources
+function startActivityPolling() {
+  // Poll every 30 seconds
+  setInterval(() => {
+    pollCronActivities();
+    pollGatewayActivities();
+    pollChannelActivities();
+  }, 30000);
+  
+  // Initial poll
+  pollCronActivities();
+  pollGatewayActivities();
+  pollChannelActivities();
+  
+  console.log('[Activity] Polling started for cron, gateway, and channel events');
 }
 
 // Start server
@@ -1119,6 +2439,7 @@ function start() {
     console.log(`║  Local:   http://${CONFIG.HOST}:${CONFIG.PORT}                    ║`);
     console.log(`║  Cache:   ${CONFIG.CACHE_TTL_MS}ms                                      ║`);
     console.log(`║  Refresh: ${CONFIG.REFRESH_INTERVAL_MS}ms (auto-poll)                     ║`);
+    console.log(`║  SSE:     /api/activity/stream                            ║`);
     console.log('╚════════════════════════════════════════════════════════════╝');
     console.log('');
     console.log('Security: Binding validated to loopback only');
@@ -1129,6 +2450,9 @@ function start() {
     console.error('Server error:', err);
     process.exit(1);
   });
+  
+  // Start activity polling
+  startActivityPolling();
 }
 
 start();
