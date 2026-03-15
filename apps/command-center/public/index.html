@@ -1520,6 +1520,7 @@
             { id: 'husband', name: 'Husband', role: 'Executive Assistant', icon: '🤵', status: 'online', state: 'available' },
             { id: 'atlas', name: 'Atlas', role: 'DevOps', icon: '🏛️', status: 'online', state: 'available' },
             { id: 'echo', name: 'Echo', role: 'Email Monitor', icon: '📧', status: 'online', state: 'available' },
+            { id: 'trader', name: 'Trader', role: 'Trading Bot', icon: '📈', status: 'online', state: 'available', url: 'http://127.0.0.1:3001' },
             { id: 'river', name: 'River', role: 'Social Media', icon: '🌊', status: 'online', state: 'available' },
             { id: 'piper', name: 'Piper', role: 'Communications', icon: '📨', status: 'online', state: 'available' },
             { id: 'pixel', name: 'Pixel', role: 'UX/UI Designer', icon: '🎨', status: 'online', state: 'available' },
@@ -1570,15 +1571,26 @@
                 const stateText = agent.state === 'active' ? 'Active' : 
                                  agent.state === 'working' ? 'Working' : 'Online';
                 
+                const cardContent = `
+                    <div class="agent-avatar">${agent.icon}</div>
+                    <div class="agent-name">${agent.name}</div>
+                    <div class="agent-role">${agent.role}</div>
+                    <div class="agent-status ${agent.state}">
+                        <span class="agent-status-dot"></span>
+                        ${stateText}
+                    </div>
+                `;
+                
+                if (agent.url) {
+                    return `
+                        <a href="${agent.url}" target="_blank" class="agent-card ${stateClass}" data-agent="${agent.id}" style="text-decoration: none; color: inherit;">
+                            ${cardContent}
+                        </a>
+                    `;
+                }
                 return `
                     <div class="agent-card ${stateClass}" data-agent="${agent.id}" onclick="showAgentDetails('${agent.id}')">
-                        <div class="agent-avatar">${agent.icon}</div>
-                        <div class="agent-name">${agent.name}</div>
-                        <div class="agent-role">${agent.role}</div>
-                        <div class="agent-status ${agent.state}">
-                            <span class="agent-status-dot"></span>
-                            ${stateText}
-                        </div>
+                        ${cardContent}
                     </div>
                 `;
             }).join('');
