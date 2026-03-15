@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, Download, Mail, User, ChevronDown, Sparkles, Loader2, CheckCircle } from 'lucide-react';
+import { submitLeadCapture, getUtmParams } from '../config/lead-capture';
 
 // Extend Window interface for tracking pixels
 declare global {
@@ -155,18 +156,19 @@ export default function LeadMagnetPopup({
     setIsSubmitting(true);
     
     try {
-      // Send to Echo via API endpoint
-      const response = await fetch('/api/lead-capture', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          source: 'lead_magnet_popup',
-          timestamp: new Date().toISOString(),
-        }),
+      // Submit lead via config handler
+      const result = await submitLeadCapture({
+        name: formData.name,
+        email: formData.email,
+        revenue: formData.revenue,
+        source: 'lead_magnet_popup',
+        timestamp: new Date().toISOString(),
+        ...getUtmParams(),
       });
       
-      if (!response.ok) throw new Error('Submission failed');
+      if (!result.success) {
+        throw new Error(result.error || 'Submission failed');
+      }
       
       // Track lead conversion
       if (typeof window !== 'undefined' && window.fbq) {

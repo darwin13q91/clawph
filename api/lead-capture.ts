@@ -1,14 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-// CORS headers
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+// Internal email API endpoint (PrivateEmail SMTP via Flask API)
+// This can be overridden with environment variable for local development
+const EMAIL_API_URL = process.env.EMAIL_API_URL || 'https://amajungle-email-api.vercel.app/api/send-email';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Handle CORS preflight
@@ -40,49 +34,84 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Invalid email format' });
     }
 
-    // 1. Send notification to Echo (hello@amajungle.com)
-    await resend.emails.send({
-      from: 'Amajungle Leads <leads@amajungle.com>',
-      to: 'hello@amajungle.com',
-      subject: `🎯 New Lead: ${name} - ${revenue}/month`,
-      html: `
-        <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h2 style="color: #0B3A2C; border-bottom: 3px solid #CFFF00; padding-bottom: 10px;">
-            🎯 New Lead Magnet Download
-          </h2>
-          
-          <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong style="color: #0B3A2C;">Name:</strong> ${name}</p>
-            <p><strong style="color: #0B3A2C;">Email:</strong> <a href="mailto:${email}" style="color: #6E2E8C;">${email}</a></p>
-            <p><strong style="color: #0B3A2C;">Monthly Revenue:</strong> ${revenue}</p>
-            <p><strong style="color: #0B3A2C;">Source:</strong> ${source || 'lead_magnet_popup'}</p>
-            <p><strong style="color: #0B3A2C;">Captured:</strong> ${timestamp || new Date().toISOString()}</p>
-            ${utm_source ? `<p><strong style="color: #0B3A2C;">UTM Source:</strong> ${utm_source}</p>` : ''}
-            ${utm_medium ? `<p><strong style="color: #0B3A2C;">UTM Medium:</strong> ${utm_medium}</p>` : ''}
-            ${utm_campaign ? `<p><strong style="color: #0B3A2C;">UTM Campaign:</strong> ${utm_campaign}</p>` : ''}
-          </div>
-          
-          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-          
-          <p style="color: #666; font-size: 14px;">
-            <strong>Next Steps:</strong> This lead should receive the nurture sequence starting with Day 0 (Welcome) email.
-          </p>
-          
-          <div style="background: #0B3A2C; color: #CFFF00; padding: 15px; border-radius: 8px; margin-top: 20px;">
-            <p style="margin: 0; font-weight: 600;">🤖 Piper Action Required:</p>
-            <p style="margin: 5px 0 0 0; font-size: 14px;">Send Day 0 nurture email to ${email}</p>
-          </div>
+    const captureTimestamp = timestamp || new Date().toISOString();
+    const leadSource = source || 'lead_magnet_popup';
+
+    // Prepare email content for lead notification to hello@amajungle.com
+    const leadNotificationHtml = `
+      <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #0B3A2C; border-bottom: 3px solid #CFFF00; padding-bottom: 10px;">
+          🎯 New Lead Magnet Download
+        </h2>
+        
+        <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p><strong style="color: #0B3A2C;">Name:</strong> ${name}</p>
+          <p><strong style="color: #0B3A2C;">Email:</strong> <a href="mailto:${email}" style="color: #6E2E8C;">${email}</a></p>
+          <p><strong style="color: #0B3A2C;">Monthly Revenue:</strong> ${revenue}</p>
+          <p><strong style="color: #0B3A2C;">Source:</strong> ${leadSource}</p>
+          <p><strong style="color: #0B3A2C;">Captured:</strong> ${captureTimestamp}</p>
+          ${utm_source ? `<p><strong style="color: #0B3A2C;">UTM Source:</strong> ${utm_source}</p>` : ''}
+          ${utm_medium ? `<p><strong style="color: #0B3A2C;">UTM Medium:</strong> ${utm_medium}</p>` : ''}
+          ${utm_campaign ? `<p><strong style="color: #0B3A2C;">UTM Campaign:</strong> ${utm_campaign}</p>` : ''}
         </div>
-      `,
+        
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        
+        <p style="color: #666; font-size: 14px;">
+          <strong>Next Steps:</strong> This lead should receive the nurture sequence starting with Day 0 (Welcome) email.
+        </p>
+        
+        <div style="background: #0B3A2C; color: #CFFF00; padding: 15px; border-radius: 8px; margin-top: 20px;">
+          <p style="margin: 0; font-weight: 600;">🤖 Piper Action Required:</p>
+          <p style="margin: 5px 0 0 0; font-size: 14px;">Send Day 0 nurture email to ${email}</p>
+        </div>
+      </div>
+    `;
+
+    // 1. Send notification to Echo (hello@amajungle.com) via internal email API
+    const leadNotificationResponse = await fetch(EMAIL_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to_email: 'hello@amajungle.com',
+        subject: `🎯 New Lead: ${name} - ${revenue}/month`,
+        message: leadNotificationHtml,
+        from_name: 'Amajungle Leads',
+        client_name: name,
+        client_email: email,
+        service: 'Lead Magnet Download'
+      }),
     });
 
-    // 2. Send welcome email to lead with checklist
-    await resend.emails.send({
-      from: 'Allysa Kate <allysa@amajungle.com>',
-      to: email,
-      subject: "Your Amazon Seller's Checklist + one quick win",
-      html: generateWelcomeEmail(name),
+    if (!leadNotificationResponse.ok) {
+      const errorData = await leadNotificationResponse.json().catch(() => ({}));
+      console.error('Lead notification email failed:', errorData);
+      throw new Error(`Failed to send lead notification: ${leadNotificationResponse.status}`);
+    }
+
+    // 2. Send welcome email to lead with checklist via internal email API
+    const welcomeEmailHtml = generateWelcomeEmail(name);
+    
+    const welcomeResponse = await fetch(EMAIL_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to_email: email,
+        subject: "Your Amazon Seller's Checklist + one quick win",
+        message: welcomeEmailHtml,
+        from_name: 'Allysa Kate',
+        client_name: name,
+        client_email: email,
+        service: 'Welcome Email'
+      }),
     });
+
+    if (!welcomeResponse.ok) {
+      const errorData = await welcomeResponse.json().catch(() => ({}));
+      console.error('Welcome email failed:', errorData);
+      // Don't throw here - we still captured the lead even if welcome email fails
+      console.warn(`Welcome email failed for ${email}, but lead was captured`);
+    }
 
     // 3. Log success (in production, also log to CRM)
     console.log(`Lead captured: ${email} (${revenue})`);
