@@ -1087,7 +1087,8 @@
             { id: 'river', name: 'River', role: 'Social Media', icon: '🌊' },
             { id: 'piper', name: 'Piper', role: 'Communications', icon: '📨' },
             { id: 'pixel', name: 'Pixel', role: 'UX/UI Designer', icon: '🎨' },
-            { id: 'cfo', name: 'CFO', role: 'Finance', icon: '💰' }
+            { id: 'cfo', name: 'CFO', role: 'Finance', icon: '💰' },
+            { id: 'trader', name: 'Trader', role: 'Trading Bot', icon: '📈', url: 'http://127.0.0.1:3001' }
         ];
 
         // State management
@@ -1362,27 +1363,39 @@
                 const stateClass = status?.state === 'working' ? 'working' : status?.state === 'active' ? 'online' : '';
                 const stateText = status?.state === 'active' ? 'Active' : status?.state === 'working' ? 'Working' : 'Online';
                 const isOnline = status?.status === 'online';
-
+                const cardContent = `
+                    <div class="agent-header">
+                        <div class="agent-avatar">${agent.icon}</div>
+                        <div class="agent-info">
+                            <div class="agent-name">${agent.name}</div>
+                            <div class="agent-role">${agent.role}</div>
+                        </div>
+                        <span class="agent-status ${stateClass || 'online'}">${stateText}</span>
+                    </div>
+                    <div class="agent-metrics">
+                        <div>
+                            <div class="agent-metric-label">Tasks</div>
+                            <div class="agent-metric-value">${status?.activeRuns || 0}</div>
+                        </div>
+                        <div>
+                            <div class="agent-metric-label">Bindings</div>
+                            <div class="agent-metric-value">${status?.bindings || 0}</div>
+                        </div>
+                    </div>
+                `;
+                const cardClass = `agent-card ${stateClass} ${isOnline ? 'online' : ''}`;
+                const style = `animation-delay: ${(index + 1) * 0.1}s`;
+                
+                if (agent.url) {
+                    return `
+                        <a href="${agent.url}" target="_blank" class="${cardClass}" data-agent-id="${agent.id}" style="${style}; text-decoration: none; color: inherit;">
+                            ${cardContent}
+                        </a>
+                    `;
+                }
                 return `
-                    <div class="agent-card ${stateClass} ${isOnline ? 'online' : ''}" data-agent-id="${agent.id}" style="animation-delay: ${(index + 1) * 0.1}s">
-                        <div class="agent-header">
-                            <div class="agent-avatar">${agent.icon}</div>
-                            <div class="agent-info">
-                                <div class="agent-name">${agent.name}</div>
-                                <div class="agent-role">${agent.role}</div>
-                            </div>
-                            <span class="agent-status ${stateClass || 'online'}">${stateText}</span>
-                        </div>
-                        <div class="agent-metrics">
-                            <div>
-                                <div class="agent-metric-label">Tasks</div>
-                                <div class="agent-metric-value">${status?.activeRuns || 0}</div>
-                            </div>
-                            <div>
-                                <div class="agent-metric-label">Bindings</div>
-                                <div class="agent-metric-value">${status?.bindings || 0}</div>
-                            </div>
-                        </div>
+                    <div class="${cardClass}" data-agent-id="${agent.id}" style="${style}">
+                        ${cardContent}
                     </div>
                 `;
             }).join('');
