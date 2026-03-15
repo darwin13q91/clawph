@@ -29,7 +29,7 @@
     
     --jungle-green: #0B3A2C;
     --violet: #6E2E8C;
-    --neon-lime: #CFFF00;
+    --neon-lime: #9FBF00;
     --warm-white: #F6F7EB;
     --warm-white-72: rgba(246, 247, 235, 0.72);
     --amazon-orange: #FF9900;
@@ -348,10 +348,29 @@
   color: var(--warm-white);
 }
 
-/* Focus-visible styles for accessibility */
+/* Focus-visible styles for accessibility - WCAG compliant */
 :focus-visible {
-  outline: 2px solid var(--neon-lime);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 2px var(--jungle-green), 0 0 0 4px var(--neon-lime);
+  border-radius: 4px;
+}
+
+/* Enhanced focus styles for all interactive elements */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--jungle-green), 0 0 0 4px var(--neon-lime);
+  border-radius: 4px;
+}
+
+/* Form elements focus */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--neon-lime);
+  box-shadow: 0 0 0 2px var(--jungle-green), 0 0 0 4px var(--neon-lime);
 }
 
 /* Ensure root element allows scrolling */
@@ -369,17 +388,10 @@
   pointer-events: auto;
 }
 
-/* Remove default focus outline for mouse users */
+/* Remove default focus outline for mouse users - but keep for keyboard */
 :focus:not(:focus-visible) {
   outline: none;
-}
-
-/* Button focus states */
-button:focus-visible,
-a:focus-visible {
-  outline: 2px solid var(--neon-lime);
-  outline-offset: 3px;
-  border-radius: 4px;
+  box-shadow: none;
 }
 
 /* Enhanced button interactions - Standardized timing */
@@ -430,11 +442,4 @@ a:focus-visible {
 /* FAQ accordion */
 .card-jungle {
   will-change: transform, opacity;
-}
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline: none;
-  border-color: var(--neon-lime);
-  box-shadow: 0 0 0 3px rgba(207, 255, 0, 0.15);
 }

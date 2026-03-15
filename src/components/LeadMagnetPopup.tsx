@@ -1,6 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, Download, Mail, User, ChevronDown, Sparkles, Loader2, CheckCircle } from 'lucide-react';
 
+// Extend Window interface for tracking pixels
+declare global {
+  interface Window {
+    fbq?: (command: string, event: string, params?: Record<string, unknown>) => void;
+    gtag?: (command: string, event: string, params?: Record<string, unknown>) => void;
+  }
+}
+
 interface LeadMagnetPopupProps {
   // Configurable delay in milliseconds (default: 30000 = 30 seconds)
   delayMs?: number;
@@ -70,11 +78,11 @@ export default function LeadMagnetPopup({
     setTimeout(() => setIsAnimating(true), 10);
 
     // Track popup shown event
-    if (typeof window !== 'undefined' && (window as any).fbq) {
-      (window as any).fbq('track', 'LeadMagnetShown');
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'LeadMagnetShown');
     }
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'lead_magnet_shown');
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'lead_magnet_shown');
     }
   }, [cookieName, getCookie]);
 
@@ -161,11 +169,11 @@ export default function LeadMagnetPopup({
       if (!response.ok) throw new Error('Submission failed');
       
       // Track lead conversion
-      if (typeof window !== 'undefined' && (window as any).fbq) {
-        (window as any).fbq('track', 'Lead');
+      if (typeof window !== 'undefined' && window.fbq) {
+        window.fbq('track', 'Lead');
       }
-      if (typeof window !== 'undefined' && (window as any).gtag) {
-        (window as any).gtag('event', 'generate_lead', {
+      if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('event', 'generate_lead', {
           currency: 'USD',
           value: 0,
         });

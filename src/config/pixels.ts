@@ -9,6 +9,18 @@
  * - GOOGLE_ADS_CONVERSION_LABEL: Your conversion label for leads
  */
 
+// Type definitions for global window object
+declare global {
+  interface Window {
+    fbq?: (command: string, event: string, params?: PixelParams) => void;
+    gtag?: (command: string, event: string, params?: PixelParams) => void;
+  }
+}
+
+interface PixelParams {
+  [key: string]: string | number | boolean | undefined;
+}
+
 export const PIXEL_CONFIG = {
   facebook: {
     pixelId: 'FACEBOOK_PIXEL_ID', // Replace with your actual FB Pixel ID
@@ -38,22 +50,22 @@ export const PIXEL_CONFIG = {
  */
 
 // Facebook Pixel Events
-export const trackFacebookEvent = (eventName: string, params?: Record<string, any>) => {
-  if (typeof window !== 'undefined' && (window as any).fbq) {
-    (window as any).fbq('track', eventName, params);
+export const trackFacebookEvent = (eventName: string, params?: PixelParams) => {
+  if (typeof window !== 'undefined' && window.fbq) {
+    window.fbq('track', eventName, params);
   }
 };
 
-export const trackFacebookCustomEvent = (eventName: string, params?: Record<string, any>) => {
-  if (typeof window !== 'undefined' && (window as any).fbq) {
-    (window as any).fbq('trackCustom', eventName, params);
+export const trackFacebookCustomEvent = (eventName: string, params?: PixelParams) => {
+  if (typeof window !== 'undefined' && window.fbq) {
+    window.fbq('trackCustom', eventName, params);
   }
 };
 
 // Google Ads Events
-export const trackGoogleEvent = (eventName: string, params?: Record<string, any>) => {
-  if (typeof window !== 'undefined' && (window as any).gtag) {
-    (window as any).gtag('event', eventName, params);
+export const trackGoogleEvent = (eventName: string, params?: PixelParams) => {
+  if (typeof window !== 'undefined' && window.gtag) {
+    window.gtag('event', eventName, params);
   }
 };
 

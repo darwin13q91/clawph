@@ -3,6 +3,19 @@
  * Using PrivateEmail API (no external dependencies)
  */
 
+// Express-like request/response types for API handlers
+interface ApiRequest {
+  method?: string;
+  body?: LeadCaptureData;
+}
+
+interface ApiResponse {
+  status: (code: number) => ApiResponse;
+  json: (data: unknown) => void;
+  setHeader: (name: string, value: string) => void;
+  end: () => void;
+}
+
 export interface LeadCaptureData {
   name: string;
   email: string;
@@ -14,6 +27,12 @@ export interface LeadCaptureData {
   utm_campaign?: string;
 }
 
+interface EmailApiResponse {
+  success?: boolean;
+  message?: string;
+  [key: string]: unknown;
+}
+
 /**
  * PrivateEmail API Configuration
  */
@@ -23,7 +42,7 @@ const EMAIL_API_URL = 'https://amajungle-email-api.vercel.app/api/send-email';
  * Send lead notification via PrivateEmail API
  * Sends lead data to hello@amajungle.com for Echo to process
  */
-export const sendLeadNotification = async (data: LeadCaptureData): Promise<any> => {
+export const sendLeadNotification = async (data: LeadCaptureData): Promise<EmailApiResponse> => {
   const response = await fetch(EMAIL_API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -43,7 +62,7 @@ ${data.utm_campaign ? `\nUTM Campaign: ${data.utm_campaign}` : ''}
 `,
       html: `
 <h2 style="color: #0B3A2C;">New Lead Captured</h2>
-<p><strong style="color: #CFFF00;">Name:</strong> ${data.name}</p>
+<p><strong style="color: #9FBF00;">Name:</strong> ${data.name}</p>
 <p><strong>Email:</strong> ${data.email}</p>
 <p><strong>Monthly Revenue:</strong> ${data.revenue}</p>
 <p><strong>Source:</strong> ${data.source}</p>
@@ -68,33 +87,36 @@ ${data.utm_campaign ? `<p><strong>UTM Campaign:</strong> ${data.utm_campaign}</p
  * Lead capture handler for API routes
  * Use this in your Vercel serverless function or Express endpoint
  */
-export const handleLeadCapture = async (req: any, res: any) => {
+export const handleLeadCapture = async (req: ApiRequest, res: ApiResponse): Promise<void> => {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    res.status(200).end();
+    return;
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
   }
 
   try {
-    const data: LeadCaptureData = req.body;
+    const data: LeadCaptureData | undefined = req.body;
 
     // Validate required fields
-    if (!data.name || !data.email || !data.revenue) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (!data || !data.name || !data.email || !data.revenue) {
+      res.status(400).json({ error: 'Missing required fields' });
+      return;
     }
 
     // Send notification to Echo
     await sendLeadNotification(data);
 
     // Return success
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       message: 'Lead captured successfully',
       data: {
@@ -104,6 +126,6 @@ export const handleLeadCapture = async (req: any, res: any) => {
     });
   } catch (error) {
     console.error('Lead capture error:', error);
-    return res.status(500).json({ error: 'Failed to capture lead' });
+    res.status(500).json({ error: 'Failed to capture lead' });
   }
 };

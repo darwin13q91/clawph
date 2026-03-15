@@ -49,8 +49,8 @@ module.exports = {
           dark: "#8A4CB0",
         },
         neon: {
-          DEFAULT: "#CFFF00",
-          dark: "#b8e600",
+          DEFAULT: "#9FBF00",
+          dark: "#8aa300",
         },
         warm: {
           DEFAULT: "#F6F7EB",
