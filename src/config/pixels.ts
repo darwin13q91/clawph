@@ -12,14 +12,13 @@
 // Type definitions for global window object
 declare global {
   interface Window {
-    fbq?: (command: string, event: string, params?: PixelParams) => void;
-    gtag?: (command: string, event: string, params?: PixelParams) => void;
+    fbq?: (command: string, event: string, params?: Record<string, unknown>) => void;
+    gtag?: (command: string, event: string, params?: Record<string, unknown>) => void;
   }
 }
 
-interface PixelParams {
-  [key: string]: string | number | boolean | undefined;
-}
+// Helper type for pixel event parameters
+type PixelParams = Record<string, string | number | boolean | undefined>;
 
 export const PIXEL_CONFIG = {
   facebook: {
