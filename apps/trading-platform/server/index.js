@@ -124,9 +124,9 @@ async function fetchBTCPrice() {
 // Fetch Gold price from available APIs with validation
 // XAU/USD should be around $2900-3100 per ounce (current market range)
 async function fetchGoldPrice() {
-  const REALISTIC_GOLD_MIN = 2800;
-  const REALISTIC_GOLD_MAX = 3500;
-  const DEFAULT_GOLD_PRICE = 2990; // Reasonable default for March 2025
+  const REALISTIC_GOLD_MIN = 4000;
+  const REALISTIC_GOLD_MAX = 6000;
+  const DEFAULT_GOLD_PRICE = 5018; // Current market price
   
   try {
     // Try Alpha Vantage for XAU/USD
