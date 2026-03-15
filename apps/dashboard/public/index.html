@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amajungle Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="dashboard.css?v=2">
     <style>
         /* Dashboard-specific styles */
         
@@ -330,6 +330,27 @@
         @media (max-width: 479px) {
             .pipeline-preview { grid-template-columns: 1fr; }
         }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
@@ -353,7 +374,7 @@
             <nav>
                 <div class="dashboard-nav-section">
                     <div class="dashboard-nav-title">Overview</div>
-                    <a href="#" class="dashboard-nav-item active">
+                    <a href="#dashboard" class="dashboard-nav-item active" data-section="dashboard">
                         <span class="dashboard-nav-icon">📊</span>
                         <span>Dashboard</span>
                     </a>
@@ -369,11 +390,11 @@
 
                 <div class="dashboard-nav-section">
                     <div class="dashboard-nav-title">Systems</div>
-                    <a href="#" class="dashboard-nav-item">
+                    <a href="#email" class="dashboard-nav-item" data-section="email">
                         <span class="dashboard-nav-icon">📧</span>
                         <span>Email</span>
                     </a>
-                    <a href="#" class="dashboard-nav-item">
+                    <a href="#audit" class="dashboard-nav-item" data-section="audit">
                         <span class="dashboard-nav-icon">🔍</span>
                         <span>Audit</span>
                     </a>
@@ -381,7 +402,7 @@
                         <span class="dashboard-nav-icon">💰</span>
                         <span>Finance</span>
                     </a>
-                    <a href="#" class="dashboard-nav-item">
+                    <a href="#health" class="dashboard-nav-item" data-section="health">
                         <span class="dashboard-nav-icon">💓</span>
                         <span>Health</span>
                     </a>
@@ -403,6 +424,8 @@
 
         <!-- Main Content -->
         <main class="dashboard-main">
+            <!-- Dashboard Section -->
+            <section id="section-dashboard" class="content-section active">
             <!-- Header -->
             <header class="dashboard-header">
                 <div class="dashboard-header-left">
@@ -623,6 +646,165 @@
                 <p>🌿 Amajungle AI Systems • Real-time Agent Status</p>
                 <p style="margin-top: 4px;">Dashboard v3.1 • <span id="footer-time">--</span></p>
             </footer>
+            </section><!-- End Dashboard Section -->
+
+            <!-- Health Section -->
+            <section id="section-health" class="content-section">
+                <header class="dashboard-header">
+                    <div class="dashboard-header-left">
+                        <h1 class="dashboard-title">System <span>Health</span></h1>
+                        <p class="dashboard-subtitle">
+                            Infrastructure monitoring • <span id="health-current-time">--:--:--</span>
+                        </p>
+                    </div>
+                </header>
+
+                <div class="dashboard-grid">
+                    <div class="card" id="health-detail-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon">🖥️</div>
+                                <div>
+                                    Gateway Status
+                                    <div class="card-timestamp" id="health-detail-timestamp">Updated: --</div>
+                                </div>
+                            </div>
+                            <span class="badge badge-success" id="health-detail-badge">Online</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="metric-row">
+                                <span class="metric-label">🌐 Gateway WebSocket</span>
+                                <span class="metric-value positive" id="health-gateway-status">🟢 Connected</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">📡 SSE Stream</span>
+                                <span class="metric-value" id="health-sse-status">--</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">🔄 Last Sync</span>
+                                <span class="metric-value" id="health-last-sync">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="health-resources-card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon">💾</div>
+                                <div>
+                                    Resources
+                                    <div class="card-timestamp" id="resources-timestamp">Updated: --</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="progress-container">
+                                <div class="metric-row">
+                                    <span class="metric-label">💾 Memory Usage</span>
+                                    <span class="metric-value" id="health-detail-memory">--%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="health-memory-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="progress-container">
+                                <div class="metric-row">
+                                    <span class="metric-label">💽 Disk Usage</span>
+                                    <span class="metric-value" id="health-detail-disk">--%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="health-disk-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">⚡ Load Average</span>
+                                <span class="metric-value" id="health-detail-load">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" id="health-agents-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="card-icon">🤖</div>
+                            <div>
+                                Agent Health
+                                <div class="card-timestamp" id="health-agents-timestamp">Updated: --</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="agents-grid" id="health-agents-grid">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </section><!-- End Health Section -->
+
+            <!-- Email Section -->
+            <section id="section-email" class="content-section">
+                <header class="dashboard-header">
+                    <div class="dashboard-header-left">
+                        <h1 class="dashboard-title">Email <span>Monitor</span></h1>
+                        <p class="dashboard-subtitle">Email system status and monitoring</p>
+                    </div>
+                </header>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="card-icon">📧</div>
+                            <div>Email Status</div>
+                        </div>
+                        <span class="badge badge-success">Active</span>
+                    </div>
+                    <div class="card-body">
+                        <p>Email monitoring is handled by the <strong>Echo</strong> agent.</p>
+                        <div class="metric-row" style="margin-top: var(--space-4)">
+                            <span class="metric-label">🤖 Agent</span>
+                            <span class="metric-value">Echo (Email Monitor)</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">📨 Status</span>
+                            <span class="metric-value positive">🟢 Monitoring</span>
+                        </div>
+                        <p style="margin-top: var(--space-4); color: var(--text-muted)">
+                            View detailed email analytics in the full Email dashboard.
+                        </p>
+                    </div>
+                </div>
+            </section><!-- End Email Section -->
+
+            <!-- Audit Section -->
+            <section id="section-audit" class="content-section">
+                <header class="dashboard-header">
+                    <div class="dashboard-header-left">
+                        <h1 class="dashboard-title">System <span>Audit</span></h1>
+                        <p class="dashboard-subtitle">Security and compliance logs</p>
+                    </div>
+                </header>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="card-icon">🔍</div>
+                            <div>Audit Logs</div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="activity-feed" id="audit-feed">
+                            <div class="activity-item info">
+                                <div class="activity-icon">ℹ️</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Audit System</span></div>
+                                    <div class="activity-desc">Audit logs are collected and stored securely</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section><!-- End Audit Section -->
         </main>
     </div>
 
@@ -785,6 +967,12 @@
             }).join('');
 
             container.innerHTML = html;
+            
+            // Also update health section agents grid
+            const healthContainer = document.getElementById('health-agents-grid');
+            if (healthContainer) {
+                healthContainer.innerHTML = html;
+            }
         }
 
         function addActivity(type, icon, title, description) {
@@ -984,71 +1172,120 @@
         }
 
         function updateHealthUI(data) {
-            if (!data) return;
+            if (!data) {
+                console.warn('[DASHBOARD] Health data is null');
+                return;
+            }
             
-            if (data.memory) {
+            // Memory update with null checks
+            if (data.memory && data.memory.percent != null) {
                 const el = document.getElementById('health-memory');
                 if (el) {
                     el.textContent = `${data.memory.percent}%`;
                     el.className = `metric-value ${data.memory.percent > 90 ? 'negative' : data.memory.percent > 70 ? 'warning' : 'positive'}`;
                 }
+                // Update health section detail
+                const detailEl = document.getElementById('health-detail-memory');
+                const barEl = document.getElementById('health-memory-bar');
+                if (detailEl) detailEl.textContent = `${data.memory.percent}%`;
+                if (barEl) {
+                    barEl.style.width = `${data.memory.percent}%`;
+                    barEl.className = `progress-fill ${data.memory.percent > 90 ? 'danger' : data.memory.percent > 70 ? 'warning' : ''}`;
+                }
             }
-            if (data.disk) {
+            
+            // Disk update with null checks
+            if (data.disk && data.disk.percent != null) {
                 const el = document.getElementById('health-disk');
                 if (el) {
                     el.textContent = `${data.disk.percent}%`;
                     el.className = `metric-value ${data.disk.percent > 90 ? 'negative' : data.disk.percent > 70 ? 'warning' : 'positive'}`;
                 }
+                // Update health section detail
+                const detailEl = document.getElementById('health-detail-disk');
+                const barEl = document.getElementById('health-disk-bar');
+                if (detailEl) detailEl.textContent = `${data.disk.percent}%`;
+                if (barEl) {
+                    barEl.style.width = `${data.disk.percent}%`;
+                    barEl.className = `progress-fill ${data.disk.percent > 90 ? 'danger' : data.disk.percent > 70 ? 'warning' : ''}`;
+                }
             }
+            
+            // Load update with null checks
             if (data.load) {
+                const load1min = data.load['1min'] ?? data.load['1'] ?? null;
                 const el = document.getElementById('health-load');
-                if (el) el.textContent = data.load['1min']?.toFixed(1) || '--';
+                if (el) el.textContent = load1min != null ? load1min.toFixed(1) : '--';
+                // Update health section detail
+                const detailEl = document.getElementById('health-detail-load');
+                if (detailEl) detailEl.textContent = load1min != null ? load1min.toFixed(1) : '--';
             }
+            
+            // Gateway update with null checks
             if (data.gateway) {
                 const el = document.getElementById('health-gateway');
                 if (el) el.textContent = data.gateway.running ? '🟢 Online' : '🔴 Offline';
+                // Update health section detail
+                const detailEl = document.getElementById('health-gateway-status');
+                const badgeEl = document.getElementById('health-detail-badge');
+                if (detailEl) detailEl.textContent = data.gateway.running ? '🟢 Connected' : '🔴 Disconnected';
+                if (badgeEl) {
+                    badgeEl.className = data.gateway.running ? 'badge badge-success' : 'badge badge-danger';
+                    badgeEl.textContent = data.gateway.running ? 'Online' : 'Offline';
+                }
             }
         }
 
         function updateRapidApiUI(data) {
-            if (!data) return;
+            if (!data) {
+                console.warn('[DASHBOARD] RapidAPI data is null');
+                return;
+            }
             
-            if (data.amazon) {
+            // Safely update Amazon API usage
+            if (data.amazon && data.amazon.usage) {
                 const usageEl = document.getElementById('amazon-usage');
                 const barEl = document.getElementById('amazon-bar');
-                const percent = data.amazon.usage.percentUsed;
+                const percent = data.amazon.usage.percentUsed ?? 0;
                 if (usageEl) usageEl.textContent = `${percent}%`;
                 if (barEl) {
                     barEl.style.width = `${percent}%`;
                     barEl.className = `progress-fill ${percent > 90 ? 'danger' : percent > 70 ? 'warning' : ''}`;
                 }
             }
-            if (data.axesso) {
+            
+            // Safely update Axesso API usage
+            if (data.axesso && data.axesso.usage) {
                 const usageEl = document.getElementById('axesso-usage');
                 const barEl = document.getElementById('axesso-bar');
-                const percent = data.axesso.usage.percentUsed;
+                const percent = data.axesso.usage.percentUsed ?? 0;
                 if (usageEl) usageEl.textContent = `${percent}%`;
                 if (barEl) {
                     barEl.style.width = `${percent}%`;
                     barEl.className = `progress-fill ${percent > 90 ? 'danger' : percent > 70 ? 'warning' : ''}`;
                 }
             }
-            if (data.combined?.billingCycle) {
+            
+            // Safely update billing cycle info
+            if (data.combined?.billingCycle?.daysUntilReset != null) {
                 const el = document.getElementById('api-reset');
                 if (el) el.textContent = `${data.combined.billingCycle.daysUntilReset} days`;
             }
         }
 
         function updateCRMStats(stats) {
-            if (!stats) return;
+            if (!stats) {
+                console.warn('[DASHBOARD] CRM stats is null');
+                return;
+            }
             cachedData.crm = stats;
 
-            const total = stats.totalContacts?.count || 0;
-            const rate = stats.conversionRate || 0;
-            const value = stats.pipelineValue?.total || 0;
+            const total = stats.totalContacts?.count ?? 0;
+            const rate = stats.conversionRate ?? 0;
+            const value = stats.pipelineValue?.total ?? 0;
             const active = (stats.byStage || [])
                 .filter(s => !['closed_won', 'closed_lost'].includes(s.stage))
-                .reduce((sum, s) => sum + (s.count || 0), 0);
+                .reduce((sum, s) => sum + (s.count ?? 0), 0);
 
             const totalEl = document.getElementById('crm-total-contacts');
             const rateEl = document.getElementById('crm-conversion-rate');
@@ -1057,12 +1294,18 @@
 
             if (totalEl) totalEl.textContent = total.toLocaleString();
             if (rateEl) rateEl.textContent = `${rate}%`;
-            if (valueEl) valueEl.textContent = `$${(value / 1000).toFixed(0)}k`;
+            if (valueEl) {
+                const valueDisplay = value > 0 ? `$${(value / 1000).toFixed(0)}k` : '$0';
+                valueEl.textContent = valueDisplay;
+            }
             if (activeEl) activeEl.textContent = active.toLocaleString();
 
-            (stats.byStage || []).forEach(stage => {
-                const el = document.getElementById(`stage-${stage.stage}`);
-                if (el) el.textContent = stage.count || 0;
+            // Update pipeline stages with null checks
+            const stages = ['new_lead', 'qualified', 'proposal', 'negotiation', 'closed_won', 'closed_lost'];
+            stages.forEach(stageId => {
+                const el = document.getElementById(`stage-${stageId}`);
+                const stageData = (stats.byStage || []).find(s => s.stage === stageId);
+                if (el) el.textContent = stageData?.count ?? 0;
             });
         }
 
@@ -1185,6 +1428,12 @@
             const footerTime = document.getElementById('footer-time');
             if (currentTime) currentTime.textContent = new Date().toLocaleTimeString();
             if (footerTime) footerTime.textContent = new Date().toLocaleString();
+            
+            // Also update health section time if health is active
+            const healthSection = document.getElementById('section-health');
+            if (healthSection && healthSection.classList.contains('active')) {
+                updateHealthSectionTime();
+            }
         }
 
         function toggleSidebar() {
@@ -1194,8 +1443,81 @@
             overlay.classList.toggle('active');
         }
 
+        // Navigation Functions
+        function initNavigation() {
+            const navItems = document.querySelectorAll('.dashboard-nav-item[data-section]');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const sectionId = item.getAttribute('data-section');
+                    if (sectionId) {
+                        navigateToSection(sectionId);
+                        
+                        // Update URL hash without triggering scroll
+                        history.pushState(null, null, '#' + sectionId);
+                    }
+                });
+            });
+            
+            // Handle browser back/forward buttons
+            window.addEventListener('popstate', () => {
+                const hash = window.location.hash.slice(1) || 'dashboard';
+                navigateToSection(hash);
+            });
+            
+            // Handle initial hash on page load
+            const initialHash = window.location.hash.slice(1);
+            if (initialHash) {
+                navigateToSection(initialHash);
+            }
+        }
+        
+        function navigateToSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show target section
+            const targetSection = document.getElementById('section-' + sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+            
+            // Update sidebar active state
+            document.querySelectorAll('.dashboard-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const activeNavItem = document.querySelector('.dashboard-nav-item[data-section="' + sectionId + '"');
+            if (activeNavItem) {
+                activeNavItem.classList.add('active');
+            }
+            
+            // Update health section time if navigating to health
+            if (sectionId === 'health') {
+                updateHealthSectionTime();
+            }
+            
+            // Close mobile sidebar
+            const sidebar = document.querySelector('.dashboard-sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            if (sidebar) sidebar.classList.remove('open');
+            if (overlay) overlay.classList.remove('active');
+        }
+        
+        function updateHealthSectionTime() {
+            const timeEl = document.getElementById('health-current-time');
+            if (timeEl) {
+                timeEl.textContent = new Date().toLocaleTimeString();
+            }
+        }
+
         // Initialization
         function init() {
+            initNavigation();
+
             renderAgents();
             renderActivities();
             updateTime();
