@@ -861,7 +861,7 @@ function serveStaticFile(res, filePath, contentType) {
       res.end('Not found');
       return;
     }
-    res.writeHead(200, { 'Content-Type': contentType });
+    res.writeHead(200, { "Content-Type": contentType, "Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0" });
     res.end(data);
   });
 }
@@ -1437,13 +1437,31 @@ function getActiveSubagentRuns() {
       } catch (e) {
         console.warn('Could not get agent count:', e.message);
       }
-      
+
+      // Get system load
+      let loadData = { '1min': 0, '5min': 0, '15min': 0 };
+      try {
+        const { stdout: loadOutput } = await execFileAsync('uptime', [], { timeout: 3000 });
+        // Parse load average from uptime output: "load average: 0.52, 0.58, 0.59"
+        const loadMatch = loadOutput.match(/load average[s]?:\s*([\d.]+),?\s*([\d.]+)?,?\s*([\d.]+)?/i);
+        if (loadMatch) {
+          loadData = {
+            '1min': parseFloat(loadMatch[1]) || 0,
+            '5min': parseFloat(loadMatch[2]) || 0,
+            '15min': parseFloat(loadMatch[3]) || 0
+          };
+        }
+      } catch (e) {
+        console.warn('Could not get system load:', e.message);
+      }
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         timestamp: new Date().toISOString(),
         gateway: gatewayStatus,
         disk: diskUsage,
         memory: memoryUsage,
+        load: loadData,
         agents: {
           total: agentCount,
           online: agentCount
