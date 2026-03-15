@@ -8,10 +8,16 @@
     "dev": "NODE_ENV=development node server/index.js",
     "test": "node server/test-redaction.js"
   },
-  "keywords": ["openclaw", "dashboard", "monitoring"],
+  "keywords": [
+    "openclaw",
+    "dashboard",
+    "monitoring"
+  ],
   "author": "",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "sqlite3": "^5.1.7"
+  },
   "engines": {
     "node": ">=18.0.0"
   }
