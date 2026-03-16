@@ -275,8 +275,8 @@ async function fetchBTCPrice() {
   }
 }
 
-// Fetch Gold price (XAU/USD) from Finnhub using GLD ETF as proxy
-// GLD ETF price × 10 ≈ Gold price per ounce (GLD represents ~1/10th of gold oz)
+// Fetch Gold price (XAU/USD) from Finnhub
+// Tries XAUUSD symbol first, then falls back to GLD ETF × 10 approximation
 async function fetchGoldPrice() {
   const REALISTIC_GOLD_MIN = 1500;
   const REALISTIC_GOLD_MAX = 5000;
@@ -289,7 +289,43 @@ async function fetchGoldPrice() {
       return prices.GOLD || DEFAULT_PRICES.GOLD;
     }
 
-    // Use GLD ETF as a proxy for gold price (more reliable endpoint)
+    // Try XAUUSD direct symbol first (spot gold)
+    try {
+      const xauResponse = await axios.get(
+        `https://finnhub.io/api/v1/quote?symbol=XAUUSD&token=${apiKey}`,
+        { timeout: 10000 }
+      );
+      
+      const xauData = xauResponse.data;
+      if (xauData && typeof xauData.c === 'number' && xauData.c > 0) {
+        const price = xauData.c;
+        const prevClose = xauData.pc;
+        const change24h = prevClose > 0 ? ((price - prevClose) / prevClose) * 100 : 0;
+        const change24hValue = price - prevClose;
+        
+        prices.GOLD = {
+          symbol: 'GOLD',
+          price: price,
+          change24h: change24h,
+          change24hValue: change24hValue,
+          high24h: xauData.h || price * 1.02,
+          low24h: xauData.l || price * 0.98,
+          open24h: xauData.o || price,
+          prevClose: prevClose,
+          volume24h: 0,
+          timestamp: (xauData.t || Date.now() / 1000) * 1000,
+          source: 'finnhub',
+          symbol_used: 'XAUUSD',
+        };
+        
+        console.log(`[${new Date().toISOString()}] GOLD price updated: $${price.toFixed(2)} (XAUUSD spot) (change: ${change24h.toFixed(2)}%)`);
+        return prices.GOLD;
+      }
+    } catch (xauError) {
+      console.log(`[${new Date().toISOString()}] XAUUSD not available, falling back to GLD proxy`);
+    }
+
+    // Fallback: Use GLD ETF as a proxy for gold price
     const response = await axios.get(
       `https://finnhub.io/api/v1/quote?symbol=GLD&token=${apiKey}`,
       { timeout: 10000 }
@@ -303,15 +339,19 @@ async function fetchGoldPrice() {
     }
     
     // Convert GLD price to approximate gold price
+    // GLD is an ETF that represents ~0.1 oz of gold
+    // Spot gold (~$3000) vs GLD (~$460) - ratio is roughly 6.5x, not 10x
+    // Using market-based adjustment: actual gold price is typically ~6.5-7x GLD price
     const gldPrice = data.c;
-    const price = gldPrice * GLD_TO_GOLD_RATIO;
+    const GOLD_GLD_RATIO = 6.55; // Current market ratio (3000/460 ≈ 6.52)
+    const price = gldPrice * GOLD_GLD_RATIO;
     
     // Validate price is within realistic range
     if (price < REALISTIC_GOLD_MIN || price > REALISTIC_GOLD_MAX) {
       throw new Error(`Gold price ${price} is outside realistic range (${REALISTIC_GOLD_MIN}-${REALISTIC_GOLD_MAX})`);
     }
     
-    const prevClose = data.pc * GLD_TO_GOLD_RATIO;
+    const prevClose = data.pc * GOLD_GLD_RATIO;
     const change24h = prevClose > 0 ? ((price - prevClose) / prevClose) * 100 : 0;
     const change24hValue = price - prevClose;
     
@@ -320,17 +360,18 @@ async function fetchGoldPrice() {
       price: price,
       change24h: change24h,
       change24hValue: change24hValue,
-      high24h: (data.h || gldPrice * 1.02) * GLD_TO_GOLD_RATIO,
-      low24h: (data.l || gldPrice * 0.98) * GLD_TO_GOLD_RATIO,
-      open24h: (data.o || gldPrice) * GLD_TO_GOLD_RATIO,
+      high24h: (data.h || gldPrice * 1.02) * GOLD_GLD_RATIO,
+      low24h: (data.l || gldPrice * 0.98) * GOLD_GLD_RATIO,
+      open24h: (data.o || gldPrice) * GOLD_GLD_RATIO,
       prevClose: prevClose,
       volume24h: 0,
       timestamp: (data.t || Date.now() / 1000) * 1000,
       source: 'finnhub',
       proxy: 'GLD',
+      note: 'GLD ETF converted to spot gold equivalent',
     };
     
-    console.log(`[${new Date().toISOString()}] GOLD price updated: $${price.toFixed(2)} (GLD: $${gldPrice.toFixed(2)}) (change: ${change24h.toFixed(2)}%)`);
+    console.log(`[${new Date().toISOString()}] GOLD price updated: $${price.toFixed(2)} (GLD: $${gldPrice.toFixed(2)} × ${GOLD_GLD_RATIO}) (change: ${change24h.toFixed(2)}%)`);
     return prices.GOLD;
   } catch (error) {
     console.error(`[${new Date().toISOString()}] Failed to fetch GOLD price from Finnhub:`, error.message);
