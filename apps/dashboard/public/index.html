@@ -381,6 +381,10 @@
                         <span class="dashboard-nav-icon">📊</span>
                         <span>Dashboard</span>
                     </a>
+                    <a href="#logs" class="dashboard-nav-item" data-section="logs">
+                        <span class="dashboard-nav-icon">📜</span>
+                        <span>Live Logs</span>
+                    </a>
                     <a href="http://localhost:8888" class="dashboard-nav-item" target="_blank">
                         <span class="dashboard-nav-icon">🎯</span>
                         <span>Command</span>
@@ -553,7 +557,10 @@
                     <div class="activity-section">
                         <div class="activity-header">
                             <span class="activity-title">📋 Recent Activity</span>
-                            <span class="activity-count" id="activity-count">0 events</span>
+                            <span style="display: flex; align-items: center; gap: var(--space-2);">
+                                <span class="connection-status" id="connection-status" title="Real-time connection status">🔴 Disconnected</span>
+                                <span class="activity-count" id="activity-count">0 events</span>
+                            </span>
                         </div>
                         <div class="activity-feed-mini" id="activity-feed">
                             <!-- Populated by renderActivities() -->
@@ -749,6 +756,40 @@
                 .activity-count {
                     font-size: var(--text-xs);
                     color: var(--text-muted);
+                }
+
+                .connection-status {
+                    font-size: var(--text-xs);
+                    padding: 2px 6px;
+                    border-radius: var(--radius-sm);
+                    background: var(--bg-elevated);
+                    border: 1px solid var(--border-color);
+                    transition: all 0.3s ease;
+                    cursor: help;
+                }
+
+                .connection-status.connected {
+                    color: var(--status-online);
+                    border-color: var(--status-online);
+                    background: rgba(34, 197, 94, 0.1);
+                }
+
+                .connection-status.disconnected {
+                    color: var(--status-danger);
+                    border-color: var(--status-danger);
+                    background: rgba(239, 68, 68, 0.1);
+                }
+
+                .connection-status.connecting {
+                    color: var(--status-warning);
+                    border-color: var(--status-warning);
+                    background: rgba(245, 158, 11, 0.1);
+                    animation: pulse 1.5s infinite;
+                }
+
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.5; }
                 }
 
                 .activity-feed-mini {
@@ -1072,6 +1113,458 @@
                     </div>
                 </div>
             </section><!-- End Audit Section -->
+
+            <!-- Live Logs Section -->
+            <section id="section-logs" class="content-section">
+                <header class="dashboard-header">
+                    <div class="dashboard-header-left">
+                        <h1 class="dashboard-title">Live <span>Logs</span></h1>
+                        <p class="dashboard-subtitle">
+                            Real-time monitoring • <span id="logs-connection-status">Connecting...</span>
+                        </p>
+                    </div>
+                    <div class="dashboard-header-actions">
+                        <button class="btn btn-secondary" onclick="refreshLiveLogs()">
+                            <span>🔄</span> Refresh
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Agent Console Panel -->
+                <div class="card live-log-panel" id="agent-console-panel">
+                    <div class="card-header collapsible" onclick="togglePanel('agent-console')">
+                        <div class="card-title">
+                            <div class="card-icon">🖥️</div>
+                            <div>
+                                Agent Console
+                                <div class="card-timestamp" id="agent-console-timestamp">--</div>
+                            </div>
+                        </div>
+                        <div class="panel-controls">
+                            <select id="agent-filter" class="panel-select" onchange="filterAgentLogs(event)">
+                                <option value="all">All Agents</option>
+                                <option value="river">River</option>
+                                <option value="atlas">Atlas</option>
+                                <option value="piper">Piper</option>
+                                <option value="echo">Echo</option>
+                                <option value="pixel">Pixel</option>
+                                <option value="trader">Trader</option>
+                            </select>
+                            <span class="panel-toggle" id="agent-console-toggle">▼</span>
+                        </div>
+                    </div>
+                    <div class="card-body panel-body" id="agent-console-body">
+                        <div class="log-container" id="agent-logs-container">
+                            <div class="log-placeholder">Connecting to agent logs...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trade Log Panel -->
+                <div class="card live-log-panel" id="trade-log-panel">
+                    <div class="card-header collapsible" onclick="togglePanel('trade-log')">
+                        <div class="card-title">
+                            <div class="card-icon">📈</div>
+                            <div>
+                                Trade Log
+                                <div class="card-timestamp" id="trade-log-timestamp">--</div>
+                            </div>
+                        </div>
+                        <div class="panel-controls">
+                            <select id="trade-filter" class="panel-select" onchange="filterTradeLogs(event)">
+                                <option value="all">All Time</option>
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                            </select>
+                            <span class="panel-toggle" id="trade-log-toggle">▼</span>
+                        </div>
+                    </div>
+                    <div class="card-body panel-body" id="trade-log-body">
+                        <div class="trade-stats-bar" id="trade-stats">
+                            <div class="trade-stat">
+                                <span class="trade-stat-value" id="trade-total">--</span>
+                                <span class="trade-stat-label">Total</span>
+                            </div>
+                            <div class="trade-stat">
+                                <span class="trade-stat-value win" id="trade-wins">--</span>
+                                <span class="trade-stat-label">Wins</span>
+                            </div>
+                            <div class="trade-stat">
+                                <span class="trade-stat-value loss" id="trade-losses">--</span>
+                                <span class="trade-stat-label">Losses</span>
+                            </div>
+                            <div class="trade-stat">
+                                <span class="trade-stat-value" id="trade-winrate">--%</span>
+                                <span class="trade-stat-label">Win Rate</span>
+                            </div>
+                            <div class="trade-stat">
+                                <span class="trade-stat-value" id="trade-pnl">--</span>
+                                <span class="trade-stat-label">Total P&L</span>
+                            </div>
+                        </div>
+                        <div class="trade-table-container">
+                            <table class="trade-table" id="trade-table">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Symbol</th>
+                                        <th>Direction</th>
+                                        <th>Entry</th>
+                                        <th>Exit</th>
+                                        <th>P&L</th>
+                                        <th>R:R</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="trade-table-body">
+                                    <tr><td colspan="7" class="trade-empty">Loading trades...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skill Execution Panel -->
+                <div class="card live-log-panel" id="skill-trace-panel">
+                    <div class="card-header collapsible" onclick="togglePanel('skill-trace')">
+                        <div class="card-title">
+                            <div class="card-icon">🎯</div>
+                            <div>
+                                Skill Execution Trace
+                                <div class="card-timestamp" id="skill-trace-timestamp">--</div>
+                            </div>
+                        </div>
+                        <div class="panel-controls">
+                            <span class="badge badge-info" id="skill-running-count">0 running</span>
+                            <span class="panel-toggle" id="skill-trace-toggle">▼</span>
+                        </div>
+                    </div>
+                    <div class="card-body panel-body" id="skill-trace-body">
+                        <div class="skill-list" id="skill-list">
+                            <div class="skill-placeholder">Loading skill executions...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <style>
+                    /* Live Logs Panel Styles */
+                    .live-log-panel {
+                        margin-bottom: var(--space-6);
+                    }
+
+                    .collapsible {
+                        cursor: pointer;
+                        user-select: none;
+                    }
+
+                    .collapsible:hover {
+                        background: var(--bg-elevated);
+                    }
+
+                    .panel-controls {
+                        display: flex;
+                        align-items: center;
+                        gap: var(--space-3);
+                    }
+
+                    .panel-select {
+                        background: var(--bg-secondary);
+                        border: 1px solid var(--border-color);
+                        border-radius: var(--radius);
+                        color: var(--text-primary);
+                        padding: 6px 12px;
+                        font-size: var(--text-sm);
+                        cursor: pointer;
+                        outline: none;
+                    }
+
+                    .panel-select:focus {
+                        border-color: var(--neon);
+                    }
+
+                    .panel-toggle {
+                        font-size: 12px;
+                        color: var(--text-muted);
+                        transition: transform 0.3s ease;
+                    }
+
+                    .panel-toggle.collapsed {
+                        transform: rotate(-90deg);
+                    }
+
+                    .panel-body {
+                        transition: max-height 0.3s ease, opacity 0.3s ease;
+                        max-height: 400px;
+                        overflow: hidden;
+                    }
+
+                    .panel-body.collapsed {
+                        max-height: 0;
+                        opacity: 0;
+                        padding-top: 0;
+                        padding-bottom: 0;
+                    }
+
+                    /* Agent Console Log Styles */
+                    .log-container {
+                        background: var(--bg-secondary);
+                        border-radius: var(--radius);
+                        padding: var(--space-3);
+                        max-height: 350px;
+                        overflow-y: auto;
+                        font-family: var(--font-mono);
+                        font-size: 12px;
+                        line-height: 1.5;
+                    }
+
+                    .log-line {
+                        display: flex;
+                        gap: var(--space-2);
+                        padding: 2px 0;
+                        border-bottom: 1px solid rgba(255,255,255,0.05);
+                    }
+
+                    .log-line:last-child {
+                        border-bottom: none;
+                    }
+
+                    .log-timestamp {
+                        color: var(--text-muted);
+                        flex-shrink: 0;
+                        min-width: 80px;
+                    }
+
+                    .log-agent {
+                        color: var(--neon);
+                        flex-shrink: 0;
+                        min-width: 60px;
+                        font-weight: 600;
+                    }
+
+                    .log-level {
+                        flex-shrink: 0;
+                        min-width: 50px;
+                        text-transform: uppercase;
+                        font-size: 10px;
+                        padding: 1px 4px;
+                        border-radius: 3px;
+                    }
+
+                    .log-level.info { background: rgba(59, 130, 246, 0.2); color: #60A5FA; }
+                    .log-level.warn, .log-level.warning { background: rgba(245, 158, 11, 0.2); color: #FBBF24; }
+                    .log-level.error { background: rgba(239, 68, 68, 0.2); color: #F87171; }
+                    .log-level.debug { background: rgba(107, 114, 128, 0.2); color: #9CA3AF; }
+
+                    .log-message {
+                        color: var(--text-primary);
+                        word-break: break-word;
+                    }
+
+                    .log-placeholder {
+                        color: var(--text-muted);
+                        text-align: center;
+                        padding: var(--space-8);
+                    }
+
+                    /* Trade Log Styles */
+                    .trade-stats-bar {
+                        display: flex;
+                        gap: var(--space-6);
+                        padding: var(--space-4);
+                        background: var(--bg-elevated);
+                        border-radius: var(--radius);
+                        margin-bottom: var(--space-4);
+                        flex-wrap: wrap;
+                    }
+
+                    .trade-stat {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        min-width: 60px;
+                    }
+
+                    .trade-stat-value {
+                        font-size: var(--text-xl);
+                        font-weight: 700;
+                        color: var(--text-primary);
+                    }
+
+                    .trade-stat-value.win {
+                        color: var(--status-online);
+                    }
+
+                    .trade-stat-value.loss {
+                        color: var(--status-danger);
+                    }
+
+                    .trade-stat-label {
+                        font-size: var(--text-xs);
+                        color: var(--text-muted);
+                        text-transform: uppercase;
+                    }
+
+                    .trade-table-container {
+                        max-height: 280px;
+                        overflow-y: auto;
+                        border-radius: var(--radius);
+                        background: var(--bg-elevated);
+                    }
+
+                    .trade-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: var(--text-sm);
+                    }
+
+                    .trade-table th {
+                        background: var(--bg-secondary);
+                        padding: var(--space-3);
+                        text-align: left;
+                        font-weight: 600;
+                        color: var(--text-muted);
+                        text-transform: uppercase;
+                        font-size: 11px;
+                        letter-spacing: 0.5px;
+                        position: sticky;
+                        top: 0;
+                    }
+
+                    .trade-table td {
+                        padding: var(--space-3);
+                        border-bottom: 1px solid var(--border-color);
+                    }
+
+                    .trade-table tr:hover {
+                        background: rgba(255,255,255,0.05);
+                    }
+
+                    .trade-table tr:last-child td {
+                        border-bottom: none;
+                    }
+
+                    .trade-win {
+                        color: var(--status-online);
+                        font-weight: 600;
+                    }
+
+                    .trade-loss {
+                        color: var(--status-danger);
+                        font-weight: 600;
+                    }
+
+                    .trade-empty {
+                        text-align: center;
+                        color: var(--text-muted);
+                        padding: var(--space-8);
+                    }
+
+                    /* Skill Trace Styles */
+                    .skill-list {
+                        max-height: 350px;
+                        overflow-y: auto;
+                    }
+
+                    .skill-item {
+                        background: var(--bg-elevated);
+                        border-radius: var(--radius);
+                        padding: var(--space-3);
+                        margin-bottom: var(--space-2);
+                        border-left: 3px solid var(--border-color);
+                        transition: var(--transition);
+                    }
+
+                    .skill-item:hover {
+                        background: var(--bg-secondary);
+                        transform: translateX(4px);
+                    }
+
+                    .skill-item.running {
+                        border-left-color: var(--status-warning);
+                        animation: pulse-border 2s infinite;
+                    }
+
+                    .skill-item.success {
+                        border-left-color: var(--status-online);
+                    }
+
+                    .skill-item.error {
+                        border-left-color: var(--status-danger);
+                    }
+
+                    @keyframes pulse-border {
+                        0%, 100% { border-left-color: var(--status-warning); }
+                        50% { border-left-color: var(--neon); }
+                    }
+
+                    .skill-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: var(--space-2);
+                    }
+
+                    .skill-name {
+                        font-weight: 600;
+                        color: var(--text-primary);
+                    }
+
+                    .skill-agent {
+                        font-size: var(--text-xs);
+                        color: var(--neon);
+                        background: rgba(207, 255, 0, 0.1);
+                        padding: 2px 8px;
+                        border-radius: var(--radius-full);
+                    }
+
+                    .skill-meta {
+                        display: flex;
+                        gap: var(--space-4);
+                        font-size: var(--text-xs);
+                        color: var(--text-muted);
+                    }
+
+                    .skill-actions {
+                        margin-top: var(--space-2);
+                        padding-top: var(--space-2);
+                        border-top: 1px solid var(--border-color);
+                        font-size: var(--text-xs);
+                        color: var(--text-muted);
+                    }
+
+                    .skill-placeholder {
+                        color: var(--text-muted);
+                        text-align: center;
+                        padding: var(--space-8);
+                    }
+
+                    /* Scrollbar styling */
+                    .log-container::-webkit-scrollbar,
+                    .trade-table-container::-webkit-scrollbar,
+                    .skill-list::-webkit-scrollbar {
+                        width: 6px;
+                    }
+
+                    .log-container::-webkit-scrollbar-track,
+                    .trade-table-container::-webkit-scrollbar-track,
+                    .skill-list::-webkit-scrollbar-track {
+                        background: var(--bg-secondary);
+                        border-radius: 3px;
+                    }
+
+                    .log-container::-webkit-scrollbar-thumb,
+                    .trade-table-container::-webkit-scrollbar-thumb,
+                    .skill-list::-webkit-scrollbar-thumb {
+                        background: var(--border-color);
+                        border-radius: 3px;
+                    }
+
+                    .log-container::-webkit-scrollbar-thumb:hover,
+                    .trade-table-container::-webkit-scrollbar-thumb:hover,
+                    .skill-list::-webkit-scrollbar-thumb:hover {
+                        background: var(--border-accent);
+                    }
+                </style>
+            </section><!-- End Live Logs Section -->
         </main>
     </div>
 
@@ -1088,7 +1581,8 @@
             { id: 'piper', name: 'Piper', role: 'Communications', icon: '📨' },
             { id: 'pixel', name: 'Pixel', role: 'UX/UI Designer', icon: '🎨' },
             { id: 'cfo', name: 'CFO', role: 'Finance', icon: '💰' },
-            { id: 'trader', name: 'Trader', role: 'Trading Bot', icon: '📈', url: 'http://127.0.0.1:3001' }
+            { id: 'trader', name: 'Trader', role: 'Trading Bot', icon: '📈', url: 'http://127.0.0.1:3001' },
+            { id: 'scout', name: 'Scout', role: 'Browser & Web Research', icon: '🔍' }
         ];
 
         // State management
@@ -1096,6 +1590,7 @@
         let isFetching = false;
         let cachedData = { agents: null, health: null, rapidapi: null, crm: null };
         let lastFetchTimes = { agents: null, health: null, rapidapi: null, crm: null };
+        let logsInitialized = false;
         
         // Error tracking with consecutive failure counters for graceful degradation
         let errorCounts = { agents: 0, health: 0, rapidapi: 0, crm: 0 };
@@ -1116,10 +1611,197 @@
         // SSE State
         let eventSource = null;
         let sseConnected = false;
-        let useSSE = true; // Will fall back to polling if SSE fails
+        let useSSE = true; // Will fall back to polling if SSE fails permanently
         let activityPollingInterval = null;
+        let sseReconnectAttempts = 0;
+        let sseReconnectTimeout = null;
+        const MAX_SSE_RECONNECT_ATTEMPTS = 10;
+        const SSE_RECONNECT_DELAY_BASE = 2000; // Start with 2 seconds
 
-        // Loading State Management
+        // Update connection status UI
+        function updateConnectionStatus(status, message) {
+            const statusEl = document.getElementById('connection-status');
+            if (!statusEl) return;
+            
+            statusEl.className = `connection-status ${status}`;
+            statusEl.textContent = message;
+            
+            if (status === 'connected') {
+                statusEl.title = 'Real-time updates active - Connected via SSE';
+            } else if (status === 'connecting') {
+                statusEl.title = 'Connecting to real-time updates...';
+            } else {
+                statusEl.title = 'Real-time updates unavailable - Using polling fallback';
+            }
+        }
+
+        // Initialize SSE connection with automatic reconnection
+        function initSSE() {
+            // Clear any pending reconnect timeout
+            if (sseReconnectTimeout) {
+                clearTimeout(sseReconnectTimeout);
+                sseReconnectTimeout = null;
+            }
+            
+            if (!window.EventSource) {
+                console.log('[SSE] EventSource not supported, using polling');
+                useSSE = false;
+                updateConnectionStatus('disconnected', '🔴 Polling Mode');
+                startActivityPolling();
+                return;
+            }
+            
+            // If we've exceeded max reconnect attempts, fall back to polling permanently
+            if (sseReconnectAttempts >= MAX_SSE_RECONNECT_ATTEMPTS) {
+                console.log('[SSE] Max reconnect attempts reached, using polling permanently');
+                useSSE = false;
+                updateConnectionStatus('disconnected', '🔴 Polling Mode');
+                startActivityPolling();
+                return;
+            }
+            
+            if (sseReconnectAttempts > 0) {
+                updateConnectionStatus('connecting', '🟡 Reconnecting...');
+            } else {
+                updateConnectionStatus('connecting', '🟡 Connecting...');
+            }
+            
+            try {
+                eventSource = new EventSource('/api/activity/stream');
+                
+                eventSource.onopen = () => {
+                    sseConnected = true;
+                    sseReconnectAttempts = 0; // Reset on successful connection
+                    console.log('[SSE] Connected to activity stream');
+                    updateConnectionStatus('connected', '🟢 Live');
+                    
+                    // Stop polling if we were in fallback mode
+                    if (activityPollingInterval) {
+                        clearInterval(activityPollingInterval);
+                        activityPollingInterval = null;
+                        console.log('[SSE] Switched from polling to real-time updates');
+                    }
+                    
+                    // Only add activity on first connect, not reconnects
+                    if (!document.querySelector('[data-sse-initialized]')) {
+                        addActivity('success', '🔗', 'Live Connection', 'Real-time activity updates enabled');
+                        document.body.setAttribute('data-sse-initialized', 'true');
+                    }
+                };
+                
+                eventSource.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        
+                        if (data.type === 'connected') {
+                            console.log('[SSE] Server acknowledged connection');
+                        } else if (data.type === 'initial') {
+                            // Initial activities load
+                            if (data.activities && data.activities.length > 0) {
+                                activities = data.activities;
+                                renderActivities();
+                            }
+                        } else if (data.type === 'activity') {
+                            // New activity received
+                            const activity = data.activity;
+                            activities.unshift(activity);
+                            if (activities.length > 20) activities.pop();
+                            renderActivities();
+                            
+                            // Update unified timestamp
+                            updateUnifiedTimestamp();
+                        }
+                    } catch (err) {
+                        console.error('[SSE] Error parsing message:', err);
+                    }
+                };
+                
+                eventSource.onerror = (err) => {
+                    console.warn('[SSE] Connection error:', err);
+                    sseConnected = false;
+                    updateConnectionStatus('connecting', '🟡 Reconnecting...');
+                    
+                    // Close current connection
+                    if (eventSource) {
+                        eventSource.close();
+                        eventSource = null;
+                    }
+                    
+                    // Schedule reconnection with exponential backoff
+                    sseReconnectAttempts++;
+                    const delay = Math.min(SSE_RECONNECT_DELAY_BASE * Math.pow(1.5, sseReconnectAttempts - 1), 30000); // Max 30 seconds
+                    
+                    console.log(`[SSE] Reconnect attempt ${sseReconnectAttempts}/${MAX_SSE_RECONNECT_ATTEMPTS} in ${delay}ms`);
+                    
+                    sseReconnectTimeout = setTimeout(() => {
+                        initSSE();
+                    }, delay);
+                    
+                    // If this is the first error and we haven't started polling yet, start it as immediate fallback
+                    if (!activityPollingInterval && activities.length === 0) {
+                        console.log('[SSE] Starting polling as immediate fallback');
+                        startActivityPolling();
+                    }
+                };
+            } catch (err) {
+                console.error('[SSE] Failed to initialize:', err);
+                sseReconnectAttempts++;
+                updateConnectionStatus('disconnected', '🔴 Disconnected');
+                
+                if (sseReconnectAttempts < MAX_SSE_RECONNECT_ATTEMPTS) {
+                    const delay = Math.min(SSE_RECONNECT_DELAY_BASE * Math.pow(1.5, sseReconnectAttempts - 1), 30000);
+                    sseReconnectTimeout = setTimeout(() => {
+                        initSSE();
+                    }, delay);
+                } else {
+                    useSSE = false;
+                    startActivityPolling();
+                }
+            }
+        }
+
+        // Start activity polling (fallback mode when SSE fails)
+        function startActivityPolling() {
+            // Don't start if already polling
+            if (activityPollingInterval) {
+                return;
+            }
+            
+            console.log('[SSE] Starting polling fallback mode');
+            updateConnectionStatus('disconnected', '🔴 Polling Mode');
+            
+            // Initial fetch
+            fetchActivities();
+            
+            // Poll every 5 seconds
+            activityPollingInterval = setInterval(fetchActivities, 5000);
+        }
+        
+        // Fetch activities via polling
+        async function fetchActivities() {
+            try {
+                const response = await fetch('/api/activity?limit=20');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                if (data.activities && data.activities.length > 0) {
+                    // Only update if different to avoid unnecessary re-renders
+                    const currentIds = activities.map(a => a.id).join(',');
+                    const newIds = data.activities.map(a => a.id).join(',');
+                    
+                    if (currentIds !== newIds) {
+                        activities = data.activities;
+                        renderActivities();
+                    }
+                }
+
+                // Update unified timestamp
+                updateUnifiedTimestamp();
+            } catch (err) {
+                console.error('[Activity] Fetch error:', err);
+            }
+        }
+
         function showLoading() {
             const btn = document.getElementById('refresh-btn');
             const icon = document.getElementById('refresh-icon');
@@ -1505,104 +2187,6 @@
                         <div class="activity-time" title="${new Date(a.timestamp).toLocaleString()}">${relativeTime}</div>
                     </div>
                 `}).join('');
-            }
-        }
-        
-        // Initialize SSE connection
-        function initSSE() {
-            if (!useSSE || !window.EventSource) {
-                // Fallback to polling
-                useSSE = false;
-                startActivityPolling();
-                return;
-            }
-            
-            try {
-                eventSource = new EventSource('/api/activity/stream');
-                
-                eventSource.onopen = () => {
-                    sseConnected = true;
-                    console.log('[SSE] Connected to activity stream');
-                    addActivity('success', '🔗', 'Live Connection', 'Real-time activity updates enabled');
-                };
-                
-                eventSource.onmessage = (event) => {
-                    try {
-                        const data = JSON.parse(event.data);
-                        
-                        if (data.type === 'connected') {
-                            console.log('[SSE] Server acknowledged connection');
-                        } else if (data.type === 'initial') {
-                            // Initial activities load
-                            if (data.activities && data.activities.length > 0) {
-                                activities = data.activities;
-                                renderActivities();
-                            }
-                        } else if (data.type === 'activity') {
-                            // New activity received
-                            const activity = data.activity;
-                            activities.unshift(activity);
-                            if (activities.length > 20) activities.pop();
-                            renderActivities();
-                            
-                            // Update unified timestamp
-                            updateUnifiedTimestamp();
-                        }
-                    } catch (err) {
-                        console.error('[SSE] Error parsing message:', err);
-                    }
-                };
-                
-                eventSource.onerror = (err) => {
-                    // Only log as warning - SSE failures are non-critical
-                    console.warn('[SSE] Connection issue, will retry or fallback:', err);
-                    sseConnected = false;
-                    
-                    // Close current connection
-                    if (eventSource) {
-                        eventSource.close();
-                        eventSource = null;
-                    }
-                    
-                    // Fall back to polling silently (don't spam activities with this)
-                    if (useSSE) {
-                        console.log('[SSE] Falling back to polling mode');
-                        useSSE = false;
-                        startActivityPolling();
-                    }
-                };
-            } catch (err) {
-                console.error('[SSE] Failed to initialize:', err);
-                useSSE = false;
-                startActivityPolling();
-            }
-        }
-        
-        // Start activity polling (fallback mode)
-        function startActivityPolling() {
-            // Initial fetch
-            fetchActivities();
-            
-            // Poll every 5 seconds
-            activityPollingInterval = setInterval(fetchActivities, 5000);
-        }
-        
-        // Fetch activities via polling
-        async function fetchActivities() {
-            try {
-                const response = await fetch('/api/activity?limit=20');
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                
-                const data = await response.json();
-                if (data.activities && data.activities.length > 0) {
-                    activities = data.activities;
-                    renderActivities();
-                }
-
-                // Update unified timestamp
-                updateUnifiedTimestamp();
-            } catch (err) {
-                console.error('[Activity] Fetch error:', err);
             }
         }
 
@@ -2048,6 +2632,449 @@
             }
         }
 
+        // Initialize live logs when on logs section
+        function initLiveLogs() {
+            if (logsInitialized) return;
+            logsInitialized = true;
+            
+            // Connect to agent logs SSE
+            connectAgentLogsSSE();
+            
+            // Connect to trades SSE
+            connectTradesSSE();
+            
+            // Connect to skills SSE
+            connectSkillsSSE();
+            
+            // Initial data load
+            fetchAgentLogs();
+            fetchTradeLogs();
+            fetchSkills();
+        }
+
+        // Agent Logs SSE Connection
+        let agentLogsSSE = null;
+        function connectAgentLogsSSE() {
+            if (agentLogsSSE) return;
+            
+            const agentFilter = document.getElementById('agent-filter')?.value || 'all';
+            
+            try {
+                agentLogsSSE = new EventSource(`/api/agent-logs/stream?agent=${agentFilter}`);
+                
+                agentLogsSSE.onopen = () => {
+                    updateLogsConnectionStatus('connected');
+                };
+                
+                agentLogsSSE.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data.type === 'log' && data.data) {
+                            appendAgentLog(data.data);
+                        }
+                    } catch (err) {
+                        console.error('[AgentLogs SSE] Parse error:', err);
+                    }
+                };
+                
+                agentLogsSSE.onerror = () => {
+                    updateLogsConnectionStatus('error');
+                    agentLogsSSE.close();
+                    agentLogsSSE = null;
+                    // Retry after 5 seconds
+                    setTimeout(connectAgentLogsSSE, 5000);
+                };
+            } catch (err) {
+                console.error('[AgentLogs SSE] Connection error:', err);
+                updateLogsConnectionStatus('error');
+            }
+        }
+
+        // Trades SSE Connection
+        let tradesSSE = null;
+        function connectTradesSSE() {
+            if (tradesSSE) return;
+            
+            try {
+                tradesSSE = new EventSource('/api/trades/stream');
+                
+                tradesSSE.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data.type === 'trade' && data.data) {
+                            prependTrade(data.data);
+                            updateTradeStatsFromTrade(data.data);
+                        }
+                    } catch (err) {
+                        console.error('[Trades SSE] Parse error:', err);
+                    }
+                };
+                
+                tradesSSE.onerror = () => {
+                    tradesSSE.close();
+                    tradesSSE = null;
+                    setTimeout(connectTradesSSE, 5000);
+                };
+            } catch (err) {
+                console.error('[Trades SSE] Connection error:', err);
+            }
+        }
+
+        // Skills SSE Connection
+        let skillsSSE = null;
+        function connectSkillsSSE() {
+            if (skillsSSE) return;
+            
+            try {
+                skillsSSE = new EventSource('/api/skills/stream');
+                
+                skillsSSE.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data.type === 'skill' && data.skill) {
+                            prependSkill(data.skill);
+                            updateRunningSkillCount();
+                        }
+                    } catch (err) {
+                        console.error('[Skills SSE] Parse error:', err);
+                    }
+                };
+                
+                skillsSSE.onerror = () => {
+                    skillsSSE.close();
+                    skillsSSE = null;
+                    setTimeout(connectSkillsSSE, 5000);
+                };
+            } catch (err) {
+                console.error('[Skills SSE] Connection error:', err);
+            }
+        }
+
+        // Fetch agent logs via polling
+        async function fetchAgentLogs() {
+            try {
+                const agentFilter = document.getElementById('agent-filter')?.value || 'all';
+                const response = await fetch(`/api/agent-logs?agent=${agentFilter}&lines=50`);
+                const data = await response.json();
+                
+                if (data.logs) {
+                    renderAgentLogs(data.logs);
+                }
+                
+                document.getElementById('agent-console-timestamp').textContent = 
+                    'Updated: ' + new Date().toLocaleTimeString();
+            } catch (err) {
+                console.error('Error fetching agent logs:', err);
+            }
+        }
+
+        // Fetch trade logs
+        async function fetchTradeLogs() {
+            try {
+                const filter = document.getElementById('trade-filter')?.value || 'all';
+                const response = await fetch(`/api/trades?filter=${filter}&limit=20`);
+                const data = await response.json();
+                
+                if (data.trades) {
+                    renderTrades(data.trades);
+                }
+                
+                if (data.stats) {
+                    updateTradeStats(data.stats);
+                }
+                
+                document.getElementById('trade-log-timestamp').textContent = 
+                    'Updated: ' + new Date().toLocaleTimeString();
+            } catch (err) {
+                console.error('Error fetching trades:', err);
+            }
+        }
+
+        // Fetch skills
+        async function fetchSkills() {
+            try {
+                const response = await fetch('/api/skills?limit=20');
+                const data = await response.json();
+                
+                if (data.skills) {
+                    renderSkills(data.skills);
+                }
+                
+                if (data.running) {
+                    document.getElementById('skill-running-count').textContent = 
+                        `${data.running.length} running`;
+                }
+                
+                document.getElementById('skill-trace-timestamp').textContent = 
+                    'Updated: ' + new Date().toLocaleTimeString();
+            } catch (err) {
+                console.error('Error fetching skills:', err);
+            }
+        }
+
+        // Render agent logs
+        function renderAgentLogs(logs) {
+            const container = document.getElementById('agent-logs-container');
+            if (!container) return;
+            
+            if (logs.length === 0) {
+                container.innerHTML = '<div class="log-placeholder">No logs available</div>';
+                return;
+            }
+            
+            container.innerHTML = logs.map(log => formatLogLine(log)).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Append single agent log
+        function appendAgentLog(log) {
+            const container = document.getElementById('agent-logs-container');
+            if (!container) return;
+            
+            const placeholder = container.querySelector('.log-placeholder');
+            if (placeholder) placeholder.remove();
+            
+            const logHtml = formatLogLine(log);
+            container.insertAdjacentHTML('beforeend', logHtml);
+            
+            // Auto-scroll if at bottom
+            if (container.scrollTop + container.clientHeight >= container.scrollHeight - 50) {
+                container.scrollTop = container.scrollHeight;
+            }
+            
+            // Limit to 100 lines
+            while (container.children.length > 100) {
+                container.removeChild(container.firstChild);
+            }
+        }
+
+        // Format log line HTML
+        function formatLogLine(log) {
+            const timestamp = log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : '--:--:--';
+            const level = (log.level || 'info').toLowerCase();
+            const agent = (log.agent || 'system').toUpperCase().slice(0, 6);
+            const message = escapeHtml(log.message || log.raw || '');
+            
+            return `
+                <div class="log-line">
+                    <span class="log-timestamp">${timestamp}</span>
+                    <span class="log-agent">${agent}</span>
+                    <span class="log-level ${level}">${level}</span>
+                    <span class="log-message">${message}</span>
+                </div>
+            `;
+        }
+
+        // Render trades table
+        function renderTrades(trades) {
+            const tbody = document.getElementById('trade-table-body');
+            if (!tbody) return;
+            
+            if (trades.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="trade-empty">No trades found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = trades.map(trade => formatTradeRow(trade)).join('');
+        }
+
+        // Prepend single trade
+        function prependTrade(trade) {
+            const tbody = document.getElementById('trade-table-body');
+            if (!tbody) return;
+            
+            const emptyRow = tbody.querySelector('.trade-empty');
+            if (emptyRow) emptyRow.remove();
+            
+            const rowHtml = formatTradeRow(trade);
+            tbody.insertAdjacentHTML('afterbegin', rowHtml);
+            
+            // Limit to 50 rows
+            while (tbody.children.length > 50) {
+                tbody.removeChild(tbody.lastChild);
+            }
+        }
+
+        // Format trade row HTML
+        function formatTradeRow(trade) {
+            const time = trade.timestamp ? new Date(trade.timestamp).toLocaleString() : '--';
+            const pnlClass = trade.pnl > 0 ? 'trade-win' : trade.pnl < 0 ? 'trade-loss' : '';
+            const pnlText = trade.pnl > 0 ? `+$${trade.pnl.toFixed(2)}` : trade.pnl < 0 ? `-$${Math.abs(trade.pnl).toFixed(2)}` : '$0';
+            
+            return `
+                <tr>
+                    <td>${time}</td>
+                    <td>${escapeHtml(trade.symbol || 'Unknown')}</td>
+                    <td>${trade.direction || '--'}</td>
+                    <td>$${(trade.entryPrice || 0).toFixed(4)}</td>
+                    <td>${trade.exitPrice ? '$' + trade.exitPrice.toFixed(4) : '--'}</td>
+                    <td class="${pnlClass}">${pnlText}</td>
+                    <td>${trade.rr || '--'}</td>
+                </tr>
+            `;
+        }
+
+        // Update trade stats
+        function updateTradeStats(stats) {
+            document.getElementById('trade-total').textContent = stats.total || 0;
+            document.getElementById('trade-wins').textContent = stats.wins || 0;
+            document.getElementById('trade-losses').textContent = stats.losses || 0;
+            document.getElementById('trade-winrate').textContent = (stats.winRate || 0) + '%';
+            
+            const pnlEl = document.getElementById('trade-pnl');
+            const pnl = stats.totalPnl || 0;
+            pnlEl.textContent = (pnl >= 0 ? '+' : '-') + '$' + Math.abs(pnl).toFixed(2);
+            pnlEl.className = 'trade-stat-value ' + (pnl >= 0 ? 'win' : 'loss');
+        }
+
+        // Update stats from single trade
+        function updateTradeStatsFromTrade(trade) {
+            // Refresh stats periodically instead of per-trade
+            if (Math.random() < 0.2) { // 20% chance
+                fetchTradeLogs();
+            }
+        }
+
+        // Render skills
+        function renderSkills(skills) {
+            const container = document.getElementById('skill-list');
+            if (!container) return;
+            
+            if (skills.length === 0) {
+                container.innerHTML = '<div class="skill-placeholder">No skill executions</div>';
+                return;
+            }
+            
+            container.innerHTML = skills.map(skill => formatSkillItem(skill)).join('');
+        }
+
+        // Prepend single skill
+        function prependSkill(skill) {
+            const container = document.getElementById('skill-list');
+            if (!container) return;
+            
+            const placeholder = container.querySelector('.skill-placeholder');
+            if (placeholder) placeholder.remove();
+            
+            const skillHtml = formatSkillItem(skill);
+            container.insertAdjacentHTML('afterbegin', skillHtml);
+            
+            // Limit to 20 items
+            while (container.children.length > 20) {
+                container.removeChild(container.lastChild);
+            }
+        }
+
+        // Format skill item HTML
+        function formatSkillItem(skill) {
+            const statusClass = skill.success === undefined ? 'running' : 
+                               skill.success === true ? 'success' : 'error';
+            const statusIcon = skill.success === undefined ? '⏳' :
+                              skill.success === true ? '✅' : '❌';
+            
+            const startTime = skill.startTime ? new Date(skill.startTime).toLocaleString() : '--';
+            const duration = skill.duration ? 
+                (skill.duration < 1000 ? skill.duration + 'ms' : 
+                 (skill.duration / 1000).toFixed(1) + 's') : 
+                (skill.endTime ? ((skill.endTime - skill.startTime) / 1000).toFixed(1) + 's' : 'running...');
+            
+            const actions = skill.actions?.length > 0 
+                ? `<div class="skill-actions">Actions: ${skill.actions.join(' → ')}</div>` 
+                : '';
+            
+            return `
+                <div class="skill-item ${statusClass}">
+                    <div class="skill-header">
+                        <span class="skill-name">${statusIcon} ${escapeHtml(skill.skillName || skill.title || 'Unknown Skill')}</span>
+                        <span class="skill-agent">${escapeHtml(skill.agent || skill.source || 'system')}</span>
+                    </div>
+                    <div class="skill-meta">
+                        <span>Started: ${startTime}</span>
+                        <span>Duration: ${duration}</span>
+                        <span>Status: ${skill.success === undefined ? 'running' : skill.success ? 'success' : 'failed'}</span>
+                    </div>
+                    ${actions}
+                </div>
+            `;
+        }
+
+        // Update running skill count
+        function updateRunningSkillCount() {
+            const runningItems = document.querySelectorAll('.skill-item.running');
+            const badge = document.getElementById('skill-running-count');
+            if (badge) {
+                badge.textContent = `${runningItems.length} running`;
+            }
+        }
+
+        // Update logs connection status
+        function updateLogsConnectionStatus(status) {
+            const el = document.getElementById('logs-connection-status');
+            if (!el) return;
+            
+            if (status === 'connected') {
+                el.textContent = 'Live';
+                el.style.color = 'var(--status-online)';
+            } else {
+                el.textContent = 'Reconnecting...';
+                el.style.color = 'var(--status-warning)';
+            }
+        }
+
+        // Panel toggle
+        function togglePanel(panelId) {
+            const body = document.getElementById(`${panelId}-body`);
+            const toggle = document.getElementById(`${panelId}-toggle`);
+            
+            if (body && toggle) {
+                body.classList.toggle('collapsed');
+                toggle.classList.toggle('collapsed');
+            }
+        }
+
+        // Filter functions
+        function filterAgentLogs(event) {
+            event.stopPropagation();
+            
+            // Reconnect SSE with new filter
+            if (agentLogsSSE) {
+                agentLogsSSE.close();
+                agentLogsSSE = null;
+            }
+            connectAgentLogsSSE();
+            
+            // Fetch new logs
+            fetchAgentLogs();
+        }
+
+        function filterTradeLogs(event) {
+            event.stopPropagation();
+            fetchTradeLogs();
+        }
+
+        // Refresh live logs
+        function refreshLiveLogs() {
+            fetchAgentLogs();
+            fetchTradeLogs();
+            fetchSkills();
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Poll for updates when not using SSE
+        setInterval(() => {
+            if (document.getElementById('section-logs')?.classList.contains('active')) {
+                if (!agentLogsSSE) fetchAgentLogs();
+                if (!tradesSSE) fetchTradeLogs();
+                if (!skillsSSE) fetchSkills();
+            }
+        }, 5000);
+
         // Initialization
         function init() {
             initNavigation();
@@ -2067,6 +3094,20 @@
             
             // Update relative times every minute
             setInterval(renderActivities, 60000);
+            
+            // Watch for section changes to init live logs
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.target.id === 'section-logs' && mutation.target.classList.contains('active')) {
+                        initLiveLogs();
+                    }
+                });
+            });
+            
+            const logsSection = document.getElementById('section-logs');
+            if (logsSection) {
+                observer.observe(logsSection, { attributes: true, attributeFilter: ['class'] });
+            }
         }
 
         if (document.readyState === 'loading') {

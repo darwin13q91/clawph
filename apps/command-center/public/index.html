@@ -1410,6 +1410,11 @@
                                 Check Email
                             </button>
                             
+                            <button class="quick-btn" onclick="triggerAgent('scout')">
+                                <span class="icon">🔍</span>
+                                Scout
+                            </button>
+                            
                             <button class="quick-btn" onclick="triggerAgent('atlas')">
                                 <span class="icon">🏛️</span>
                                 Deploy
@@ -1524,7 +1529,8 @@
             { id: 'river', name: 'River', role: 'Social Media', icon: '🌊', status: 'online', state: 'available' },
             { id: 'piper', name: 'Piper', role: 'Communications', icon: '📨', status: 'online', state: 'available' },
             { id: 'pixel', name: 'Pixel', role: 'UX/UI Designer', icon: '🎨', status: 'online', state: 'available' },
-            { id: 'cfo', name: 'CFO', role: 'Finance', icon: '💰', status: 'online', state: 'available' }
+            { id: 'cfo', name: 'CFO', role: 'Finance', icon: '💰', status: 'online', state: 'available' },
+            { id: 'scout', name: 'Scout', role: 'Browser & Web Research', icon: '🔍', status: 'online', state: 'available' }
         ];
 
         let activities = [];
@@ -1682,7 +1688,8 @@
                     updateAgents(data);
                 }
 
-                document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+                const lastUpdatedEl = document.getElementById('last-updated');
+                if (lastUpdatedEl) lastUpdatedEl.textContent = new Date().toLocaleTimeString();
                 showToast('success', 'Data Refreshed', 'Dashboard updated successfully', 2000);
             } catch (e) {
                 console.error('Fetch error:', e);
@@ -1695,19 +1702,25 @@
         }
 
         function showSkeletonHealth() {
-            document.getElementById('health-memory').innerHTML = '<span class="skeleton" style="width: 40px; height: 16px; display: inline-block;"></span>';
-            document.getElementById('health-disk').innerHTML = '<span class="skeleton" style="width: 40px; height: 16px; display: inline-block;"></span>';
-            document.getElementById('health-load').innerHTML = '<span class="skeleton" style="width: 40px; height: 16px; display: inline-block;"></span>';
+            const memEl = document.getElementById('health-memory');
+            const diskEl = document.getElementById('health-disk');
+            const loadEl = document.getElementById('health-load');
+            if (memEl) memEl.innerHTML = '<span class="skeleton" style="width: 40px; height: 16px; display: inline-block;"></span>';
+            if (diskEl) diskEl.innerHTML = '<span class="skeleton" style="width: 40px; height: 16px; display: inline-block;"></span>';
+            if (loadEl) loadEl.innerHTML = '<span class="skeleton" style="width: 40px; height: 16px; display: inline-block;"></span>';
         }
 
         function showSkeletonRapidApi() {
-            document.getElementById('amazon-usage').innerHTML = '<span class="skeleton" style="width: 30px; height: 16px; display: inline-block;"></span>';
-            document.getElementById('axesso-usage').innerHTML = '<span class="skeleton" style="width: 30px; height: 16px; display: inline-block;"></span>';
+            const amazonEl = document.getElementById('amazon-usage');
+            const axessoEl = document.getElementById('axesso-usage');
+            if (amazonEl) amazonEl.innerHTML = '<span class="skeleton" style="width: 30px; height: 16px; display: inline-block;"></span>';
+            if (axessoEl) axessoEl.innerHTML = '<span class="skeleton" style="width: 30px; height: 16px; display: inline-block;"></span>';
         }
 
         function showSkeletonEcho() {
             ['echo-processed', 'echo-unread', 'echo-queue'].forEach(id => {
-                document.getElementById(id).innerHTML = '<span class="skeleton" style="width: 24px; height: 16px; display: inline-block;"></span>';
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = '<span class="skeleton" style="width: 24px; height: 16px; display: inline-block;"></span>';
             });
         }
 
@@ -1716,29 +1729,38 @@
             
             if (data.memory) {
                 const memEl = document.getElementById('health-memory');
-                memEl.textContent = `${data.memory.percent}%`;
-                memEl.className = 'health-value ' + (data.memory.percent > 80 ? 'negative' : data.memory.percent > 60 ? 'warning' : 'positive');
+                if (memEl) {
+                    memEl.textContent = `${data.memory.percent}%`;
+                    memEl.className = 'health-value ' + (data.memory.percent > 80 ? 'negative' : data.memory.percent > 60 ? 'warning' : 'positive');
+                }
             }
             if (data.disk) {
                 const diskEl = document.getElementById('health-disk');
-                diskEl.textContent = `${data.disk.percent}%`;
-                diskEl.className = 'health-value ' + (data.disk.percent > 80 ? 'negative' : data.disk.percent > 60 ? 'warning' : 'positive');
+                if (diskEl) {
+                    diskEl.textContent = `${data.disk.percent}%`;
+                    diskEl.className = 'health-value ' + (data.disk.percent > 80 ? 'negative' : data.disk.percent > 60 ? 'warning' : 'positive');
+                }
             }
             if (data.load) {
-                document.getElementById('health-load').textContent = data.load['1min']?.toFixed(1) || '--';
+                const loadEl = document.getElementById('health-load');
+                if (loadEl) loadEl.textContent = data.load['1min']?.toFixed(1) || '--';
             }
             if (data.gateway) {
                 const gwEl = document.getElementById('health-gateway');
-                gwEl.textContent = data.gateway.running ? '🟢 Online' : '🔴 Offline';
-                gwEl.className = 'health-value ' + (data.gateway.running ? 'positive' : 'negative');
+                if (gwEl) {
+                    gwEl.textContent = data.gateway.running ? '🟢 Online' : '🔴 Offline';
+                    gwEl.className = 'health-value ' + (data.gateway.running ? 'positive' : 'negative');
+                }
             }
             
             // Health bar
             const mem = data.memory?.percent || 0;
             const disk = data.disk?.percent || 0;
             const avg = Math.round((mem + disk) / 2);
-            document.getElementById('health-bar').style.width = `${avg}%`;
-            document.getElementById('health-percent').textContent = `${avg}%`;
+            const healthBarEl = document.getElementById('health-bar');
+            const healthPercentEl = document.getElementById('health-percent');
+            if (healthBarEl) healthBarEl.style.width = `${avg}%`;
+            if (healthPercentEl) healthPercentEl.textContent = `${avg}%`;
         }
 
         function updateRapidApiWidget(data) {
@@ -1746,16 +1768,21 @@
             
             if (data.amazon) {
                 const pct = data.amazon.usage?.percentUsed || 0;
-                document.getElementById('amazon-usage').textContent = `${pct}%`;
-                document.getElementById('amazon-bar').style.width = `${pct}%`;
+                const amazonUsageEl = document.getElementById('amazon-usage');
+                const amazonBarEl = document.getElementById('amazon-bar');
+                if (amazonUsageEl) amazonUsageEl.textContent = `${pct}%`;
+                if (amazonBarEl) amazonBarEl.style.width = `${pct}%`;
             }
             if (data.axesso) {
                 const pct = data.axesso.usage?.percentUsed || 0;
-                document.getElementById('axesso-usage').textContent = `${pct}%`;
-                document.getElementById('axesso-bar').style.width = `${pct}%`;
+                const axessoUsageEl = document.getElementById('axesso-usage');
+                const axessoBarEl = document.getElementById('axesso-bar');
+                if (axessoUsageEl) axessoUsageEl.textContent = `${pct}%`;
+                if (axessoBarEl) axessoBarEl.style.width = `${pct}%`;
             }
             if (data.combined?.billingCycle) {
-                document.getElementById('rapidapi-reset').textContent = `${data.combined.billingCycle.daysUntilReset} days`;
+                const resetEl = document.getElementById('rapidapi-reset');
+                if (resetEl) resetEl.textContent = `${data.combined.billingCycle.daysUntilReset} days`;
             }
         }
 
@@ -1766,19 +1793,23 @@
             const unread = data.unread_count || 0;
             const queue = data.queue_size || 0;
             
-            document.getElementById('echo-processed').textContent = processed;
-            document.getElementById('echo-unread').textContent = unread;
-            document.getElementById('echo-queue').textContent = queue;
-            
-            // Color code based on values
+            const processedEl = document.getElementById('echo-processed');
             const unreadEl = document.getElementById('echo-unread');
-            unreadEl.className = 'metric-value ' + (unread > 10 ? 'warning' : unread > 0 ? 'neutral' : 'positive');
-            
             const queueEl = document.getElementById('echo-queue');
-            queueEl.className = 'metric-value ' + (queue > 5 ? 'warning' : 'muted');
+            
+            if (processedEl) processedEl.textContent = processed;
+            if (unreadEl) {
+                unreadEl.textContent = unread;
+                unreadEl.className = 'metric-value ' + (unread > 10 ? 'warning' : unread > 0 ? 'neutral' : 'positive');
+            }
+            if (queueEl) {
+                queueEl.textContent = queue;
+                queueEl.className = 'metric-value ' + (queue > 5 ? 'warning' : 'muted');
+            }
             
             if (data.last_check) {
-                document.getElementById('echo-last-check').textContent = new Date(data.last_check).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const lastCheckEl = document.getElementById('echo-last-check');
+                if (lastCheckEl) lastCheckEl.textContent = new Date(data.last_check).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             }
         }
 
@@ -1786,7 +1817,8 @@
             if (!data?.agents) return;
             
             const onlineCount = data.agents.filter(a => a.status === 'online').length;
-            document.getElementById('agent-count').textContent = `${onlineCount} Online`;
+            const agentCountEl = document.getElementById('agent-count');
+            if (agentCountEl) agentCountEl.textContent = `${onlineCount} Online`;
         }
 
         // Actions
