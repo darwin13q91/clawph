@@ -8,6 +8,7 @@ import cron from 'node-cron';
 import axios from 'axios';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,6 +18,12 @@ const server = createServer(app);
 const wss = new WebSocketServer({ server, path: '/ws' });
 
 const PORT = process.env.PORT || 3001;
+
+// Ensure trades export directory exists
+const TRADES_EXPORT_DIR = '/home/darwin/.openclaw/agents/trader/memory/trades';
+if (!fs.existsSync(TRADES_EXPORT_DIR)) {
+  fs.mkdirSync(TRADES_EXPORT_DIR, { recursive: true });
+}
 
 // Middleware
 app.use(cors());
@@ -42,9 +49,16 @@ async function initDatabase() {
       symbol TEXT NOT NULL,
       side TEXT NOT NULL,
       amount REAL NOT NULL,
+      entryPrice REAL,
+      exitPrice REAL,
       price REAL NOT NULL,
       total REAL NOT NULL,
-      timestamp INTEGER NOT NULL
+      pnl REAL DEFAULT 0,
+      pnlPercent REAL DEFAULT 0,
+      timestamp INTEGER NOT NULL,
+      closed INTEGER DEFAULT 0,
+      closedAt INTEGER,
+      status TEXT DEFAULT 'open'
     );
 
     CREATE TABLE IF NOT EXISTS orders (
@@ -56,20 +70,31 @@ async function initDatabase() {
       price REAL NOT NULL,
       status TEXT NOT NULL,
       timestamp INTEGER NOT NULL,
-      filledPrice REAL
+      filledPrice REAL,
+      pnl REAL DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS positions (
       symbol TEXT PRIMARY KEY,
       amount REAL NOT NULL,
-      avgPrice REAL NOT NULL
+      avgPrice REAL NOT NULL,
+      unrealizedPnl REAL DEFAULT 0,
+      realizedPnl REAL DEFAULT 0,
+      totalInvested REAL DEFAULT 0,
+      lastUpdated INTEGER
     );
 
     CREATE TABLE IF NOT EXISTS portfolio (
       id INTEGER PRIMARY KEY,
-      balance REAL NOT NULL DEFAULT 1000,
+      balance REAL NOT NULL DEFAULT 10000,
       totalPnL REAL NOT NULL DEFAULT 0,
-      dayPnL REAL NOT NULL DEFAULT 0
+      dayPnL REAL NOT NULL DEFAULT 0,
+      totalEquity REAL NOT NULL DEFAULT 10000,
+      totalTrades INTEGER DEFAULT 0,
+      winningTrades INTEGER DEFAULT 0,
+      losingTrades INTEGER DEFAULT 0,
+      winRate REAL DEFAULT 0,
+      expectancy REAL DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS candles (
@@ -84,8 +109,85 @@ async function initDatabase() {
       PRIMARY KEY (symbol, timeframe, time)
     );
 
-    INSERT OR IGNORE INTO portfolio (id, balance, totalPnL, dayPnL) VALUES (1, 1000, 0, 0);
+    INSERT OR IGNORE INTO portfolio (id, balance, totalPnL, dayPnL, totalEquity) VALUES (1, 10000, 0, 0, 10000);
   `);
+
+  // Handle schema migrations - add new columns if they don't exist
+  try {
+    const portfolioColumns = await db.all("PRAGMA table_info(portfolio)");
+    const portfolioColumnNames = portfolioColumns.map(c => c.name);
+    
+    if (!portfolioColumnNames.includes('totalEquity')) {
+      await db.run('ALTER TABLE portfolio ADD COLUMN totalEquity REAL DEFAULT 10000');
+    }
+    if (!portfolioColumnNames.includes('totalTrades')) {
+      await db.run('ALTER TABLE portfolio ADD COLUMN totalTrades INTEGER DEFAULT 0');
+    }
+    if (!portfolioColumnNames.includes('winningTrades')) {
+      await db.run('ALTER TABLE portfolio ADD COLUMN winningTrades INTEGER DEFAULT 0');
+    }
+    if (!portfolioColumnNames.includes('losingTrades')) {
+      await db.run('ALTER TABLE portfolio ADD COLUMN losingTrades INTEGER DEFAULT 0');
+    }
+    if (!portfolioColumnNames.includes('winRate')) {
+      await db.run('ALTER TABLE portfolio ADD COLUMN winRate REAL DEFAULT 0');
+    }
+    if (!portfolioColumnNames.includes('expectancy')) {
+      await db.run('ALTER TABLE portfolio ADD COLUMN expectancy REAL DEFAULT 0');
+    }
+
+    // Migrate trades table
+    const tradesColumns = await db.all("PRAGMA table_info(trades)");
+    const tradesColumnNames = tradesColumns.map(c => c.name);
+    
+    if (!tradesColumnNames.includes('entryPrice')) {
+      await db.run('ALTER TABLE trades ADD COLUMN entryPrice REAL');
+    }
+    if (!tradesColumnNames.includes('exitPrice')) {
+      await db.run('ALTER TABLE trades ADD COLUMN exitPrice REAL');
+    }
+    if (!tradesColumnNames.includes('pnlPercent')) {
+      await db.run('ALTER TABLE trades ADD COLUMN pnlPercent REAL DEFAULT 0');
+    }
+    if (!tradesColumnNames.includes('closed')) {
+      await db.run('ALTER TABLE trades ADD COLUMN closed INTEGER DEFAULT 0');
+    }
+    if (!tradesColumnNames.includes('closedAt')) {
+      await db.run('ALTER TABLE trades ADD COLUMN closedAt INTEGER');
+    }
+    if (!tradesColumnNames.includes('status')) {
+      await db.run('ALTER TABLE trades ADD COLUMN status TEXT DEFAULT "open"');
+    }
+
+    // Migrate positions table
+    const positionsColumns = await db.all("PRAGMA table_info(positions)");
+    const positionsColumnNames = positionsColumns.map(c => c.name);
+    
+    if (!positionsColumnNames.includes('unrealizedPnl')) {
+      await db.run('ALTER TABLE positions ADD COLUMN unrealizedPnl REAL DEFAULT 0');
+    }
+    if (!positionsColumnNames.includes('realizedPnl')) {
+      await db.run('ALTER TABLE positions ADD COLUMN realizedPnl REAL DEFAULT 0');
+    }
+    if (!positionsColumnNames.includes('totalInvested')) {
+      await db.run('ALTER TABLE positions ADD COLUMN totalInvested REAL DEFAULT 0');
+    }
+    if (!positionsColumnNames.includes('lastUpdated')) {
+      await db.run('ALTER TABLE positions ADD COLUMN lastUpdated INTEGER');
+    }
+
+    // Migrate orders table
+    const ordersColumns = await db.all("PRAGMA table_info(orders)");
+    const ordersColumnNames = ordersColumns.map(c => c.name);
+    
+    if (!ordersColumnNames.includes('pnl')) {
+      await db.run('ALTER TABLE orders ADD COLUMN pnl REAL DEFAULT 0');
+    }
+
+    console.log('Database migrations completed');
+  } catch (e) {
+    console.log('Migration check:', e.message);
+  }
 
   console.log('Database initialized');
 }
@@ -96,147 +198,285 @@ const prices = {
   BTC: null,
 };
 
-// Fetch Bitcoin price from CoinGecko
+// Default fallback prices
+const DEFAULT_PRICES = {
+  GOLD: {
+    symbol: 'GOLD',
+    price: 3018.50,
+    change24h: 0,
+    change24hValue: 0,
+    high24h: 3038.68,
+    low24h: 2998.32,
+    volume24h: 0,
+    timestamp: Date.now(),
+  },
+  BTC: {
+    symbol: 'BTC',
+    price: 84350.00,
+    change24h: 0,
+    change24hValue: 0,
+    high24h: 86000.00,
+    low24h: 82700.00,
+    volume24h: 0,
+    timestamp: Date.now(),
+  },
+};
+
+// Initialize with default prices
+prices.GOLD = { ...DEFAULT_PRICES.GOLD };
+prices.BTC = { ...DEFAULT_PRICES.BTC };
+
+// Fetch Bitcoin price from Finnhub
 async function fetchBTCPrice() {
   try {
+    const apiKey = process.env.FINNHUB_API_KEY;
+    if (!apiKey) {
+      console.error('FINNHUB_API_KEY not set, using fallback BTC price:', prices.BTC?.price || DEFAULT_PRICES.BTC.price);
+      return prices.BTC || DEFAULT_PRICES.BTC;
+    }
+
     const response = await axios.get(
-      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_24hr_high_low=true',
+      `https://finnhub.io/api/v1/quote?symbol=BINANCE:BTCUSDT&token=${apiKey}`,
       { timeout: 10000 }
     );
-    const data = response.data.bitcoin;
+    
+    const data = response.data;
+    
+    // Validate response data
+    if (!data || typeof data.c !== 'number') {
+      throw new Error('Invalid response from Finnhub BTC API');
+    }
+    
+    const price = data.c; // current price
+    const prevClose = data.pc; // previous close
+    const change24h = prevClose > 0 ? ((price - prevClose) / prevClose) * 100 : 0;
+    const change24hValue = price - prevClose;
+    
     prices.BTC = {
       symbol: 'BTC',
-      price: data.usd,
-      change24h: data.usd_24h_change || 0,
-      change24hValue: (data.usd * (data.usd_24h_change || 0)) / 100,
-      high24h: data.usd_24h_high || data.usd * 1.02,
-      low24h: data.usd_24h_low || data.usd * 0.98,
-      volume24h: data.usd_24h_vol || 0,
-      timestamp: Date.now(),
+      price: price,
+      change24h: change24h,
+      change24hValue: change24hValue,
+      high24h: data.h || price * 1.02, // day high
+      low24h: data.l || price * 0.98, // day low
+      open24h: data.o, // day open
+      prevClose: prevClose,
+      volume24h: 0, // Finnhub quote doesn't provide volume
+      timestamp: (data.t || Date.now() / 1000) * 1000,
+      source: 'finnhub',
     };
+    
+    console.log(`[${new Date().toISOString()}] BTC price updated: $${price.toFixed(2)} (change: ${change24h.toFixed(2)}%)`);
     return prices.BTC;
   } catch (error) {
-    console.error('Failed to fetch BTC price:', error.message);
-    return null;
+    console.error(`[${new Date().toISOString()}] Failed to fetch BTC price from Finnhub:`, error.message);
+    // Return current cached price or default
+    return prices.BTC || DEFAULT_PRICES.BTC;
   }
 }
 
-// Fetch Gold price from available APIs with validation
-// XAU/USD should be around $2900-3100 per ounce (current market range)
+// Fetch Gold price (XAU/USD) from Finnhub using GLD ETF as proxy
+// GLD ETF price × 10 ≈ Gold price per ounce (GLD represents ~1/10th of gold oz)
 async function fetchGoldPrice() {
-  const REALISTIC_GOLD_MIN = 4000;
-  const REALISTIC_GOLD_MAX = 6000;
-  const DEFAULT_GOLD_PRICE = 5018; // Current market price
+  const REALISTIC_GOLD_MIN = 1500;
+  const REALISTIC_GOLD_MAX = 5000;
+  const GLD_TO_GOLD_RATIO = 10; // GLD tracks ~1/10th of gold oz price
   
   try {
-    // Try Alpha Vantage for XAU/USD
-    const apiKey = process.env.ALPHA_VANTAGE_API_KEY || 'demo';
+    const apiKey = process.env.FINNHUB_API_KEY;
+    if (!apiKey) {
+      console.error('FINNHUB_API_KEY not set, using fallback GOLD price:', prices.GOLD?.price || DEFAULT_PRICES.GOLD.price);
+      return prices.GOLD || DEFAULT_PRICES.GOLD;
+    }
+
+    // Use GLD ETF as a proxy for gold price (more reliable endpoint)
     const response = await axios.get(
-      `https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=XAU&to_currency=USD&apikey=${apiKey}`,
+      `https://finnhub.io/api/v1/quote?symbol=GLD&token=${apiKey}`,
       { timeout: 10000 }
     );
     
-    const rateData = response.data['Realtime Currency Exchange Rate'];
-    if (rateData && rateData['5. Exchange Rate']) {
-      const price = parseFloat(rateData['5. Exchange Rate']);
-      
-      if (price >= REALISTIC_GOLD_MIN && price <= REALISTIC_GOLD_MAX) {
-        prices.GOLD = {
-          symbol: 'GOLD',
-          price: price,
-          change24h: 0,
-          change24hValue: 0,
-          high24h: price * 1.005,
-          low24h: price * 0.995,
-          volume24h: 0,
-          timestamp: Date.now(),
-        };
-        console.log(`Gold price fetched from Alpha Vantage: $${price.toFixed(2)}/oz`);
-        return prices.GOLD;
-      }
-    }
-    throw new Error('Invalid or missing price data from Alpha Vantage');
-  } catch (error) {
-    console.error('Alpha Vantage gold price fetch failed:', error.message);
-  }
-  
-  // Fallback: Try Yahoo Finance for Gold Futures (GC=F)
-  try {
-    const response = await axios.get(
-      'https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1d&range=2d',
-      { 
-        timeout: 10000,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
-      }
-    );
+    const data = response.data;
     
-    const result = response.data.chart.result[0];
-    if (result && result.meta && result.meta.regularMarketPrice) {
-      let price = result.meta.regularMarketPrice;
-      
-      // GC=F returns contract value (100 oz), convert to per oz if needed
-      // If price is > $4000, it's likely the full contract price
-      if (price > 4000) {
-        price = price / 100;
-      }
-      
-      // Validate the price is realistic
-      if (price >= REALISTIC_GOLD_MIN && price <= REALISTIC_GOLD_MAX) {
-        const prevClose = result.meta.previousClose || price;
-        // Adjust previous close if it was also a contract price
-        let adjustedPrevClose = prevClose;
-        if (prevClose > 4000) {
-          adjustedPrevClose = prevClose / 100;
-        }
-        const change24h = ((price - adjustedPrevClose) / adjustedPrevClose) * 100;
-        
-        prices.GOLD = {
-          symbol: 'GOLD',
-          price: price,
-          change24h: change24h,
-          change24hValue: price - adjustedPrevClose,
-          high24h: (result.meta.regularMarketDayHigh > 4000 ? result.meta.regularMarketDayHigh / 100 : result.meta.regularMarketDayHigh) || price * 1.005,
-          low24h: (result.meta.regularMarketDayLow > 4000 ? result.meta.regularMarketDayLow / 100 : result.meta.regularMarketDayLow) || price * 0.995,
-          volume24h: result.meta.regularMarketVolume || 0,
-          timestamp: Date.now(),
-        };
-        console.log(`Gold price fetched from Yahoo Finance: $${price.toFixed(2)}/oz`);
-        return prices.GOLD;
-      }
+    // Validate response data
+    if (!data || typeof data.c !== 'number') {
+      throw new Error('Invalid response from Finnhub GLD API');
     }
-  } catch (fallbackError) {
-    console.error('Yahoo Finance gold price fetch failed:', fallbackError.message);
+    
+    // Convert GLD price to approximate gold price
+    const gldPrice = data.c;
+    const price = gldPrice * GLD_TO_GOLD_RATIO;
+    
+    // Validate price is within realistic range
+    if (price < REALISTIC_GOLD_MIN || price > REALISTIC_GOLD_MAX) {
+      throw new Error(`Gold price ${price} is outside realistic range (${REALISTIC_GOLD_MIN}-${REALISTIC_GOLD_MAX})`);
+    }
+    
+    const prevClose = data.pc * GLD_TO_GOLD_RATIO;
+    const change24h = prevClose > 0 ? ((price - prevClose) / prevClose) * 100 : 0;
+    const change24hValue = price - prevClose;
+    
+    prices.GOLD = {
+      symbol: 'GOLD',
+      price: price,
+      change24h: change24h,
+      change24hValue: change24hValue,
+      high24h: (data.h || gldPrice * 1.02) * GLD_TO_GOLD_RATIO,
+      low24h: (data.l || gldPrice * 0.98) * GLD_TO_GOLD_RATIO,
+      open24h: (data.o || gldPrice) * GLD_TO_GOLD_RATIO,
+      prevClose: prevClose,
+      volume24h: 0,
+      timestamp: (data.t || Date.now() / 1000) * 1000,
+      source: 'finnhub',
+      proxy: 'GLD',
+    };
+    
+    console.log(`[${new Date().toISOString()}] GOLD price updated: $${price.toFixed(2)} (GLD: $${gldPrice.toFixed(2)}) (change: ${change24h.toFixed(2)}%)`);
+    return prices.GOLD;
+  } catch (error) {
+    console.error(`[${new Date().toISOString()}] Failed to fetch GOLD price from Finnhub:`, error.message);
+    // Return current cached price or default
+    return prices.GOLD || DEFAULT_PRICES.GOLD;
   }
-  
-  // Final fallback: Use realistic default price
-  console.warn(`Using default gold price $${DEFAULT_GOLD_PRICE} - APIs unavailable or returned invalid data`);
-  prices.GOLD = {
-    symbol: 'GOLD',
-    price: DEFAULT_GOLD_PRICE,
-    change24h: 0,
-    change24hValue: 0,
-    high24h: DEFAULT_GOLD_PRICE * 1.01,
-    low24h: DEFAULT_GOLD_PRICE * 0.99,
-    volume24h: 0,
-    timestamp: Date.now(),
-  };
-  return prices.GOLD;
+}
+
+// Broadcast message to all connected clients
+function broadcast(message) {
+  const msgString = typeof message === 'string' ? message : JSON.stringify(message);
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(msgString);
+    }
+  });
 }
 
 // Broadcast prices to all connected clients
 function broadcastPrices() {
-  const message = JSON.stringify({
+  broadcast({
     type: 'prices',
     payload: Object.values(prices).filter(Boolean),
   });
+}
 
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(message);
-    }
+// Broadcast trade execution to all clients
+function broadcastTrade(trade) {
+  broadcast({
+    type: 'trade_executed',
+    payload: trade,
   });
+}
+
+// Broadcast portfolio update
+function broadcastPortfolio(portfolio) {
+  broadcast({
+    type: 'portfolio_update',
+    payload: portfolio,
+  });
+}
+
+// Broadcast position update
+function broadcastPosition(position) {
+  broadcast({
+    type: 'position_update',
+    payload: position,
+  });
+}
+
+// Calculate unrealized P&L for positions
+async function updatePositionPnL() {
+  const positions = await db.all('SELECT * FROM positions');
+  
+  for (const position of positions) {
+    const currentPrice = prices[position.symbol]?.price;
+    if (!currentPrice) continue;
+    
+    const unrealizedPnl = (currentPrice - position.avgPrice) * position.amount;
+    await db.run(
+      'UPDATE positions SET unrealizedPnl = ?, lastUpdated = ? WHERE symbol = ?',
+      [unrealizedPnl, Date.now(), position.symbol]
+    );
+  }
+}
+
+// Calculate total equity and portfolio stats
+async function calculatePortfolioStats() {
+  const portfolio = await db.get('SELECT * FROM portfolio WHERE id = 1');
+  const positions = await db.all('SELECT * FROM positions');
+  
+  let positionsValue = 0;
+  let totalUnrealizedPnl = 0;
+  
+  for (const position of positions) {
+    const currentPrice = prices[position.symbol]?.price || position.avgPrice;
+    positionsValue += Math.abs(position.amount) * currentPrice;
+    totalUnrealizedPnl += position.unrealizedPnl || 0;
+  }
+  
+  const totalEquity = portfolio.balance + positionsValue;
+  
+  // Get trade statistics
+  const stats = await db.get(`
+    SELECT 
+      COUNT(*) as totalTrades,
+      SUM(CASE WHEN pnl > 0 THEN 1 ELSE 0 END) as winningTrades,
+      SUM(CASE WHEN pnl < 0 THEN 1 ELSE 0 END) as losingTrades,
+      AVG(pnl) as avgPnl,
+      AVG(CASE WHEN pnl > 0 THEN pnl END) as avgWin,
+      AVG(CASE WHEN pnl < 0 THEN pnl END) as avgLoss
+    FROM trades WHERE closed = 1
+  `);
+  
+  const winRate = stats.totalTrades > 0 ? (stats.winningTrades / stats.totalTrades) * 100 : 0;
+  const avgWin = stats.avgWin || 0;
+  const avgLoss = Math.abs(stats.avgLoss || 0);
+  const winLossRatio = avgLoss > 0 ? avgWin / avgLoss : 0;
+  const winProbability = winRate / 100;
+  const lossProbability = 1 - winProbability;
+  const expectancy = (winProbability * avgWin) - (lossProbability * avgLoss);
+  
+  // Calculate realized PnL from CLOSED trades only (not unrealized)
+  const realizedPnL = await db.get(`
+    SELECT COALESCE(SUM(pnl), 0) as total FROM trades WHERE closed = 1
+  `);
+  
+  await db.run(
+    `UPDATE portfolio SET 
+      totalEquity = ?, 
+      totalPnL = ?,
+      totalTrades = ?,
+      winningTrades = ?,
+      losingTrades = ?,
+      winRate = ?,
+      expectancy = ?
+     WHERE id = 1`,
+    [totalEquity, realizedPnL.total || 0, stats.totalTrades || 0, 
+     stats.winningTrades || 0, stats.losingTrades || 0, winRate, expectancy]
+  );
+  
+  return {
+    ...portfolio,
+    totalEquity,
+    positionsValue,
+    unrealizedPnl: totalUnrealizedPnl,
+    totalTrades: stats.totalTrades || 0,
+    winningTrades: stats.winningTrades || 0,
+    losingTrades: stats.losingTrades || 0,
+    winRate,
+    expectancy
+  };
+}
+
+// Export trade to file for Trader agent
+async function exportTrade(trade) {
+  const date = new Date(trade.timestamp);
+  const filename = `${date.toISOString().split('T')[0]}_trades.jsonl`;
+  const filepath = path.join(TRADES_EXPORT_DIR, filename);
+  
+  const tradeRecord = {
+    ...trade,
+    exportedAt: Date.now()
+  };
+  
+  fs.appendFileSync(filepath, JSON.stringify(tradeRecord) + '\n');
 }
 
 // WebSocket connection handling
@@ -248,6 +488,14 @@ wss.on('connection', (ws) => {
     type: 'prices',
     payload: Object.values(prices).filter(Boolean),
   }));
+  
+  // Send current portfolio
+  calculatePortfolioStats().then(portfolio => {
+    ws.send(JSON.stringify({
+      type: 'portfolio_update',
+      payload: portfolio,
+    }));
+  });
 
   ws.on('close', () => {
     console.log('Client disconnected');
@@ -261,13 +509,24 @@ app.get('/api/prices', (req, res) => {
   res.json(prices);
 });
 
+// Get specific price (for Trader agent)
+app.get('/api/prices/:symbol', (req, res) => {
+  const { symbol } = req.params;
+  const upperSymbol = symbol.toUpperCase();
+  
+  if (prices[upperSymbol]) {
+    res.json(prices[upperSymbol]);
+  } else {
+    res.status(404).json({ error: 'Symbol not found' });
+  }
+});
+
 // Get chart data
 app.get('/api/chart/:symbol', async (req, res) => {
   try {
     const { symbol } = req.params;
     const { timeframe = '1h' } = req.query;
     
-    // Generate mock candle data if not in database
     const candles = await generateCandleData(symbol, timeframe);
     res.json(candles);
   } catch (error) {
@@ -296,10 +555,10 @@ async function generateCandleData(symbol, timeframe) {
     
     candles.push({
       time: Math.floor(time / 1000),
-      open: parseFloat(open.toFixed(symbol === 'BTC' ? 2 : 2)),
-      high: parseFloat(high.toFixed(symbol === 'BTC' ? 2 : 2)),
-      low: parseFloat(low.toFixed(symbol === 'BTC' ? 2 : 2)),
-      close: parseFloat(close.toFixed(symbol === 'BTC' ? 2 : 2)),
+      open: parseFloat(open.toFixed(2)),
+      high: parseFloat(high.toFixed(2)),
+      low: parseFloat(low.toFixed(2)),
+      close: parseFloat(close.toFixed(2)),
       volume: Math.floor(Math.random() * 1000000),
     });
   }
@@ -319,83 +578,203 @@ function getIntervalMs(timeframe) {
   return intervals[timeframe] || intervals['1h'];
 }
 
-// Place order
+// Place order - LIVE TRADE EXECUTION
 app.post('/api/orders', async (req, res) => {
   try {
     const { symbol, side, type, amount, price } = req.body;
+    const upperSymbol = symbol.toUpperCase();
+    
+    // Validate inputs
+    if (!['GOLD', 'BTC'].includes(upperSymbol)) {
+      return res.status(400).json({ error: 'Invalid symbol. Use GOLD or BTC' });
+    }
+    if (!['buy', 'sell'].includes(side)) {
+      return res.status(400).json({ error: 'Invalid side. Use buy or sell' });
+    }
+    if (amount <= 0) {
+      return res.status(400).json({ error: 'Amount must be positive' });
+    }
+    
     const orderId = `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const timestamp = Date.now();
 
-    // In paper trading, fill market orders immediately
-    const fillPrice = type === 'market' ? prices[symbol]?.price : price;
+    // Get current price for market orders
+    const currentPrice = prices[upperSymbol]?.price;
+    if (!currentPrice) {
+      return res.status(503).json({ error: 'Price data unavailable' });
+    }
+    
+    // For market orders, fill immediately at current price
+    const fillPrice = type === 'market' ? currentPrice : (price || currentPrice);
+    const total = amount * fillPrice;
+    
+    // Check portfolio balance for buy orders
+    const portfolio = await db.get('SELECT * FROM portfolio WHERE id = 1');
+    if (side === 'buy' && portfolio.balance < total) {
+      return res.status(400).json({ error: 'Insufficient balance' });
+    }
+    
+    // Check position for sell orders
+    if (side === 'sell') {
+      const position = await db.get('SELECT * FROM positions WHERE symbol = ?', upperSymbol);
+      if (!position || position.amount < amount) {
+        return res.status(400).json({ error: 'Insufficient position' });
+      }
+    }
+    
     const status = type === 'market' ? 'filled' : 'pending';
 
     await db.run(
       `INSERT INTO orders (id, symbol, side, type, amount, price, status, timestamp, filledPrice) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [orderId, symbol, side, type, amount, price, status, timestamp, fillPrice]
+      [orderId, upperSymbol, side, type, amount, price || fillPrice, status, timestamp, fillPrice]
     );
 
-    // If filled, create trade and update position
+    // If filled, execute the trade
     if (status === 'filled') {
-      const tradeId = `trade_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const total = amount * fillPrice;
-
-      await db.run(
-        `INSERT INTO trades (id, symbol, side, amount, price, total, timestamp) 
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [tradeId, symbol, side, amount, fillPrice, total, timestamp]
-      );
-
-      // Update or create position
-      const existingPosition = await db.get('SELECT * FROM positions WHERE symbol = ?', symbol);
-      if (existingPosition) {
-        const newAmount = side === 'buy' 
-          ? existingPosition.amount + amount 
-          : existingPosition.amount - amount;
-        
-        if (newAmount === 0) {
-          await db.run('DELETE FROM positions WHERE symbol = ?', symbol);
-        } else {
-          const totalCost = existingPosition.amount * existingPosition.avgPrice + amount * fillPrice;
-          const newAvgPrice = totalCost / Math.abs(newAmount);
-          await db.run(
-            'UPDATE positions SET amount = ?, avgPrice = ? WHERE symbol = ?',
-            [newAmount, newAvgPrice, symbol]
-          );
-        }
-      } else {
-        await db.run(
-          'INSERT INTO positions (symbol, amount, avgPrice) VALUES (?, ?, ?)',
-          [symbol, side === 'buy' ? amount : -amount, fillPrice]
-        );
-      }
-
-      // Update portfolio balance
-      const tradeValue = amount * fillPrice;
-      await db.run(
-        `UPDATE portfolio SET balance = balance - ? WHERE id = 1`,
-        [side === 'buy' ? tradeValue : -tradeValue]
-      );
+      await executeTrade(orderId, upperSymbol, side, amount, fillPrice, timestamp);
     }
 
-    res.json({ success: true, orderId, status, filledPrice: fillPrice });
+    res.json({ 
+      success: true, 
+      orderId, 
+      status, 
+      filledPrice: fillPrice,
+      total,
+      timestamp
+    });
   } catch (error) {
     console.error('Order error:', error);
-    res.status(500).json({ error: 'Failed to place order' });
+    res.status(500).json({ error: 'Failed to place order', message: error.message });
   }
 });
+
+// Execute trade and update all records
+async function executeTrade(orderId, symbol, side, amount, fillPrice, timestamp) {
+  const tradeId = `trade_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  const total = amount * fillPrice;
+  
+  // Get existing position
+  const existingPosition = await db.get('SELECT * FROM positions WHERE symbol = ?', symbol);
+  let pnl = 0;
+  let pnlPercent = 0;
+  
+  if (existingPosition) {
+    if (side === 'buy') {
+      // Adding to position
+      const newAmount = existingPosition.amount + amount;
+      const totalCost = (existingPosition.amount * existingPosition.avgPrice) + (amount * fillPrice);
+      const newAvgPrice = totalCost / newAmount;
+      
+      await db.run(
+        'UPDATE positions SET amount = ?, avgPrice = ?, totalInvested = totalInvested + ?, lastUpdated = ? WHERE symbol = ?',
+        [newAmount, newAvgPrice, total, timestamp, symbol]
+      );
+    } else {
+      // Selling from position - calculate P&L
+      pnl = (fillPrice - existingPosition.avgPrice) * amount;
+      pnlPercent = ((fillPrice - existingPosition.avgPrice) / existingPosition.avgPrice) * 100;
+      
+      const newAmount = existingPosition.amount - amount;
+      
+      if (newAmount <= 0) {
+        await db.run('DELETE FROM positions WHERE symbol = ?', symbol);
+      } else {
+        await db.run(
+          'UPDATE positions SET amount = ?, realizedPnl = realizedPnl + ?, lastUpdated = ? WHERE symbol = ?',
+          [newAmount, pnl, timestamp, symbol]
+        );
+      }
+      
+      // Update portfolio P&L
+      await db.run(
+        'UPDATE portfolio SET totalPnL = totalPnL + ? WHERE id = 1',
+        [pnl]
+      );
+    }
+  } else if (side === 'buy') {
+    // New position
+    await db.run(
+      'INSERT INTO positions (symbol, amount, avgPrice, totalInvested, lastUpdated) VALUES (?, ?, ?, ?, ?)',
+      [symbol, amount, fillPrice, total, timestamp]
+    );
+  }
+  
+  // Update balance
+  if (side === 'buy') {
+    await db.run(
+      'UPDATE portfolio SET balance = balance - ? WHERE id = 1',
+      [total]
+    );
+  } else {
+    await db.run(
+      'UPDATE portfolio SET balance = balance + ? WHERE id = 1',
+      [total]
+    );
+  }
+  
+  // Record the trade
+  const trade = {
+    id: tradeId,
+    orderId,
+    symbol,
+    side,
+    amount,
+    price: fillPrice,
+    entryPrice: side === 'buy' ? fillPrice : existingPosition?.avgPrice,
+    exitPrice: side === 'sell' ? fillPrice : null,
+    total,
+    pnl,
+    pnlPercent,
+    timestamp,
+    status: side === 'sell' ? 'closed' : 'open',
+    closed: side === 'sell' ? 1 : 0
+  };
+  
+  await db.run(
+    `INSERT INTO trades (id, symbol, side, amount, entryPrice, exitPrice, price, total, pnl, pnlPercent, timestamp, status, closed) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [tradeId, symbol, side, amount, trade.entryPrice, trade.exitPrice, fillPrice, total, pnl, pnlPercent, timestamp, trade.status, trade.closed]
+  );
+  
+  // Export trade for Trader agent
+  await exportTrade(trade);
+  
+  // Update order with P&L
+  await db.run('UPDATE orders SET pnl = ? WHERE id = ?', [pnl, orderId]);
+  
+  // Broadcast updates
+  broadcastTrade(trade);
+  
+  const updatedPosition = await db.get('SELECT * FROM positions WHERE symbol = ?', symbol);
+  if (updatedPosition) {
+    broadcastPosition(updatedPosition);
+  }
+  
+  const portfolio = await calculatePortfolioStats();
+  broadcastPortfolio(portfolio);
+  
+  console.log(`Trade executed: ${side.toUpperCase()} ${amount} ${symbol} @ $${fillPrice.toFixed(2)} | P&L: $${pnl.toFixed(2)}`);
+  
+  return trade;
+}
 
 // Get orders
 app.get('/api/orders', async (req, res) => {
   try {
-    const { symbol } = req.query;
+    const { symbol, status } = req.query;
     let query = 'SELECT * FROM orders ORDER BY timestamp DESC LIMIT 50';
     let params = [];
     
     if (symbol) {
       query = 'SELECT * FROM orders WHERE symbol = ? ORDER BY timestamp DESC LIMIT 50';
-      params = [symbol];
+      params = [symbol.toUpperCase()];
+    }
+    if (status) {
+      query = symbol 
+        ? 'SELECT * FROM orders WHERE symbol = ? AND status = ? ORDER BY timestamp DESC LIMIT 50'
+        : 'SELECT * FROM orders WHERE status = ? ORDER BY timestamp DESC LIMIT 50';
+      params = symbol ? [symbol.toUpperCase(), status] : [status];
     }
     
     const orders = await db.all(query, params);
@@ -406,45 +785,187 @@ app.get('/api/orders', async (req, res) => {
   }
 });
 
-// Get trades
+// Get trades with stats
 app.get('/api/trades', async (req, res) => {
   try {
-    const { symbol } = req.query;
-    let query = 'SELECT * FROM trades ORDER BY timestamp DESC LIMIT 100';
-    let params = [];
+    const { symbol, limit = 100 } = req.query;
+    let query = 'SELECT * FROM trades ORDER BY timestamp DESC LIMIT ?';
+    let params = [parseInt(limit)];
     
     if (symbol) {
-      query = 'SELECT * FROM trades WHERE symbol = ? ORDER BY timestamp DESC LIMIT 100';
-      params = [symbol];
+      query = 'SELECT * FROM trades WHERE symbol = ? ORDER BY timestamp DESC LIMIT ?';
+      params = [symbol.toUpperCase(), parseInt(limit)];
     }
     
     const trades = await db.all(query, params);
-    res.json(trades);
+    
+    // Calculate stats
+    const stats = await db.get(`
+      SELECT 
+        COUNT(*) as totalTrades,
+        SUM(CASE WHEN pnl > 0 THEN 1 ELSE 0 END) as winningTrades,
+        SUM(CASE WHEN pnl < 0 THEN 1 ELSE 0 END) as losingTrades,
+        SUM(pnl) as totalPnl,
+        AVG(pnl) as avgPnl,
+        AVG(CASE WHEN pnl > 0 THEN pnlPercent END) as avgWinPercent,
+        AVG(CASE WHEN pnl < 0 THEN pnlPercent END) as avgLossPercent
+      FROM trades WHERE closed = 1
+    `);
+    
+    const winRate = stats.totalTrades > 0 ? (stats.winningTrades / stats.totalTrades) * 100 : 0;
+    const avgWin = Math.abs(stats.avgWinPercent || 0);
+    const avgLoss = Math.abs(stats.avgLossPercent || 0);
+    const winLossRatio = avgLoss > 0 ? avgWin / avgLoss : 0;
+    
+    res.json({
+      trades,
+      stats: {
+        totalTrades: stats.totalTrades || 0,
+        winningTrades: stats.winningTrades || 0,
+        losingTrades: stats.losingTrades || 0,
+        winRate: parseFloat(winRate.toFixed(2)),
+        totalPnl: stats.totalPnl || 0,
+        avgPnl: stats.avgPnl || 0,
+        winLossRatio: parseFloat(winLossRatio.toFixed(2)),
+        expectancy: parseFloat(((winRate/100) * avgWin - (1-winRate/100) * avgLoss).toFixed(2))
+      }
+    });
   } catch (error) {
     console.error('Get trades error:', error);
     res.status(500).json({ error: 'Failed to fetch trades' });
   }
 });
 
-// Get positions
+// Get positions with P&L
 app.get('/api/positions', async (req, res) => {
   try {
+    await updatePositionPnL();
     const positions = await db.all('SELECT * FROM positions');
-    res.json(positions);
+    
+    // Enhance with current prices
+    const enhancedPositions = positions.map(pos => {
+      const currentPrice = prices[pos.symbol]?.price || pos.avgPrice;
+      const currentValue = Math.abs(pos.amount) * currentPrice;
+      const costBasis = Math.abs(pos.amount) * pos.avgPrice;
+      
+      return {
+        ...pos,
+        currentPrice,
+        currentValue,
+        costBasis,
+        unrealizedPnlPercent: ((currentPrice - pos.avgPrice) / pos.avgPrice) * 100 * (pos.amount >= 0 ? 1 : -1)
+      };
+    });
+    
+    res.json(enhancedPositions);
   } catch (error) {
     console.error('Get positions error:', error);
     res.status(500).json({ error: 'Failed to fetch positions' });
   }
 });
 
-// Get portfolio
+// Get portfolio with full stats
 app.get('/api/portfolio', async (req, res) => {
   try {
-    const portfolio = await db.get('SELECT * FROM portfolio WHERE id = 1');
-    res.json(portfolio);
+    const portfolio = await calculatePortfolioStats();
+    const positions = await db.all('SELECT * FROM positions');
+    
+    res.json({
+      ...portfolio,
+      positions: positions.length,
+      openPositions: positions.filter(p => p.amount !== 0).length
+    });
   } catch (error) {
     console.error('Get portfolio error:', error);
     res.status(500).json({ error: 'Failed to fetch portfolio' });
+  }
+});
+
+// Get trade history summary (for Trader agent)
+app.get('/api/trader/summary', async (req, res) => {
+  try {
+    const portfolio = await calculatePortfolioStats();
+    const positions = await db.all('SELECT * FROM positions');
+    
+    const summary = {
+      timestamp: Date.now(),
+      prices: {
+        GOLD: prices.GOLD,
+        BTC: prices.BTC
+      },
+      portfolio: {
+        balance: portfolio.balance,
+        totalEquity: portfolio.totalEquity,
+        totalPnL: portfolio.totalPnL,
+        winRate: portfolio.winRate,
+        expectancy: portfolio.expectancy,
+        totalTrades: portfolio.totalTrades
+      },
+      positions: positions.map(p => ({
+        symbol: p.symbol,
+        amount: p.amount,
+        avgPrice: p.avgPrice,
+        unrealizedPnl: p.unrealizedPnl,
+        currentPrice: prices[p.symbol]?.price || p.avgPrice
+      }))
+    };
+    
+    res.json(summary);
+  } catch (error) {
+    console.error('Trader summary error:', error);
+    res.status(500).json({ error: 'Failed to generate summary' });
+  }
+});
+
+// Close position endpoint
+app.post('/api/positions/:symbol/close', async (req, res) => {
+  try {
+    const { symbol } = req.params;
+    const upperSymbol = symbol.toUpperCase();
+    
+    const position = await db.get('SELECT * FROM positions WHERE symbol = ?', upperSymbol);
+    if (!position) {
+      return res.status(404).json({ error: 'Position not found' });
+    }
+    
+    const currentPrice = prices[upperSymbol]?.price;
+    if (!currentPrice) {
+      return res.status(503).json({ error: 'Price data unavailable' });
+    }
+    
+    // Close the position by selling all
+    const orderId = `order_close_${Date.now()}`;
+    await executeTrade(orderId, upperSymbol, 'sell', position.amount, currentPrice, Date.now());
+    
+    res.json({ 
+      success: true, 
+      message: `Closed ${upperSymbol} position`,
+      closedAmount: position.amount,
+      closedPrice: currentPrice
+    });
+  } catch (error) {
+    console.error('Close position error:', error);
+    res.status(500).json({ error: 'Failed to close position' });
+  }
+});
+
+// Reset portfolio (for testing)
+app.post('/api/portfolio/reset', async (req, res) => {
+  try {
+    await db.run('DELETE FROM trades');
+    await db.run('DELETE FROM orders');
+    await db.run('DELETE FROM positions');
+    await db.run(
+      'UPDATE portfolio SET balance = 10000, totalPnL = 0, dayPnL = 0, totalEquity = 10000, totalTrades = 0, winningTrades = 0, losingTrades = 0, winRate = 0, expectancy = 0 WHERE id = 1'
+    );
+    
+    const portfolio = await calculatePortfolioStats();
+    broadcastPortfolio(portfolio);
+    
+    res.json({ success: true, message: 'Portfolio reset', portfolio });
+  } catch (error) {
+    console.error('Reset error:', error);
+    res.status(500).json({ error: 'Failed to reset portfolio' });
   }
 });
 
@@ -459,12 +980,26 @@ if (process.env.NODE_ENV === 'production') {
 async function start() {
   await initDatabase();
   
+  // Check Finnhub API key
+  const hasFinnhubKey = !!process.env.FINNHUB_API_KEY;
+  console.log(`Finnhub API: ${hasFinnhubKey ? 'Configured' : 'NOT CONFIGURED - using fallback prices'}`);
+  
   // Fetch initial prices
+  console.log('Fetching initial prices...');
   await fetchBTCPrice();
   await fetchGoldPrice();
+  console.log(`Initial prices - BTC: $${prices.BTC?.price?.toFixed(2) || 'N/A'}, GOLD: $${prices.GOLD?.price?.toFixed(2) || 'N/A'}`);
   
-  // Start price updates
-  cron.schedule('*/10 * * * * *', async () => {
+  // Update position P&L periodically (every 5 seconds)
+  cron.schedule('*/5 * * * * *', async () => {
+    await updatePositionPnL();
+    const portfolio = await calculatePortfolioStats();
+    broadcastPortfolio(portfolio);
+  });
+  
+  // Start price updates - every 15 seconds to respect Finnhub rate limits (60 calls/minute free tier)
+  // 2 symbols × 4 updates/minute = 8 calls/minute (well under the 60 limit)
+  cron.schedule('*/15 * * * * *', async () => {
     await fetchBTCPrice();
     await fetchGoldPrice();
     broadcastPrices();
@@ -473,6 +1008,8 @@ async function start() {
   server.listen(PORT, () => {
     console.log(`Trading platform server running on port ${PORT}`);
     console.log(`WebSocket server ready at ws://localhost:${PORT}/ws`);
+    console.log(`Price updates: Every 15 seconds via Finnhub API`);
+    console.log(`Trade exports saved to: ${TRADES_EXPORT_DIR}`);
   });
 }
 
