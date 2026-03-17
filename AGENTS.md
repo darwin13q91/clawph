@@ -86,6 +86,22 @@
 - Accessibility (WCAG compliance)
 - Prototyping & user testing
 
+### Scout (NEW)
+**Role:** Browser & Web Research Agent
+**Status:** 🟢 Ready, spawn on demand
+**Reports to:** Allysa
+**Skills:**
+- Web navigation & browsing
+- Amazon product research
+- Competitor monitoring
+- Price tracking & alerts
+- Form automation
+- Screenshot capture & visual QA
+- Data extraction
+- Site verification
+**Personality:** Methodical. Precise. Evidence-based.
+**SOUL:** SCOUT_SOUL.md
+
 ## Personal Agent
 
 ### Kate/Darwin Bot

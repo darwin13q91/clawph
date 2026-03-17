@@ -8,10 +8,13 @@ const { EventEmitter } = require('events');
 
 // Activity log file path
 const ACTIVITY_LOG_PATH = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'data', 'activity_log.jsonl');
+const SKILL_LOG_PATH = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'data', 'skill_log.jsonl');
 const MAX_ACTIVITIES = 100;
+const MAX_SKILLS = 50;
 
 // Event emitter for real-time updates
 const activityEmitter = new EventEmitter();
+const skillEmitter = new EventEmitter();
 
 // Ensure directory exists
 function ensureDirectory() {
@@ -64,6 +67,12 @@ const ACTIVITY_TYPES = {
     label: 'Trade',
     icon: '📈',
     color: '#10B981' // emerald
+  },
+  SKILL: {
+    id: 'skill',
+    label: 'Skill',
+    icon: '🎯',
+    color: '#EC4899' // pink
   }
 };
 
@@ -297,6 +306,106 @@ function logSystemActivity(eventData) {
   });
 }
 
+/**
+ * Log a skill execution
+ * @param {Object} skillData - Skill execution data
+ */
+function logSkillActivity(skillData) {
+  ensureDirectory();
+  
+  const status = skillData.success === false ? STATUS_TYPES.ERROR :
+                 skillData.success === true ? STATUS_TYPES.SUCCESS :
+                 STATUS_TYPES.INFO;
+  
+  const entry = {
+    id: `skill_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    type: 'skill',
+    status: status,
+    skillName: skillData.skillName || skillData.name || 'Unknown Skill',
+    agent: skillData.agent || skillData.source || 'system',
+    title: skillData.title || `${skillData.skillName || skillData.name} executed`,
+    description: skillData.description || skillData.task || 'Skill execution',
+    startTime: skillData.startTime || Date.now(),
+    endTime: skillData.endTime || null,
+    duration: skillData.duration || (skillData.endTime ? skillData.endTime - skillData.startTime : null),
+    success: skillData.success,
+    actions: skillData.actions || [],
+    metadata: skillData.metadata || {},
+    timestamp: Date.now()
+  };
+
+  // Append to skill log file
+  try {
+    fs.appendFileSync(SKILL_LOG_PATH, JSON.stringify(entry) + '\n');
+  } catch (err) {
+    console.error('[ActivityLogger] Failed to write skill activity:', err.message);
+  }
+
+  // Emit real-time event
+  skillEmitter.emit('skill', entry);
+  
+  // Also log as regular activity for feed visibility
+  logActivity({
+    type: 'SKILL',
+    status: status,
+    title: entry.title,
+    description: entry.description,
+    source: entry.agent,
+    metadata: { skillId: entry.id, skillName: entry.skillName }
+  });
+
+  return entry;
+}
+
+/**
+ * Get recent skill executions
+ * @param {number} limit - Maximum number of skills to return
+ * @param {string} [agentFilter] - Filter by agent name
+ * @returns {Array} Array of skill execution objects
+ */
+function getRecentSkills(limit = 20, agentFilter = null) {
+  ensureDirectory();
+  
+  try {
+    if (!fs.existsSync(SKILL_LOG_PATH)) {
+      return [];
+    }
+
+    const content = fs.readFileSync(SKILL_LOG_PATH, 'utf8');
+    const lines = content.split('\n').filter(l => l.trim());
+    
+    let skills = lines
+      .map(line => {
+        try {
+          return JSON.parse(line);
+        } catch {
+          return null;
+        }
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.timestamp - a.timestamp);
+
+    // Apply agent filter if specified
+    if (agentFilter) {
+      skills = skills.filter(s => s.agent === agentFilter);
+    }
+
+    return skills.slice(0, limit);
+  } catch (err) {
+    console.error('[ActivityLogger] Failed to read skills:', err.message);
+    return [];
+  }
+}
+
+/**
+ * Get running skills (started but not ended)
+ * @returns {Array} Array of running skill executions
+ */
+function getRunningSkills() {
+  const skills = getRecentSkills(MAX_SKILLS);
+  return skills.filter(s => !s.endTime && s.success === undefined);
+}
+
 // Cleanup old activities periodically (every hour)
 setInterval(cleanupActivities, 60 * 60 * 1000);
 
@@ -309,7 +418,11 @@ module.exports = {
   logGatewayActivity,
   logChannelActivity,
   logSystemActivity,
+  logSkillActivity,
+  getRecentSkills,
+  getRunningSkills,
   activityEmitter,
+  skillEmitter,
   ACTIVITY_TYPES,
   STATUS_TYPES
 };
