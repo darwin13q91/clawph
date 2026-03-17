@@ -275,18 +275,88 @@ async function fetchBTCPrice() {
   }
 }
 
+// Fetch Gold price from Fixer.io API
+// Returns XAU rate in USD per oz of gold
+async function fixerFetchGoldPrice() {
+  const REALISTIC_GOLD_MIN = 1000;
+  const REALISTIC_GOLD_MAX = 6000;
+  
+  try {
+    const apiKey = process.env.FIXER_API_KEY;
+    if (!apiKey) {
+      throw new Error('FIXER_API_KEY not set');
+    }
+
+    const response = await axios.get(
+      `http://data.fixer.io/api/latest?access_key=${apiKey}&symbols=XAU,USD`,
+      { timeout: 10000 }
+    );
+    
+    const data = response.data;
+    
+    // Validate response
+    if (!data || !data.success) {
+      throw new Error(`Fixer API error: ${data?.error?.info || 'Unknown error'}`);
+    }
+    
+    if (!data.rates || typeof data.rates.XAU !== 'number' || typeof data.rates.USD !== 'number') {
+      throw new Error('Invalid response from Fixer API: missing XAU or USD rates');
+    }
+    
+    // Calculate gold price in USD
+    // rates.XAU = oz of gold per EUR (e.g., 0.00084234)
+    // rates.USD = USD per EUR (e.g., 1.09)
+    // goldUSD = (1 / rates.XAU) * rates.USD = USD per oz of gold
+    const xauRate = data.rates.XAU;
+    const usdRate = data.rates.USD;
+    const price = (1 / xauRate) * usdRate;
+    
+    // Validate price is within realistic range
+    if (price < REALISTIC_GOLD_MIN || price > REALISTIC_GOLD_MAX) {
+      throw new Error(`Gold price ${price} is outside realistic range (${REALISTIC_GOLD_MIN}-${REALISTIC_GOLD_MAX})`);
+    }
+    
+    // Calculate change (Fixer doesn't provide previous close, so we'll estimate)
+    // Use cached price for change calculation if available
+    const prevPrice = prices.GOLD?.price || price;
+    const change24h = prevPrice > 0 ? ((price - prevPrice) / prevPrice) * 100 : 0;
+    const change24hValue = price - prevPrice;
+    
+    prices.GOLD = {
+      symbol: 'GOLD',
+      price: price,
+      change24h: change24h,
+      change24hValue: change24hValue,
+      high24h: price * 1.02, // Estimated
+      low24h: price * 0.98,  // Estimated
+      open24h: prevPrice,
+      prevClose: prevPrice,
+      volume24h: 0,
+      timestamp: (data.timestamp || Date.now() / 1000) * 1000,
+      source: 'fixer.io',
+      base: data.base,
+      date: data.date,
+    };
+    
+    console.log(`[${new Date().toISOString()}] GOLD price updated: $${price.toFixed(2)} (Fixer.io, base: ${data.base}, date: ${data.date}) (change: ${change24h.toFixed(2)}%)`);
+    return prices.GOLD;
+  } catch (error) {
+    console.error(`[${new Date().toISOString()}] Failed to fetch GOLD price from Fixer.io:`, error.message);
+    throw error; // Re-throw to allow fallback
+  }
+}
+
 // Fetch Gold price (XAU/USD) from Finnhub
 // Tries XAUUSD symbol first, then falls back to GLD ETF × 10 approximation
-async function fetchGoldPrice() {
-  const REALISTIC_GOLD_MIN = 1500;
-  const REALISTIC_GOLD_MAX = 5000;
+async function finnhubFetchGoldPrice() {
+  const REALISTIC_GOLD_MIN = 1000;
+  const REALISTIC_GOLD_MAX = 6000;
   const GLD_TO_GOLD_RATIO = 10; // GLD tracks ~1/10th of gold oz price
   
   try {
     const apiKey = process.env.FINNHUB_API_KEY;
     if (!apiKey) {
-      console.error('FINNHUB_API_KEY not set, using fallback GOLD price:', prices.GOLD?.price || DEFAULT_PRICES.GOLD.price);
-      return prices.GOLD || DEFAULT_PRICES.GOLD;
+      throw new Error('FINNHUB_API_KEY not set');
     }
 
     // Try XAUUSD direct symbol first (spot gold)
@@ -375,9 +445,28 @@ async function fetchGoldPrice() {
     return prices.GOLD;
   } catch (error) {
     console.error(`[${new Date().toISOString()}] Failed to fetch GOLD price from Finnhub:`, error.message);
-    // Return current cached price or default
-    return prices.GOLD || DEFAULT_PRICES.GOLD;
+    throw error; // Re-throw to allow fallback
   }
+}
+
+// Fetch Gold price with fallback chain: Fixer.io → Finnhub → Cached/Default
+async function fetchGoldPrice() {
+  // Try Fixer.io first
+  try {
+    return await fixerFetchGoldPrice();
+  } catch (fixerError) {
+    console.log(`[${new Date().toISOString()}] Fixer.io failed, falling back to Finnhub`);
+  }
+  
+  // Try Finnhub as fallback
+  try {
+    return await finnhubFetchGoldPrice();
+  } catch (finnhubError) {
+    console.error(`[${new Date().toISOString()}] All gold price sources failed, using fallback`);
+  }
+  
+  // Return cached or default price
+  return prices.GOLD || DEFAULT_PRICES.GOLD;
 }
 
 // Broadcast message to all connected clients
@@ -1021,15 +1110,17 @@ if (process.env.NODE_ENV === 'production') {
 async function start() {
   await initDatabase();
   
-  // Check Finnhub API key
+  // Check API keys
   const hasFinnhubKey = !!process.env.FINNHUB_API_KEY;
-  console.log(`Finnhub API: ${hasFinnhubKey ? 'Configured' : 'NOT CONFIGURED - using fallback prices'}`);
+  const hasFixerKey = !!process.env.FIXER_API_KEY;
+  console.log(`Finnhub API: ${hasFinnhubKey ? 'Configured' : 'NOT CONFIGURED'}`);
+  console.log(`Fixer.io API: ${hasFixerKey ? 'Configured' : 'NOT CONFIGURED'}`);
   
   // Fetch initial prices
   console.log('Fetching initial prices...');
   await fetchBTCPrice();
   await fetchGoldPrice();
-  console.log(`Initial prices - BTC: $${prices.BTC?.price?.toFixed(2) || 'N/A'}, GOLD: $${prices.GOLD?.price?.toFixed(2) || 'N/A'}`);
+  console.log(`Initial prices - BTC: $${prices.BTC?.price?.toFixed(2) || 'N/A'}, GOLD: $${prices.GOLD?.price?.toFixed(2) || 'N/A'} (source: ${prices.GOLD?.source || 'default'})`);
   
   // Update position P&L periodically (every 5 seconds)
   cron.schedule('*/5 * * * * *', async () => {
@@ -1049,7 +1140,7 @@ async function start() {
   server.listen(PORT, () => {
     console.log(`Trading platform server running on port ${PORT}`);
     console.log(`WebSocket server ready at ws://localhost:${PORT}/ws`);
-    console.log(`Price updates: Every 15 seconds via Finnhub API`);
+    console.log(`Price updates: Every 15 seconds (BTC: Finnhub, GOLD: Fixer.io → Finnhub fallback)`);
     console.log(`Trade exports saved to: ${TRADES_EXPORT_DIR}`);
   });
 }

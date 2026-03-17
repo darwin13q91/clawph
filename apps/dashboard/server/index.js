@@ -10,6 +10,7 @@ const { execFile, spawn } = require('child_process');
 const { promisify } = require('util');
 const { handleAuditApiRequest } = require('./audit-api');
 const { handleProxyRequest } = require('./rapidapi-proxy');
+const { handleProxyRequestWithFallback, getFallbackStats } = require('./rapidapi-with-scout-fallback');
 const CRMService = require('./crm-service');
 const { handlePiperApiRequest } = require('./piper-api');
 const activityLogger = require('./activity-logger');
@@ -886,8 +887,8 @@ async function handleRequest(req, res) {
   const auditHandled = await handleAuditApiRequest(url, res, req);
   if (auditHandled) return;
 
-  // RapidAPI proxy endpoints (secure backend proxy)
-  const rapidApiHandled = await handleProxyRequest(url, res, req);
+  // RapidAPI proxy endpoints (secure backend proxy with Scout fallback)
+  const rapidApiHandled = await handleProxyRequestWithFallback(url, res, req);
   if (rapidApiHandled) return;
 
   // Piper API endpoints (email campaigns, lead pipeline, CRM data)
@@ -1478,6 +1479,35 @@ function getActiveSubagentRuns() {
 
   // Activity feed endpoint - Uses new unified activity logger
   if (pathname === '/api/activity') {
+    // Handle POST request to log a new activity
+    if (req.method === 'POST') {
+      try {
+        let body = '';
+        req.on('data', chunk => body += chunk);
+        req.on('end', () => {
+          try {
+            const activityData = JSON.parse(body);
+            const activity = activityLogger.logActivity(activityData);
+            res.writeHead(201, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+              success: true,
+              activity: activity
+            }));
+          } catch (err) {
+            console.error('Activity POST error:', err.message);
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: err.message }));
+          }
+        });
+      } catch (err) {
+        console.error('Activity POST error:', err.message);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+      return;
+    }
+    
+    // Handle GET request to fetch activities
     try {
       const limit = parseInt(url.searchParams.get('limit') || '20', 10);
       const typeFilter = url.searchParams.get('type') || null;
@@ -1536,7 +1566,210 @@ function getActiveSubagentRuns() {
     return;
   }
 
-  // Activity feed endpoint (legacy - uses new logger)
+  // ============ AGENT CONSOLE LOGS ENDPOINT ============
+  if (pathname === '/api/agent-logs') {
+    try {
+      const agentFilter = url.searchParams.get('agent') || 'all';
+      const lines = parseInt(url.searchParams.get('lines') || '100', 10);
+      
+      // Read agent log files from various sources
+      const logs = await getAgentLogs(agentFilter, lines);
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        agent: agentFilter,
+        logs: logs
+      }));
+    } catch (err) {
+      console.error('Agent logs API error:', err.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message, logs: [] }));
+    }
+    return;
+  }
+
+  // Agent logs SSE endpoint - Real-time agent console output
+  if (pathname === '/api/agent-logs/stream') {
+    const agentFilter = url.searchParams.get('agent') || 'all';
+    
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*'
+    });
+
+    // Send initial connection message
+    res.write(`data: ${JSON.stringify({ type: 'connected', timestamp: Date.now(), agent: agentFilter })}
+
+`);
+
+    // Start watching log files
+    const logWatcher = startAgentLogWatcher(agentFilter, (logEntry) => {
+      res.write(`data: ${JSON.stringify(logEntry)}
+
+`);
+    });
+
+    // Handle client disconnect
+    req.on('close', () => {
+      if (logWatcher) {
+        logWatcher.close();
+      }
+    });
+
+    return;
+  }
+
+  // ============ TRADE LOGS ENDPOINT ============
+  if (pathname === '/api/trades') {
+    try {
+      const filter = url.searchParams.get('filter') || 'all'; // today, week, all
+      const limit = parseInt(url.searchParams.get('limit') || '50', 10);
+      
+      const trades = await getTradeLogs(filter, limit);
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        filter: filter,
+        trades: trades,
+        stats: calculateTradeStats(trades)
+      }));
+    } catch (err) {
+      console.error('Trades API error:', err.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message, trades: [], stats: {} }));
+    }
+    return;
+  }
+
+  // Trades SSE endpoint - Real-time trade updates
+  if (pathname === '/api/trades/stream') {
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*'
+    });
+
+    // Send initial connection message
+    res.write(`data: ${JSON.stringify({ type: 'connected', timestamp: Date.now() })}
+
+`);
+
+    // Start watching trade files
+    const tradeWatcher = startTradeWatcher((tradeEntry) => {
+      res.write(`data: ${JSON.stringify(tradeEntry)}
+
+`);
+    });
+
+    // Handle client disconnect
+    req.on('close', () => {
+      if (tradeWatcher) {
+        tradeWatcher.close();
+      }
+    });
+
+    return;
+  }
+
+  // ============ SKILL EXECUTION ENDPOINT ============
+  if (pathname === '/api/skills') {
+    try {
+      const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+      const agentFilter = url.searchParams.get('agent') || null;
+      
+      const skills = activityLogger.getRecentSkills(limit, agentFilter);
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        skills: skills,
+        count: skills.length,
+        running: activityLogger.getRunningSkills()
+      }));
+    } catch (err) {
+      console.error('Skills API error:', err.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message, skills: [] }));
+    }
+    return;
+  }
+
+  // Skills SSE endpoint - Real-time skill execution updates
+  if (pathname === '/api/skills/stream') {
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*'
+    });
+
+    // Send initial connection message
+    res.write(`data: ${JSON.stringify({ type: 'connected', timestamp: Date.now() })}
+
+`);
+
+    // Add client to skill SSE clients
+    const client = { res, id: Date.now(), type: 'skill' };
+    sseClients.add(client);
+
+    // Send initial skills
+    const skills = activityLogger.getRecentSkills(20);
+    res.write(`data: ${JSON.stringify({ type: 'initial', skills })}
+
+`);
+
+    // Set up skill listener
+    const skillListener = (skill) => {
+      try {
+        res.write(`data: ${JSON.stringify({ type: 'skill', skill })}
+
+`);
+      } catch (err) {
+        // Client disconnected
+        activityLogger.skillEmitter.removeListener('skill', skillListener);
+        sseClients.delete(client);
+      }
+    };
+    
+    activityLogger.skillEmitter.on('skill', skillListener);
+
+    // Handle client disconnect
+    req.on('close', () => {
+      activityLogger.skillEmitter.removeListener('skill', skillListener);
+      sseClients.delete(client);
+    });
+
+    return;
+  }
+
+  // Skill execution POST endpoint (for agents to report skill runs)
+  if (pathname === '/api/skills/log' && req.method === 'POST') {
+    try {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', () => {
+        try {
+          const skillData = JSON.parse(body);
+          const skill = activityLogger.logSkillActivity(skillData);
+          res.writeHead(201, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true, skill }));
+        } catch (err) {
+          console.error('Skill log error:', err.message);
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: err.message }));
+        }
+      });
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
 
   // Inbox/Email monitoring endpoint - READS FROM ECHO'S DATA FILES
   if (pathname === '/api/inbox') {
@@ -1652,6 +1885,75 @@ function getActiveSubagentRuns() {
       }));
     }
     return;
+  }
+
+  // Scout Fallback Status endpoint - Shows fallback statistics
+  if (pathname === '/api/rapidapi/fallback-stats') {
+    try {
+      const fallbackStats = getFallbackStats();
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        enabled: true,
+        ...fallbackStats
+      }));
+    } catch (err) {
+      console.error('Fallback stats error:', err.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        timestamp: new Date().toISOString(),
+        error: err.message,
+        totalFallbacks: 0,
+        recentFallbacks24h: 0
+      }));
+    }
+    return;
+  }
+
+  // Product endpoint with automatic Scout fallback
+  if (pathname === '/api/rapidapi/product-with-fallback') {
+    if (req.method !== 'GET') {
+      res.writeHead(405, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Method not allowed' }));
+      return true;
+    }
+    
+    try {
+      const asin = url.searchParams.get('asin');
+      const clientEmail = url.searchParams.get('client_email');
+      const clientName = url.searchParams.get('client_name');
+      
+      if (!asin) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'ASIN parameter required' }));
+        return true;
+      }
+      
+      // Import the fallback function
+      const { getProductDataWithFallback } = require('./rapidapi-with-scout-fallback');
+      
+      const result = await getProductDataWithFallback(asin, {
+        clientEmail,
+        clientName
+      });
+      
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        success: true,
+        ...result
+      }));
+      
+    } catch (error) {
+      console.error('Product with fallback error:', error.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        success: false,
+        error: error.message,
+        asin: url.searchParams.get('asin')
+      }));
+    }
+    return true;
   }
   
   // Audit Queue endpoint - Returns pending and completed audits
@@ -2422,6 +2724,337 @@ function broadcastActivity(activity) {
       sseClients.delete(client);
     }
   });
+}
+
+// ============ AGENT LOG FUNCTIONS ============
+
+// Get agent logs from various sources
+async function getAgentLogs(agentFilter, lines = 100) {
+  const logs = [];
+  const agents = ['river', 'atlas', 'piper', 'echo', 'pixel', 'trader'];
+  
+  for (const agent of agents) {
+    if (agentFilter !== 'all' && agent !== agentFilter.toLowerCase()) {
+      continue;
+    }
+    
+    try {
+      // Try to read from agent's log files
+      const agentPaths = [
+        path.join(process.env.HOME || '/home/darwin', '.openclaw', 'agents', agent, 'logs', `${agent}.log`),
+        path.join(process.env.HOME || '/home/darwin', '.openclaw', 'agents', agent, 'memory', 'activity.log'),
+        path.join('/tmp', `${agent}_activity.log`),
+        path.join(process.env.HOME || '/home/darwin', '.openclaw', 'agents', agent, `${agent}.log`)
+      ];
+      
+      for (const logPath of agentPaths) {
+        if (fs.existsSync(logPath)) {
+          const content = fs.readFileSync(logPath, 'utf8');
+          const logLines = content.split('\n').filter(l => l.trim()).slice(-lines);
+          
+          logLines.forEach(line => {
+            const parsed = parseAgentLogLine(line, agent);
+            if (parsed) logs.push(parsed);
+          });
+          break; // Found a valid log file, move to next agent
+        }
+      }
+    } catch (err) {
+      // Silent fail for missing logs
+    }
+  }
+  
+  // Sort by timestamp (newest first) and limit
+  return logs
+    .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+    .slice(0, lines);
+}
+
+// Parse agent log line
+function parseAgentLogLine(line, agent) {
+  if (!line || !line.trim()) return null;
+  
+  const trimmed = line.trim();
+  
+  // Try JSON format first
+  try {
+    const json = JSON.parse(trimmed);
+    return {
+      timestamp: new Date(json.time || json.timestamp || Date.now()).getTime(),
+      agent: agent,
+      level: (json.level || 'info').toLowerCase(),
+      message: json.msg || json.message || trimmed,
+      raw: trimmed
+    };
+  } catch {
+    // Not JSON, try regex patterns
+  }
+  
+  // Pattern: [TIME] LEVEL message
+  const bracketPattern = /^\[([^\]]+)\]\s+(\w+)?\s*(.*)$/;
+  const bracketMatch = trimmed.match(bracketPattern);
+  if (bracketMatch) {
+    return {
+      timestamp: Date.now(), // Approximate
+      agent: agent,
+      level: (bracketMatch[2] || 'info').toLowerCase(),
+      message: bracketMatch[3],
+      raw: trimmed
+    };
+  }
+  
+  // Fallback
+  return {
+    timestamp: Date.now(),
+    agent: agent,
+    level: 'info',
+    message: trimmed,
+    raw: trimmed
+  };
+}
+
+// Start watching agent log files
+function startAgentLogWatcher(agentFilter, onLog) {
+  const watchedPaths = new Set();
+  const watchers = [];
+  const agents = ['river', 'atlas', 'piper', 'echo', 'pixel', 'trader'];
+  
+  // Watch function
+  const watchFile = (filePath, agent) => {
+    if (watchedPaths.has(filePath) || !fs.existsSync(filePath)) return;
+    
+    watchedPaths.add(filePath);
+    
+    try {
+      const watcher = fs.watch(filePath, (eventType) => {
+        if (eventType === 'change') {
+          try {
+            const content = fs.readFileSync(filePath, 'utf8');
+            const lines = content.split('\n').filter(l => l.trim());
+            const lastLine = lines[lines.length - 1];
+            
+            if (lastLine) {
+              const parsed = parseAgentLogLine(lastLine, agent);
+              if (parsed) {
+                onLog({ type: 'log', data: parsed, timestamp: Date.now() });
+              }
+            }
+          } catch (err) {
+            // Silent fail
+          }
+        }
+      });
+      
+      watchers.push(watcher);
+    } catch (err) {
+      // Silent fail
+    }
+  };
+  
+  // Set up watchers for each agent
+  for (const agent of agents) {
+    if (agentFilter !== 'all' && agent !== agentFilter.toLowerCase()) {
+      continue;
+    }
+    
+    const agentPaths = [
+      path.join(process.env.HOME || '/home/darwin', '.openclaw', 'agents', agent, 'logs', `${agent}.log`),
+      path.join(process.env.HOME || '/home/darwin', '.openclaw', 'agents', agent, 'memory', 'activity.log'),
+      path.join('/tmp', `${agent}_activity.log`),
+      path.join(process.env.HOME || '/home/darwin', '.openclaw', 'agents', agent, `${agent}.log`)
+    ];
+    
+    for (const logPath of agentPaths) {
+      watchFile(logPath, agent);
+    }
+  }
+  
+  // Return object with close method
+  return {
+    close: () => {
+      watchers.forEach(w => {
+        try { w.close(); } catch (e) {}
+      });
+    }
+  };
+}
+
+// ============ TRADE LOG FUNCTIONS ============
+
+// Get trade logs from trader's memory
+async function getTradeLogs(filter = 'all', limit = 50) {
+  const tradesPath = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'agents', 'trader', 'memory', 'trades');
+  const trades = [];
+  
+  try {
+    // Read all JSONL files in the trades directory
+    if (fs.existsSync(tradesPath)) {
+      const files = fs.readdirSync(tradesPath).filter(f => f.endsWith('.jsonl'));
+      
+      for (const file of files) {
+        const filePath = path.join(tradesPath, file);
+        const content = fs.readFileSync(filePath, 'utf8');
+        const lines = content.split('\n').filter(l => l.trim());
+        
+        for (const line of lines) {
+          try {
+            const trade = JSON.parse(line);
+            
+            // Apply time filter
+            if (filter !== 'all') {
+              const tradeDate = new Date(trade.timestamp || trade.date);
+              const now = new Date();
+              
+              if (filter === 'today') {
+                if (tradeDate.toDateString() !== now.toDateString()) continue;
+              } else if (filter === 'week') {
+                const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+                if (tradeDate < weekAgo) continue;
+              }
+            }
+            
+            trades.push({
+              id: trade.id || `trade_${Date.now()}`,
+              timestamp: new Date(trade.timestamp || trade.date).getTime(),
+              symbol: trade.symbol || trade.market_question || 'Unknown',
+              direction: trade.direction || trade.type || 'LONG',
+              entryPrice: trade.entry_price || trade.entryPrice || 0,
+              exitPrice: trade.exit_price || trade.exitPrice || 0,
+              shares: trade.shares || trade.quantity || 0,
+              pnl: trade.pnl || trade.profit || 0,
+              rr: trade.r_r || trade.rr || calculateRR(trade),
+              status: trade.status || 'CLOSED',
+              raw: trade
+            });
+          } catch (e) {
+            // Skip invalid lines
+          }
+        }
+      }
+    }
+    
+    // Also try paper_trades.json for backward compatibility
+    const paperTradesPath = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'data', 'paper_trades.json');
+    if (fs.existsSync(paperTradesPath)) {
+      const content = fs.readFileSync(paperTradesPath, 'utf8');
+      const paperTrades = JSON.parse(content);
+      
+      if (Array.isArray(paperTrades)) {
+        for (const trade of paperTrades) {
+          // Apply time filter
+          if (filter !== 'all') {
+            const tradeDate = new Date(trade.created_at || trade.timestamp);
+            const now = new Date();
+            
+            if (filter === 'today') {
+              if (tradeDate.toDateString() !== now.toDateString()) continue;
+            } else if (filter === 'week') {
+              const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+              if (tradeDate < weekAgo) continue;
+            }
+          }
+          
+          trades.push({
+            id: trade.id || `paper_${Date.now()}`,
+            timestamp: new Date(trade.created_at || trade.timestamp).getTime(),
+            symbol: trade.market_question || trade.symbol || 'Unknown',
+            direction: trade.direction || 'YES',
+            entryPrice: trade.entry_price || 0,
+            exitPrice: trade.exit_price || 0,
+            shares: trade.shares || 0,
+            pnl: trade.pnl || 0,
+            rr: trade.r_r || calculateRR(trade),
+            status: trade.status || 'OPEN',
+            raw: trade
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error reading trades:', err.message);
+  }
+  
+  // Sort by timestamp (newest first) and limit
+  return trades
+    .sort((a, b) => b.timestamp - a.timestamp)
+    .slice(0, limit);
+}
+
+// Calculate Risk:Reward ratio
+function calculateRR(trade) {
+  if (!trade.entry_price || !trade.exit_price) return 0;
+  const risk = Math.abs(trade.entry_price - (trade.stop_loss || trade.entry_price * 0.95));
+  const reward = Math.abs(trade.exit_price - trade.entry_price);
+  return risk > 0 ? (reward / risk).toFixed(2) : 0;
+}
+
+// Calculate trade statistics
+function calculateTradeStats(trades) {
+  const closed = trades.filter(t => t.status === 'CLOSED');
+  const wins = closed.filter(t => t.pnl > 0);
+  const totalPnl = closed.reduce((sum, t) => sum + (t.pnl || 0), 0);
+  
+  return {
+    total: trades.length,
+    closed: closed.length,
+    open: trades.filter(t => t.status === 'OPEN').length,
+    wins: wins.length,
+    losses: closed.length - wins.length,
+    winRate: closed.length > 0 ? Math.round((wins.length / closed.length) * 100) : 0,
+    totalPnl: Math.round(totalPnl * 100) / 100,
+    avgPnl: closed.length > 0 ? Math.round((totalPnl / closed.length) * 100) / 100 : 0
+  };
+}
+
+// Start watching trade files
+function startTradeWatcher(onTrade) {
+  const watchers = [];
+  const tradesPath = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'agents', 'trader', 'memory', 'trades');
+  const paperTradesPath = path.join(process.env.HOME || '/home/darwin', '.openclaw', 'data', 'paper_trades.json');
+  
+  // Watch trades directory
+  if (fs.existsSync(tradesPath)) {
+    try {
+      const watcher = fs.watch(tradesPath, (eventType, filename) => {
+        if (eventType === 'change' && filename && filename.endsWith('.jsonl')) {
+          // File changed, read new trades
+          getTradeLogs('all', 1).then(trades => {
+            if (trades.length > 0) {
+              onTrade({ type: 'trade', data: trades[0], timestamp: Date.now() });
+            }
+          });
+        }
+      });
+      watchers.push(watcher);
+    } catch (err) {
+      // Silent fail
+    }
+  }
+  
+  // Watch paper_trades.json
+  if (fs.existsSync(paperTradesPath)) {
+    try {
+      const watcher = fs.watch(paperTradesPath, () => {
+        getTradeLogs('all', 1).then(trades => {
+          if (trades.length > 0) {
+            onTrade({ type: 'trade', data: trades[0], timestamp: Date.now() });
+          }
+        });
+      });
+      watchers.push(watcher);
+    } catch (err) {
+      // Silent fail
+    }
+  }
+  
+  // Return object with close method
+  return {
+    close: () => {
+      watchers.forEach(w => {
+        try { w.close(); } catch (e) {}
+      });
+    }
+  };
 }
 
 // Set up activity listener to broadcast to SSE clients

@@ -5,6 +5,7 @@
 - [ ] Check Echo inbox for overnight emails (T1/T2/T3 classification)
 - [ ] Verify dashboard health: port 8888 (Command Center) & port 8789 (Amajungle)
 - [ ] Quick agent fleet status check (River, Atlas, Piper, Echo all operational)
+- [ ] **Agent Fleet Audit** — Verify all 65 skills and 7 SOUL files intact (no deletions)
 - [ ] Check budget status ($1,800/month tracking)
 - [ ] Weather check (Asia/Manila)
 - [ ] Flag any urgent RapidAPI quota alerts
@@ -26,7 +27,8 @@
 - [ ] Subscription creep check (RapidAPI, hosting, tools)
 - [ ] Task backlog review (HEARTBEAT, MEMORY, DECISIONS)
 - [ ] Dashboard deep-check: verify both ports responding, logs clean
+- [ ] **Full Agent Fleet Audit** — Deep scan of all 6 agents, 65 skills, verify integrity
 - [ ] Suggest one automation opportunity
 
 ---
-*Last updated: March 7, 2026*
+*Last updated: March 16, 2026*
