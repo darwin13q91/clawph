@@ -1,9 +1,10 @@
-import { useEffect, lazy, Suspense } from 'react';
+import { useEffect, lazy, Suspense, useState } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Toaster } from 'sonner';
 import { Analytics } from '@vercel/analytics/react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
@@ -17,6 +18,8 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 import HeroSection from './sections/HeroSection';
 import LeadMagnetSection from './sections/LeadMagnetSection';
 import VisualDemoSection from './sections/VisualDemoSection';
+import ROICalculator from './sections/ROICalculator';
+import BeforeAfterSlider from './sections/BeforeAfterSlider';
 import HowItWorksSection from './sections/HowItWorksSection';
 import SimplePricingSection from './sections/SimplePricingSection';
 import SimpleFAQSection from './sections/SimpleFAQSection';
@@ -102,8 +105,12 @@ function HomePage() {
 
       {/* Flowing Sections */}
       <LeadMagnetSection />
+      <ROICalculator />
+      <BeforeAfterSlider />
       <VisualDemoSection />
       <HowItWorksSection />
+      <SimplePricingSection />
+      <SimpleFAQSection />
       <SimplePricingSection />
       <SimpleFAQSection />
       <ContactSection />
@@ -115,8 +122,23 @@ function HomePage() {
 }
 
 function App() {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [showGrain, setShowGrain] = useState(false);
+
   useEffect(() => {
+    // Page load sequence
+    const loadTimer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 100);
+
+    // Grain overlay fade in
+    const grainTimer = setTimeout(() => {
+      setShowGrain(true);
+    }, 300);
+
     return () => {
+      clearTimeout(loadTimer);
+      clearTimeout(grainTimer);
       ScrollTrigger.getAll().forEach(st => st.kill());
     };
   }, []);
@@ -126,8 +148,14 @@ function App() {
       <ScrollToTop />
       <ErrorBoundary>
       <div className="relative bg-jungle min-h-screen">
-        {/* Grain overlay */}
-        <div className="grain-overlay" />
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: showGrain ? 0.04 : 0 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="grain-overlay"
+          />
+        </AnimatePresence>
 
         {/* Lead Magnet Popup - Exit Intent & Timer */}
         <LeadMagnetPopup 
@@ -157,7 +185,13 @@ function App() {
           <Routes>
             <Route path="/" element={
               <>
-                <Navigation />
+                <motion.div
+                  initial={{ y: -100, opacity: 0 }}
+                  animate={{ y: isLoaded ? 0 : -100, opacity: isLoaded ? 1 : 0 }}
+                  transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <Navigation />
+                </motion.div>
                 <HomePage />
                 <Footer />
               </>

@@ -87,28 +87,30 @@ export default function SimpleFAQSection() {
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="card-jungle overflow-hidden transition-all duration-300 hover:border-neon/20"
+              className="card-jungle overflow-hidden card-lift"
+              style={{ animationDelay: `${index * 100}ms` }}
             >
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full p-6 flex items-center justify-between text-left"
+                className="w-full p-6 flex items-center justify-between text-left group"
                 aria-expanded={openIndex === index}
               >
-                <span className="font-display text-lg font-bold text-warm pr-4">
+                <span className="font-display text-lg font-bold text-warm pr-4 group-hover:text-neon transition-colors duration-300">
                   {faq.question}
                 </span>
-                <ChevronDown
-                  className={`text-neon flex-shrink-0 transition-transform duration-300 ${
-                    openIndex === index ? 'rotate-180' : ''
-                  }`}
-                  size={24}
-                />
+                <div className={`flex-shrink-0 w-8 h-8 rounded-full bg-neon/10 flex items-center justify-center transition-all duration-300 ${
+                  openIndex === index ? 'bg-neon/20 rotate-180' : 'group-hover:bg-neon/15'
+                }`}>
+                  <ChevronDown
+                    className="text-neon transition-transform duration-300"
+                    size={20}
+                  />
+                </div>
               </button>
               <div
-                className="grid transition-all duration-300 ease-out"
-                style={{
-                  gridTemplateRows: openIndex === index ? '1fr' : '0fr',
-                }}
+                className={`grid transition-all duration-400 ease-out ${
+                  openIndex === index ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+                }`}
               >
                 <div className="overflow-hidden">
                   <p className="px-6 pb-6 text-warm-72 leading-relaxed">
@@ -121,8 +123,8 @@ export default function SimpleFAQSection() {
         </div>
 
         {/* Still Have Questions */}
-        <div className="mt-12 text-center p-8 rounded-3xl bg-neon/5 border border-neon/20">
-          <HelpCircle className="text-neon mx-auto mb-4" size={32} />
+        <div className="mt-12 text-center p-8 rounded-3xl bg-neon/5 border border-neon/20 card-lift group">
+          <HelpCircle className="text-neon mx-auto mb-4 transition-transform duration-300 group-hover:scale-110" size={32} />
           <h3 className="font-display text-xl font-bold text-warm uppercase mb-2">
             Still Have Questions?
           </h3>
@@ -131,7 +133,7 @@ export default function SimpleFAQSection() {
           </p>
           <a
             href="mailto:hello@amajungle.com"
-            className="text-neon font-medium hover:underline"
+            className="link-underline text-neon font-medium"
           >
             hello@amajungle.com
           </a>

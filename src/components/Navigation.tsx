@@ -56,31 +56,31 @@ export default function Navigation() {
           <div className="hidden md:flex items-center gap-8">
             <button
               onClick={() => scrollToSection('audit')}
-              className="text-warm-72 hover:text-warm transition-colors duration-300 text-sm font-medium"
+              className="nav-link text-warm-72 hover:text-warm text-sm font-medium"
             >
               Free Audit
             </button>
             <button
               onClick={() => scrollToSection('demo')}
-              className="text-warm-72 hover:text-warm transition-colors duration-300 text-sm font-medium"
+              className="nav-link text-warm-72 hover:text-warm text-sm font-medium"
             >
               See Demo
             </button>
             <button
               onClick={() => scrollToSection('process')}
-              className="text-warm-72 hover:text-warm transition-colors duration-300 text-sm font-medium"
+              className="nav-link text-warm-72 hover:text-warm text-sm font-medium"
             >
               How It Works
             </button>
             <button
               onClick={() => scrollToSection('pricing')}
-              className="text-warm-72 hover:text-warm transition-colors duration-300 text-sm font-medium"
+              className="nav-link text-warm-72 hover:text-warm text-sm font-medium"
             >
               Pricing
             </button>
             <Link
               to="/about"
-              className="text-warm-72 hover:text-warm transition-colors duration-300 text-sm font-medium"
+              className="nav-link text-warm-72 hover:text-warm text-sm font-medium"
             >
               About
             </Link>

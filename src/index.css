@@ -233,15 +233,148 @@
   animation: floating 4s ease-in-out infinite;
 }
 
-/* Enhanced Card Hover Effects */
+/* Enhanced Card Hover Effects - Lift & Glow */
 .card-hover {
   @apply transition-all duration-300;
+  will-change: transform, box-shadow;
 }
 
 .card-hover:hover {
   transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px rgba(207, 255, 0, 0.1);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.3), 
+    0 0 30px rgba(207, 255, 0, 0.1);
   border-color: rgba(207, 255, 0, 0.3);
+}
+
+/* Card lift micro-interaction - subtle */
+.card-lift {
+  @apply transition-all duration-300 ease-out;
+  will-change: transform, box-shadow;
+}
+
+.card-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 12px 24px rgba(0, 0, 0, 0.2),
+    0 0 20px rgba(207, 255, 0, 0.08);
+}
+
+/* Link underline animation - left to right */
+.link-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--neon-lime);
+  transition: width 0.3s ease;
+}
+
+.link-underline:hover::after {
+  width: 100%;
+}
+
+/* Navigation link hover effect */
+.nav-link {
+  position: relative;
+  @apply transition-colors duration-300;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--neon-lime);
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Parallax depth layers */
+.parallax-slow {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.parallax-fast {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* FAQ accordion smooth animation */
+.faq-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.faq-content.open {
+  grid-template-rows: 1fr;
+}
+
+.faq-inner {
+  overflow: hidden;
+}
+
+/* Stagger animation delays */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+
+/* Feature icon hover pulse */
+.icon-hover {
+  @apply transition-transform duration-300;
+}
+
+.icon-hover:hover {
+  transform: scale(1.1);
+}
+
+/* Stats counter animation helper */
+@keyframes count-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stat-animate {
+  animation: count-up 0.6s ease-out forwards;
+}
+
+/* Section reveal animation */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-up {
+  opacity: 0;
+  animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 /* Glow border animation */
@@ -394,31 +527,54 @@ select:focus-visible {
   box-shadow: none;
 }
 
-/* Enhanced button interactions - Standardized timing */
+/* Enhanced button interactions - Premium micro-animations */
 .btn-primary {
   @apply bg-neon text-[#0B3A2C] font-semibold px-8 py-4 rounded-full transition-all duration-300 relative overflow-hidden;
+  will-change: transform, box-shadow;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .btn-primary:hover {
-  @apply scale-[1.02];
-  box-shadow: 0 0 30px rgba(207, 255, 0, 0.4);
+  transform: scale(1.02) translateY(-2px);
+  box-shadow: 
+    0 0 30px rgba(207, 255, 0, 0.4),
+    0 0 60px rgba(207, 255, 0, 0.2),
+    0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:hover::before {
+  opacity: 1;
 }
 
 .btn-primary:active {
-  @apply scale-[0.98];
+  transform: scale(0.98) translateY(0);
   transition-duration: 150ms;
+  box-shadow: 0 0 20px rgba(207, 255, 0, 0.3);
 }
 
 .btn-secondary {
   @apply border-2 border-[#F6F7EB] text-[#F6F7EB] font-semibold px-8 py-4 rounded-full transition-all duration-300;
+  will-change: transform, box-shadow;
 }
 
 .btn-secondary:hover {
-  @apply bg-[#F6F7EB] text-[#0B3A2C] scale-[1.02];
+  @apply bg-[#F6F7EB] text-[#0B3A2C];
+  transform: scale(1.02) translateY(-2px);
+  box-shadow: 
+    0 0 30px rgba(246, 247, 235, 0.2),
+    0 10px 40px rgba(0, 0, 0, 0.15);
 }
 
 .btn-secondary:active {
-  @apply scale-[0.98];
+  transform: scale(0.98) translateY(0);
   transition-duration: 150ms;
 }
 
