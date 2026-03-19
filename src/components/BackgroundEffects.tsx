@@ -274,7 +274,7 @@ export default function BackgroundEffects() {
   }, [isMobile]);
 
   return (
-    <div ref={containerRef} className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div ref={containerRef} className="fixed inset-0 overflow-hidden pointer-events-none z-[-1]">
       {/* ============================================
           1. FLOATING LEAVES - Slow drift across screen
           ============================================ */}
