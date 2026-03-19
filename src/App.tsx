@@ -9,6 +9,7 @@ import Navigation from './components/Navigation';
 import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
 import LeadMagnetPopup from './components/LeadMagnetPopup';
+import StickyCTA from './components/StickyCTA';
 
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -106,6 +107,9 @@ function HomePage() {
       <SimplePricingSection />
       <SimpleFAQSection />
       <ContactSection />
+      
+      {/* Sticky Mobile CTA */}
+      <StickyCTA />
     </main>
   );
 }
