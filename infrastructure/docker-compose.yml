@@ -1,0 +1,200 @@
+version: '3.8'
+
+# Multi-Agent OpenClaw Infrastructure
+# Start with: docker-compose up -d
+
+services:
+  # Shared Services
+  redis:
+    image: redis:7-alpine
+    container_name: openclaw-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Load Balancer
+  nginx:
+    image: nginx:alpine
+    container_name: openclaw-gateway
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - orchestrator
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Infrastructure Agents
+  orchestrator:
+    image: openclaw/agent:latest
+    container_name: agent-orchestrator
+    restart: unless-stopped
+    environment:
+      - AGENT_ID=orchestrator
+      - AGENT_ROLE=infrastructure
+      - REDIS_URL=redis:6379
+      - PORT=18789
+    ports:
+      - "18800:18789"
+    volumes:
+      - ./agents/orchestrator:/app/config:ro
+      - orchestrator-data:/app/data
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18789/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  monitor:
+    image: openclaw/agent:latest
+    container_name: agent-monitor
+    restart: unless-stopped
+    environment:
+      - AGENT_ID=monitor
+      - AGENT_ROLE=infrastructure
+      - REDIS_URL=redis:6379
+      - PORT=18789
+    ports:
+      - "18801:18789"
+    volumes:
+      - ./agents/monitor:/app/config:ro
+      - monitor-data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - redis
+      - orchestrator
+
+  # Business Agents
+  researcher:
+    image: openclaw/agent:latest
+    container_name: agent-researcher
+    restart: unless-stopped
+    environment:
+      - AGENT_ID=researcher
+      - AGENT_ROLE=business
+      - REDIS_URL=redis:6379
+      - PORT=18789
+    ports:
+      - "18810:18789"
+    volumes:
+      - ./agents/researcher:/app/config:ro
+      - researcher-data:/app/data
+    depends_on:
+      - redis
+      - orchestrator
+
+  coder:
+    image: openclaw/agent:latest
+    container_name: agent-coder
+    restart: unless-stopped
+    environment:
+      - AGENT_ID=coder
+      - AGENT_ROLE=business
+      - REDIS_URL=redis:6379
+      - PORT=18789
+    ports:
+      - "18811:18789"
+    volumes:
+      - ./agents/coder:/app/config:ro
+      - coder-data:/app/data
+      - /home/darwin/workspace:/workspace:rw
+    depends_on:
+      - redis
+      - orchestrator
+
+  writer:
+    image: openclaw/agent:latest
+    container_name: agent-writer
+    restart: unless-stopped
+    environment:
+      - AGENT_ID=writer
+      - AGENT_ROLE=business
+      - REDIS_URL=redis:6379
+      - PORT=18789
+    ports:
+      - "18812:18789"
+    volumes:
+      - ./agents/writer:/app/config:ro
+      - writer-data:/app/data
+    depends_on:
+      - redis
+      - orchestrator
+
+  # Customer Agents
+  support:
+    image: openclaw/agent:latest
+    container_name: agent-support
+    restart: unless-stopped
+    environment:
+      - AGENT_ID=support
+      - AGENT_ROLE=customer
+      - REDIS_URL=redis:6379
+      - PORT=18789
+    ports:
+      - "18820:18789"
+    volumes:
+      - ./agents/support:/app/config:ro
+      - support-data:/app/data
+    depends_on:
+      - redis
+      - orchestrator
+
+  # Monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: openclaw-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: openclaw-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
+volumes:
+  redis-data:
+  orchestrator-data:
+  monitor-data:
+  researcher-data:
+  coder-data:
+  writer-data:
+  support-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  default:
+    name: openclaw-network
+    driver: bridge

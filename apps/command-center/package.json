@@ -1,0 +1,10 @@
+{
+  "name": "command-center",
+  "version": "1.0.0",
+  "description": "Unified Command Center - Aggregate all systems into one view",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "NODE_ENV=development node server/index.js"
+  }
+}

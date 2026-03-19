@@ -4,16 +4,32 @@ node_modules/
 # build output
 dist/
 
-# environment variables
-.env
-.env.local
-.env.*.local
+# Data files (generated)
+*.json
+!package.json
+!package-lock.json
+!vercel.json
+*.log
+.scan.log
 
-# editor
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
@@ -23,6 +39,18 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# OpenClaw runtime (but not config)
+.openclaw/workspace-state.json
+.openclaw/data/*.json
+
+# environment variables
+.env
+.env.local
+.env.*.local
+.env.*
+*.env
+!*.env.example
 
 # vercel
 .vercel

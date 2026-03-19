@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amajungle Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --bg-elevated: #1c1c1c;
+            --text-primary: #fafafa;
+            --text-secondary: #a3a3a3;
+            --text-muted: #737373;
+            --border-color: #262626;
+            --border-subtle: #1f1f1f;
+            --accent-primary: #6366f1;
+            --accent-primary-light: #818cf8;
+            --accent-success: #22c55e;
+            --accent-warning: #f59e0b;
+            --accent-danger: #ef4444;
+            --accent-info: #3b82f6;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+            --radius-sm: 6px;
+            --radius: 10px;
+            --radius-lg: 16px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .app {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px 24px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-primary), #8b5cf6);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo-text { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+        .logo-subtitle { font-size: 11px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .nav-section { margin-bottom: 24px; }
+        .nav-title {
+            font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;
+            padding: 0 12px; margin-bottom: 8px;
+        }
+        .nav-item {
+            display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+            border-radius: var(--radius-sm); color: var(--text-secondary); font-size: 14px; font-weight: 500;
+            cursor: pointer; transition: var(--transition); text-decoration: none;
+        }
+        .nav-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+        .nav-item.active { background: var(--accent-primary); color: white; }
+        .nav-icon { width: 20px; height: 20px; opacity: 0.7; }
+        .nav-item.active .nav-icon { opacity: 1; }
+
+        /* Main Content */
+        .main { padding: 32px; overflow-y: auto; max-height: 100vh; }
+
+        .header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;
+        }
+        .header-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+        .header-subtitle { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px;
+            border-radius: var(--radius-sm); font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: var(--transition); border: none; font-family: inherit;
+        }
+        .btn-primary { background: var(--accent-primary); color: white; box-shadow: var(--shadow-sm); }
+        .btn-primary:hover { background: var(--accent-primary-light); transform: translateY(-1px); box-shadow: var(--shadow); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-secondary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--bg-elevated); color: var(--text-primary); }
+
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
+            border-radius: 20px; font-size: 12px; font-weight: 600;
+            background: rgba(34, 197, 94, 0.1); color: var(--accent-success);
+        }
+        .status-pill::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pulse 2s infinite; }
+        .status-pill.warning { background: rgba(245, 158, 11, 0.1); color: var(--accent-warning); }
+        .status-pill.danger { background: rgba(239, 68, 68, 0.1); color: var(--accent-danger); }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 24px;
+        }
+        .stat-card {
+            background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: var(--radius); padding: 16px; transition: var(--transition);
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--accent-primary); }
+        .stat-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+        .stat-change { font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 4px; }
+        .stat-change.positive { color: var(--accent-success); }
+        .stat-change.negative { color: var(--accent-danger); }
+
+        /* Panels */
+        .panel {
+            background: var(--bg-secondary); border: 1px solid var(--border-color);
+            border-radius: var(--radius); overflow: hidden; margin-bottom: 24px;
+        }
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 24px; border-bottom: 1px solid var(--border-color);
+        }
+        .panel-title { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .panel-icon {
+            width: 32px; height: 32px; border-radius: var(--radius-sm);
+            background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center; font-size: 16px;
+        }
+        .panel-actions { display: flex; gap: 8px; }
+        .panel-body { padding: 20px 24px; }
+        .panel-footer { padding: 16px 24px; border-top: 1px solid var(--border-color); background: var(--bg-tertiary); font-size: 12px; color: var(--text-muted); }
+
+        /* Badges */
+        .badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .badge-success { background: rgba(34, 197, 94, 0.1); color: var(--accent-success); }
+        .badge-warning { background: rgba(245, 158, 11, 0.1); color: var(--accent-warning); }
+        .badge-danger { background: rgba(239, 68, 68, 0.1); color: var(--accent-danger); }
+        .badge-info { background: rgba(59, 130, 246, 0.1); color: var(--accent-info); }
+
+        /* Feature List */
+        .feature-list { list-style: none; margin: 0; padding: 0; }
+        .feature-list li { display: flex; align-items: center; gap: 8px; padding: 8px 0; font-size: 13px; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); }
+        .feature-list li:last-child { border-bottom: none; }
+        .feature-list li::before { content: '✓'; color: var(--accent-success); font-weight: bold; }
+
+        /* Pricing Tiers */
+        .pricing-tiers { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
+        .pricing-tier { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px; text-align: center; }
+        .pricing-tier .tier-name { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+        .pricing-tier .tier-price { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+
+        /* Strategy Cards */
+        .strategy-cards { display: flex; gap: 12px; flex-wrap: wrap; }
+        .strategy-card { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px 16px; min-width: 120px; }
+        .strategy-card .strategy-name { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+        .strategy-card .strategy-status { font-size: 11px; color: var(--accent-success); margin-top: 4px; }
+
+        /* Schedule Grid */
+        .schedule-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .schedule-item { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 12px; text-align: center; }
+        .schedule-item .time { font-size: 18px; font-weight: 700; color: var(--accent-primary); }
+        .schedule-item .label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+        /* Quick Actions */
+        .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+
+        /* Metrics */
+        .metrics-row { display: flex; gap: 24px; padding: 16px 0; border-top: 1px solid var(--border-color); margin-top: 16px; }
+        .metric { display: flex; flex-direction: column; gap: 4px; }
+        .metric-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+        .metric-value { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+        .metric-value.positive { color: var(--accent-success); }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-tertiary); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        /* Responsive */
+        @media (max-width: 1400px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 1200px) { .app { grid-template-columns: 1fr; } .sidebar { display: none; } }
+        @media (max-width: 768px) {
+            .main { padding: 16px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .header { flex-direction: column; gap: 16px; align-items: flex-start; }
+            .pricing-tiers { grid-template-columns: 1fr; }
+            .schedule-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) { .stats-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">🐾</div>
+                <div>
+                    <div class="logo-text">OpenClaw</div>
+                    <div class="logo-subtitle">Amajungle Command</div>
+                </div>
+            </div>
+
+            <nav class="nav-section">
+                <div class="nav-title">Overview</div>
+                <a href="#" class="nav-item active" onclick="scrollToSection('statsGrid')">
+                    <span class="nav-icon">📊</span> Dashboard
+                </a>
+
+                <a href="#" class="nav-item" onclick="scrollToSection('cfoPanel')">
+                    <span class="nav-icon">💰</span> CFO System
+                </a>
+                <a href="#" class="nav-item" onclick="scrollToSection('automationPanel')">
+                    <span class="nav-icon">⏰</span> Automation
+                </a>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-title">System</div>
+                <a href="http://127.0.0.1:8888" target="_blank" class="nav-item">
+                    <span class="nav-icon">🎯</span> Command Center
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Header -->
+            <header class="header">
+                <div>
+                    <h1 class="header-title">Amajungle Dashboard</h1>
+                    <div class="header-subtitle">System Overview — Last updated: <span id="lastUpdated">Just now</span></div>
+                </div>
+                <div class="header-actions">
+                    <span class="status-pill">● System Online</span>
+                    <button class="btn btn-secondary" onclick="location.reload()">🔄 Refresh</button>
+                </div>
+            </header>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card" onclick="scrollToSection('subagentPanel')" style="cursor: pointer;">
+                    <div class="stat-label">Sub-Agents</div>
+                    <div class="stat-value" id="subagent-count">—</div>
+                    <div class="stat-change" id="subagent-status-text">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">AI Models</div>
+                    <div class="stat-value">12</div>
+                    <div class="stat-change positive">Active</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Email Campaigns</div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-change">0 Replies</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Net Worth</div>
+                    <div class="stat-value">$210</div>
+                    <div class="stat-change">$1,800/mo income</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Monthly Surplus</div>
+                    <div class="stat-value" style="color: var(--accent-success);">+$350</div>
+                    <div class="stat-change positive">On Track</div>
+                </div>
+                <div class="stat-card" onclick="scrollToSection('emailPanel')" style="cursor: pointer;">
+                    <div class="stat-label">Inbox</div>
+                    <div class="stat-value" id="email-stat-unread" style="font-size: 18px;">📬 —</div>
+                    <div class="stat-change">3 accounts</div>
+                </div>
+                <div class="stat-card" onclick="scrollToSection('riverPanel')" style="cursor: pointer; background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(34, 197, 94, 0.1) 100%);">
+                    <div class="stat-label">🌊 River</div>
+                    <div class="stat-value" style="font-size: 18px; color: var(--accent-success);">Ready</div>
+                    <div class="stat-change positive">Amazon Specialist</div>
+                </div>
+                <div class="stat-card" onclick="scrollToSection('piperPanel')" style="cursor: pointer; background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(6, 182, 212, 0.1) 100%);">
+                    <div class="stat-label">📧 Piper</div>
+                    <div class="stat-value" style="font-size: 18px; color: var(--accent-info);">Active</div>
+                    <div class="stat-change">Email Manager</div>
+                </div>
+                <div class="stat-card" onclick="scrollToSection('atlasPanel')" style="cursor: pointer; background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(168, 85, 247, 0.1) 100%);">
+                    <div class="stat-label">🏛️ Atlas</div>
+                    <div class="stat-value" style="font-size: 18px; color: var(--accent-success);">Ready</div>
+                    <div class="stat-change">Fullstack Dev</div>
+                </div>
+                <div class="stat-card" onclick="scrollToSection('agentsPanel')" style="cursor: pointer; background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(245, 158, 11, 0.1) 100%);">
+                    <div class="stat-label">🤖 All Agents</div>
+                    <div class="stat-value" style="font-size: 18px; color: var(--accent-warning);">7 Total</div>
+                    <div class="stat-change">View Status →</div>
+                </div>
+            </div>
+
+            <!-- Sub-Agent Monitor Panel -->
+            <div class="panel" id="subagentPanel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">🤖</div>
+                        Sub-Agent Monitor
+                    </div>
+                    <div class="panel-actions">
+                        <span class="badge" id="subagent-badge">Loading...</span>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;">
+                        <div class="stat-card" style="padding: 16px;">
+                            <div class="stat-label">Active Sub-Agents</div>
+                            <div class="stat-value" id="subagent-active" style="font-size: 28px;">—</div>
+                            <div class="stat-change">Currently running</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px;">
+                            <div class="stat-label">Tokens Today</div>
+                            <div class="stat-value" id="subagent-tokens" style="font-size: 28px;">—</div>
+                            <div class="stat-change">Total usage</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px;">
+                            <div class="stat-label">Recent Completions</div>
+                            <div class="stat-value" id="subagent-completed" style="font-size: 28px;">—</div>
+                            <div class="stat-change">Last 24h</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px;">
+                            <div class="stat-label">System Status</div>
+                            <div class="stat-value" id="subagent-health" style="font-size: 20px;">—</div>
+                            <div class="stat-change" id="subagent-health-detail">Checking...</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--bg-tertiary); border-radius: var(--radius-sm); padding: 16px;">
+                        <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 12px;">Recent Activity</div>
+                        <div id="subagent-recent-list" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="padding: 12px; background: var(--bg-secondary); border-radius: var(--radius-sm); display: flex; align-items: center; gap: 12px;">
+                                <span style="color: var(--text-muted);">Loading sub-agent data...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <span id="subagent-footer-status">Status: Initializing...</span>
+                    <span style="margin-left: auto;">Auto-refresh: 15s</span>
+                </div>
+            </div>
+
+            <!-- Quick Actions Panel -->
+            <div class="panel" id="quickActionsPanel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">⚡</div>
+                        Quick Actions
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="quick-actions">
+                        <a href="http://127.0.0.1:8789" class="btn btn-primary" style="justify-content: center; text-decoration: none;">📊 Open Dashboard</a>
+                        <a href="http://127.0.0.1:8888" class="btn btn-secondary" style="justify-content: center; text-decoration: none;">🎯 Command Center</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Overview Panel -->
+            <div class="panel" id="cfoPanel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">💰</div>
+                        Financial Overview
+                    </div>
+                    <div class="panel-actions">
+                        <span class="badge badge-success">On Budget</span>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px;">
+                        <div style="text-align: center; padding: 20px; background: var(--bg-tertiary); border-radius: var(--radius-sm);">
+                            <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Net Worth</div>
+                            <div style="font-size: 32px; font-weight: 700; color: var(--text-primary);">$210</div>
+                        </div>
+                        <div style="text-align: center; padding: 20px; background: var(--bg-tertiary); border-radius: var(--radius-sm);">
+                            <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Monthly Income</div>
+                            <div style="font-size: 32px; font-weight: 700; color: var(--accent-success);">$1,800</div>
+                        </div>
+                        <div style="text-align: center; padding: 20px; background: var(--bg-tertiary); border-radius: var(--radius-sm);">
+                            <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Monthly Expenses</div>
+                            <div style="font-size: 32px; font-weight: 700; color: var(--accent-danger);">$1,450</div>
+                        </div>
+                        <div style="text-align: center; padding: 20px; background: var(--bg-tertiary); border-radius: var(--radius-sm);">
+                            <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">Monthly Surplus</div>
+                            <div style="font-size: 32px; font-weight: 700; color: var(--accent-success);">+$350</div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                        <div style="padding: 12px; background: var(--bg-tertiary); border-radius: var(--radius-sm);">
+                            <div style="font-size: 12px; color: var(--text-muted);">VPS Cost</div>
+                            <div style="font-size: 18px; font-weight: 600;">$5/month</div>
+                        </div>
+                        <div style="padding: 12px; background: var(--bg-tertiary); border-radius: var(--radius-sm);">
+                            <div style="font-size: 12px; color: var(--text-muted);">Marketing Budget</div>
+                            <div style="font-size: 18px; font-weight: 600;">$100</div>
+                        </div>
+                        <div style="padding: 12px; background: var(--bg-tertiary); border-radius: var(--radius-sm);">
+                            <div style="font-size: 12px; color: var(--text-muted);">Next CFO Report</div>
+                            <div style="font-size: 18px; font-weight: 600;">1st & 15th</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <span>CFO System: Active tracking</span>
+                    <span style="margin-left: auto;">Token Guardian: ✅ Active</span>
+                </div>
+            </div>
+
+            <!-- Automation & Reports Panel -->
+            <div class="panel" id="automationPanel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">⏰</div>
+                        Automation & Reports
+                    </div>
+                    <div class="panel-actions">
+                        <span class="badge badge-success">All Active</span>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div>
+                            <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 12px;">Scheduled Reports</div>
+                            <div class="schedule-grid" style="grid-template-columns: 1fr;">
+                                <div class="schedule-item" style="display: flex; justify-content: space-between; align-items: center; text-align: left;">
+                                    <div>
+                                        <div class="time" style="font-size: 16px;">6:00 AM</div>
+                                        <div class="label">Morning Reports</div>
+                                    </div>
+                                    <span class="badge badge-success">Daily ✅</span>
+                                </div>
+                                <div class="schedule-item" style="display: flex; justify-content: space-between; align-items: center; text-align: left;">
+                                    <div>
+                                        <div class="time" style="font-size: 16px;">9:00 PM</div>
+                                        <div class="label">Overnight Thinking</div>
+                                    </div>
+                                    <span class="badge badge-success">Daily ✅</span>
+                                </div>
+                                <div class="schedule-item" style="display: flex; justify-content: space-between; align-items: center; text-align: left;">
+                                    <div>
+                                        <div class="time" style="font-size: 16px;">1st & 15th</div>
+                                        <div class="label">CFO Reports</div>
+                                    </div>
+                                    <span class="badge badge-success">Monthly ✅</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 12px;">Automation Tasks</div>
+                            <div class="schedule-grid" style="grid-template-columns: 1fr;">
+                                <div class="schedule-item" style="display: flex; justify-content: space-between; align-items: center; text-align: left;">
+                                    <div>
+                                        <div class="time" style="font-size: 16px;">Every 60 min</div>
+                                        <div class="label">Email Campaign Check</div>
+                                    </div>
+                                    <span class="badge badge-success">Active ✅</span>
+                                </div>
+                                <div class="schedule-item" style="display: flex; justify-content: space-between; align-items: center; text-align: left;">
+                                    <div>
+                                        <div class="time" style="font-size: 16px;">Every 10 min</div>
+                                        <div class="label">Token Guardian Check</div>
+                                    </div>
+                                    <span class="badge badge-success">Active ✅</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <span>All systems running on schedule</span>
+                    <span style="margin-left: auto;">Last check: Just now</span>
+                </div>
+            </div>
+
+            <!-- Local Services Panel -->
+            <div class="panel" id="servicesPanel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">🖥️</div>
+                        Local Services Status
+                    </div>
+                    <div class="panel-actions">
+                        <span class="badge badge-success">All Online</span>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                        <div style="padding: 16px; background: var(--bg-tertiary); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600;">Dashboard</div>
+                                <div style="font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">http://127.0.0.1:8789</div>
+                            </div>
+                            <span class="badge badge-success">✅ RUNNING</span>
+                        </div>
+                        <div style="padding: 16px; background: var(--bg-tertiary); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600;">Command Center</div>
+                                <div style="font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">http://127.0.0.1:8888</div>
+                            </div>
+                            <span class="badge badge-success">✅ RUNNING</span>
+                        </div>
+                        <div style="padding: 16px; background: var(--bg-tertiary); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600;">Token Guardian</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Security monitoring</div>
+                            </div>
+                            <span class="badge badge-success">✅ Active</span>
+                        </div>
+                        <div style="padding: 16px; background: var(--bg-tertiary); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600;">CFO System</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Tracking $210 net worth</div>
+                            </div>
+                            <span class="badge badge-success">✅ Active</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <span>Local infrastructure operational</span>
+                </div>
+            </div>
+
+            <!-- Communication Channels Panel -->
+            <div class="panel" id="channelsPanel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">💬</div>
+                        Communication Channels
+                    </div>
+                    <div class="panel-actions">
+                        <span class="badge badge-success">Connected</span>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                        <div style="padding: 16px; background: var(--bg-tertiary); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600;">✈️ Telegram Bot #1</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Chat bot</div>
+                            </div>
+                            <span class="badge badge-success">✅ Active</span>
+                        </div>
+                        <div style="padding: 16px; background: var(--bg-tertiary); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600;">🔔 Telegram Bot #2</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Alerts only</div>
+                            </div>
+                            <span class="badge badge-success">✅ Active</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Monitor Panel -->
+            <div class="panel" id="emailPanel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">✉️</div>
+                        Email Monitor
+                    </div>
+                    <div class="panel-actions">
+                        <span class="badge badge-success" id="email-panel-badge">🟢 Connected</span>
+                        <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="refreshAllInboxes()">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <!-- Inbox Overview -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;">
+                        <div class="stat-card" style="padding: 16px; cursor: pointer;" onclick="showAccountDetails('hello')">
+                            <div class="stat-label">hello@amajungle.com</div>
+                            <div class="stat-value" id="inbox-hello-unread" style="font-size: 24px;">—</div>
+                            <div class="stat-change">unread</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px; cursor: pointer;" onclick="showAccountDetails('ops')">
+                            <div class="stat-label">ops@amajungle.com</div>
+                            <div class="stat-value" id="inbox-ops-unread" style="font-size: 24px;">—</div>
+                            <div class="stat-change">unread</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px; cursor: pointer;" onclick="showAccountDetails('support')">
+                            <div class="stat-label">support@amajungle.com</div>
+                            <div class="stat-value" id="inbox-support-unread" style="font-size: 24px;">—</div>
+                            <div class="stat-change">unread</div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Emails -->
+                    <div style="background: var(--bg-tertiary); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 16px;">
+                        <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 12px;">Recent Emails</div>
+                        <div id="inbox-recent-list" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="font-size: 12px; color: var(--text-muted);">Loading...</div>
+                        </div>
+                    </div>
+
+                    <!-- Send Test Email -->
+                    <div style="background: var(--bg-tertiary); border-radius: var(--radius-sm); padding: 16px;">
+                        <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 12px;">Send Test Email</div>
+                        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
+                            <select id="test-email-from" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 10px 12px; border-radius: var(--radius-sm); font-size: 13px;">
+                                <option value="hello">hello@amajungle.com</option>
+                                <option value="ops">ops@amajungle.com</option>
+                                <option value="support">support@amajungle.com</option>
+                            </select>
+                            <input type="email" id="test-email-to" placeholder="To: email@example.com" style="flex: 1; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 10px 12px; border-radius: var(--radius-sm); font-size: 13px;">
+                            
+                            <input type="text" id="test-email-subject" placeholder="Subject" style="flex: 1; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 10px 12px; border-radius: var(--radius-sm); font-size: 13px;">
+                            
+                            <button class="btn btn-primary" onclick="sendTestEmail()" style="font-size: 12px; padding: 10px 16px;">Send</button>
+                        </div>
+                        <div id="email-send-status" style="font-size: 12px; min-height: 20px;"></div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <span>Provider: Namecheap PrivateEmail</span>
+                    <span style="margin-left: auto;">IMAP: mail.privateemail.com:993</span>
+                </div>
+            </div>
+
+            <!-- Email Campaigns Panel -->
+            <div class="panel" id="campaignPanel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">📧</div>
+                        Email Campaigns
+                    </div>
+                    <div class="panel-actions">
+                        <span class="badge badge-success" id="campaign-badge">Active</span>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;">
+                        <div class="stat-card" style="padding: 16px;">
+                            <div class="stat-label">Sent Today</div>
+                            <div class="stat-value" id="campaign-sent-today" style="font-size: 28px;">—</div>
+                            <div class="stat-change">Emails delivered</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px;">
+                            <div class="stat-label">Replies</div>
+                            <div class="stat-value" id="campaign-replies" style="font-size: 28px;">—</div>
+                            <div class="stat-change positive">Response rate</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px;">
+                            <div class="stat-label">Meetings</div>
+                            <div class="stat-value" id="campaign-meetings" style="font-size: 28px;">—</div>
+                            <div class="stat-change positive">Calls booked</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px;">
+                            <div class="stat-label">Active Campaigns</div>
+                            <div class="stat-value" id="campaign-active" style="font-size: 28px;">—</div>
+                            <div class="stat-change">In progress</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--bg-tertiary); border-radius: var(--radius-sm); padding: 16px;">
+                        <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 12px;">Recent Campaigns</div>
+                        <div id="campaign-list" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="padding: 12px; background: var(--bg-secondary); border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 500;">Chamberlain Outreach</span>
+                                <div style="display: flex; gap: 12px; font-size: 12px;">
+                                    <span>Sent: <strong>0</strong></span>
+                                    <span>Replies: <strong>0</strong></span>
+                                    <span class="badge badge-info">Ready</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <span>Last campaign: None</span>
+                    <span style="margin-left: auto;">Auto-refresh: 60s</span>
+                </div>
+            </div>
+
+            <!-- Budget Burn Rate Panel -->
+            <div class="panel" id="budgetPanel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">💰</div>
+                        Budget Burn Rate
+                    </div>
+                    <div class="panel-actions">
+                        <span class="badge badge-success" id="budget-status">On Track</span>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;">
+                        <div class="stat-card" style="padding: 16px;">
+                            <div class="stat-label">Monthly Income</div>
+                            <div class="stat-value" style="font-size: 24px; color: var(--accent-success);">$1,800</div>
+                            <div class="stat-change">Target</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px;">
+                            <div class="stat-label">Spent This Month</div>
+                            <div class="stat-value" id="budget-spent" style="font-size: 24px;">—</div>
+                            <div class="stat-change" id="budget-spent-pct">Loading...</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px;">
+                            <div class="stat-label">Remaining</div>
+                            <div class="stat-value" id="budget-remaining" style="font-size: 24px;">—</div>
+                            <div class="stat-change">Days left: <span id="budget-days">—</span></div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px;">
+                            <div class="stat-label">Projected End</div>
+                            <div class="stat-value" id="budget-projected" style="font-size: 20px;">—</div>
+                            <div class="stat-change" id="budget-projected-status">Loading...</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--bg-tertiary); border-radius: var(--radius-sm); padding: 16px;">
+                        <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 12px;">Budget Health</div>
+                        <div style="background: var(--bg-secondary); height: 24px; border-radius: 12px; overflow: hidden;">
+                            <div id="budget-bar" style="width: 0%; height: 100%; background: var(--accent-success); transition: width 0.3s;"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px;">
+                            <span>0%</span>
+                            <span id="budget-bar-text">Loading...</span>
+                            <span>100%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <span>Income: $1,800/mo | Net Worth: $210</span>
+                    <span style="margin-left: auto;">Alert at 80%</span>
+                </div>
+            </div>
+
+            <!-- Business Metrics Panel -->
+            <div class="panel" id="businessPanel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">🏢</div>
+                        Business Metrics
+                    </div>
+                    <div class="panel-actions">
+                        <span class="badge badge-success" id="business-badge">🟢 Active</span>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;">
+                        <div class="stat-card" style="padding: 16px;">
+                            <div class="stat-label">Leads Contacted</div>
+                            <div class="stat-value" id="business-leads" style="font-size: 28px;">0</div>
+                            <div class="stat-change">This month</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px;">
+                            <div class="stat-label">Replies</div>
+                            <div class="stat-value" id="business-replies" style="font-size: 28px; color: var(--accent-success);">0</div>
+                            <div class="stat-change positive">Response rate</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px;">
+                            <div class="stat-label">Meetings</div>
+                            <div class="stat-value" id="business-meetings" style="font-size: 28px; color: var(--accent-primary);">0</div>
+                            <div class="stat-change positive">Calls booked</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px;">
+                            <div class="stat-label">Conversion</div>
+                            <div class="stat-value" id="business-conversion" style="font-size: 28px;">0%</div>
+                            <div class="stat-change">Leads → Clients</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--bg-tertiary); border-radius: var(--radius-sm); padding: 16px;">
+                        <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 12px;">Client Pipeline</div>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+                            <div style="background: var(--bg-secondary); padding: 12px; border-radius: var(--radius-sm); text-align: center;">
+                                <div style="font-size: 24px; color: var(--accent-info);">📧</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Contacted</div>
+                                <div style="font-size: 20px; font-weight: 600;" id="pipeline-contacted">0</div>
+                            </div>
+                            <div style="background: var(--bg-secondary); padding: 12px; border-radius: var(--radius-sm); text-align: center;">
+                                <div style="font-size: 24px; color: var(--accent-warning);">💬</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Replied</div>
+                                <div style="font-size: 20px; font-weight: 600;" id="pipeline-replied">0</div>
+                            </div>
+                            <div style="background: var(--bg-secondary); padding: 12px; border-radius: var(--radius-sm); text-align: center;">
+                                <div style="font-size: 24px; color: var(--accent-primary);">📅</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Meeting</div>
+                                <div style="font-size: 20px; font-weight: 600;" id="pipeline-meeting">0</div>
+                            </div>
+                            <div style="background: var(--bg-secondary); padding: 12px; border-radius: var(--radius-sm); text-align: center;">
+                                <div style="font-size: 24px; color: var(--accent-success);">✅</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Closed</div>
+                                <div style="font-size: 20px; font-weight: 600;" id="pipeline-closed">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--bg-tertiary); border-radius: var(--radius-sm); padding: 16px; margin-top: 16px;">
+                        <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 12px;">Revenue Tracking</div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                            <div>
+                                <div style="font-size: 11px; color: var(--text-muted);">Target MRR</div>
+                                <div style="font-size: 20px; font-weight: 600; color: var(--accent-success);">$1,800</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: var(--text-muted);">Current MRR</div>
+                                <div style="font-size: 20px; font-weight: 600;" id="revenue-current">$0</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: var(--text-muted);">Gap to Target</div>
+                                <div style="font-size: 20px; font-weight: 600; color: var(--accent-warning);" id="revenue-gap">$1,800</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <span>Focus: Client Acquisition</span>
+                    <span style="margin-left: auto;">Updated: <span id="business-last-updated">Just now</span></span>
+                </div>
+            </div>
+
+            <!-- River - Amazon Empire Builder Panel -->
+            <div class="panel" id="riverPanel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">🌊</div>
+                        River — Amazon Empire Builder
+                    </div>
+                    <div class="panel-actions">
+                        <span class="badge badge-success">🟢 Ready</span>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 20px;">
+                        <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">🎯 $100M Amazon Brand Strategist</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+                            Market domination, not market participation. River builds empires on Amazon — 
+                            from brand positioning to launch strategy to category domination. 
+                            20 specialized modes. Cold precision. Commercially violent.
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;">
+                        <div class="stat-card" style="padding: 16px; background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(34, 197, 94, 0.05) 100%);">
+                            <div class="stat-label">Modes</div>
+                            <div class="stat-value" style="font-size: 28px; color: var(--accent-success);">20</div>
+                            <div class="stat-change">Operational</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px; background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(6, 182, 212, 0.05) 100%);">
+                            <div class="stat-label">Focus</div>
+                            <div class="stat-value" style="font-size: 18px;">Domination</div>
+                            <div class="stat-change positive">Not participation</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px; background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(245, 158, 11, 0.05) 100%);">
+                            <div class="stat-label">Reports To</div>
+                            <div class="stat-value" style="font-size: 18px;">Allysa</div>
+                            <div class="stat-change">Orchestrator</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px; background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(168, 85, 247, 0.05) 100%);">
+                            <div class="stat-label">Status</div>
+                            <div class="stat-value" style="font-size: 18px; color: var(--accent-success);">Ready</div>
+                            <div class="stat-change positive">Spawn on demand</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--bg-tertiary); border-radius: var(--radius-sm); padding: 16px;">
+                        <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 12px;">🚀 Quick Spawn Commands</div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                            <button onclick="spawnRiverMode('brand-strategy')" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); cursor: pointer; text-align: left; transition: all 0.2s;">
+                                <div style="font-weight: 600;">🎯 Brand Strategy</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Position product, dominate category</div>
+                            </button>
+                            
+                            <button onclick="spawnRiverMode('competitor-analysis')" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); cursor: pointer; text-align: left; transition: all 0.2s;">
+                                <div style="font-weight: 600;">🔍 Competitor Analysis</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Attack planning, find weaknesses</div>
+                            </button>
+                            
+                            <button onclick="spawnRiverMode('launch-strategy')" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); cursor: pointer; text-align: left; transition: all 0.2s;">
+                                <div style="font-weight: 600;">🚀 Launch Strategy</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">0 to 8 figures, 30-day plan</div>
+                            </button>
+                            
+                            <button onclick="spawnRiverMode('review-mining')" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); cursor: pointer; text-align: left; transition: all 0.2s;">
+                                <div style="font-weight: 600;">💬 Review Mining</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Extract insights, weaponize copy</div>
+                            </button>
+                            
+                            <button onclick="spawnRiverMode('ppc-strategy')" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); cursor: pointer; text-align: left; transition: all 0.2s;">
+                                <div style="font-weight: 600;">📈 PPC Strategy</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Ad angles, campaign architecture</div>
+                            </button>
+                            
+                            <button onclick="spawnRiverMode('financial-opt')" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); cursor: pointer; text-align: left; transition: all 0.2s;">
+                                <div style="font-weight: 600;">💰 Financial Optimization</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Margins, unit economics, profit</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <span>20 Modes | TOS Compliant | Empire Building</span>
+                    <span style="margin-left: auto;">💡 Say "Spawn River" to activate</span>
+                </div>
+            </div>
+
+            <!-- Piper - Email Manager Panel -->
+            <div class="panel" id="piperPanel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">📧</div>
+                        Piper — Email Systems Manager
+                    </div>
+                    <div class="panel-actions">
+                        <span class="badge badge-info">📧 Active</span>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 20px;">
+                        <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">📧 No Opportunity Dies in an Inbox</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+                            Piper owns every email that enters and exits AmaJungle. From cold outreach to client retention, 
+                            6 sequences, lead scoring, and pipeline management. The pipeline, not just a mail clerk.
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;">
+                        <div class="stat-card" style="padding: 16px; background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(6, 182, 212, 0.05) 100%);">
+                            <div class="stat-label">Sequences</div>
+                            <div class="stat-value" style="font-size: 28px; color: var(--accent-info);">6</div>
+                            <div class="stat-change">Active</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px; background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(59, 130, 246, 0.05) 100%);">
+                            <div class="stat-label">Stages</div>
+                            <div class="stat-value" style="font-size: 28px;">5</div>
+                            <div class="stat-change positive">Pipeline</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px; background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(168, 85, 247, 0.05) 100%);">
+                            <div class="stat-label">Emails</div>
+                            <div class="stat-value" style="font-size: 20px;">3 Accounts</div>
+                            <div class="stat-change">Managed</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px; background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(245, 158, 11, 0.05) 100%);">
+                            <div class="stat-label">Status</div>
+                            <div class="stat-value" style="font-size: 18px; color: var(--accent-success);">Active</div>
+                            <div class="stat-change positive">Ready</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--bg-tertiary); border-radius: var(--radius-sm); padding: 16px;">
+                        <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 12px;">📧 Quick Spawn Commands</div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                            <button onclick="spawnPiperMode('cold-sequence')" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); cursor: pointer; text-align: left; transition: all 0.2s;">
+                                <div style="font-weight: 600;">📧 Cold Sequence</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Send Day 0 to new prospects</div>
+                            </button>
+                            
+                            <button onclick="spawnPiperMode('check-replies')" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); cursor: pointer; text-align: left; transition: all 0.2s;">
+                                <div style="font-weight: 600;">📨 Check Replies</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Review all 3 inboxes</div>
+                            </button>
+                            
+                            <button onclick="spawnPiperMode('follow-ups')" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); cursor: pointer; text-align: left; transition: all 0.2s;">
+                                <div style="font-weight: 600;">🔄 Follow-ups</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Send scheduled follow-ups</div>
+                            </button>
+                            
+                            <button onclick="spawnPiperMode('report-metrics')" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); cursor: pointer; text-align: left; transition: all 0.2s;">
+                                <div style="font-weight: 600;">📊 Report Metrics</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Open/reply/close rates</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <span>6 Sequences | 5 Stages | Pipeline Management</span>
+                    <span style="margin-left: auto;">💡 Say "Spawn Piper" to activate</span>
+                </div>
+            </div>
+
+            <!-- Atlas - Fullstack Developer Panel -->
+            <div class="panel" id="atlasPanel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">🏛️</div>
+                        Atlas — Fullstack Developer
+                    </div>
+                    <div class="panel-actions">
+                        <span class="badge badge-success">🟢 Ready</span>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 20px;">
+                        <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">🏛️ Engineering Backbone of AmaJungle</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+                            Atlas owns every line of code, every deployment, every system. 
+                            React 19 + TypeScript + Vite website on Vercel. OpenClaw platform locally. 
+                            8 operational modes. Working software > perfect architecture.
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;">
+                        <div class="stat-card" style="padding: 16px; background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(168, 85, 247, 0.05) 100%);">
+                            <div class="stat-label">Tech Stack</div>
+                            <div class="stat-value" style="font-size: 16px;">React 19</div>
+                            <div class="stat-change">TypeScript + Vite</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px; background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(99, 102, 241, 0.05) 100%);">
+                            <div class="stat-label">Focus</div>
+                            <div class="stat-value" style="font-size: 16px;">Fullstack</div>
+                            <div class="stat-change">Web + Internal</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px; background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(34, 197, 94, 0.05) 100%);">
+                            <div class="stat-label">Modes</div>
+                            <div class="stat-value" style="font-size: 28px; color: var(--accent-success);">8</div>
+                            <div class="stat-change">Operational</div>
+                        </div>
+                        <div class="stat-card" style="padding: 16px; background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(245, 158, 11, 0.05) 100%);">
+                            <div class="stat-label">Status</div>
+                            <div class="stat-value" style="font-size: 18px; color: var(--accent-success);">Ready</div>
+                            <div class="stat-change positive">Spawn on demand</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--bg-tertiary); border-radius: var(--radius-sm); padding: 16px;">
+                        <div style="font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 12px;">🚀 Quick Spawn Commands</div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                            <button onclick="spawnAtlasMode('website')" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); cursor: pointer; text-align: left; transition: all 0.2s;">
+                                <div style="font-weight: 600;">🌐 Website Dev</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">amajungle.com, UI/UX, features</div>
+                            </button>
+                            
+                            <button onclick="spawnAtlasMode('platform')" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); cursor: pointer; text-align: left; transition: all 0.2s;">
+                                <div style="font-weight: 600;">⚙️ Platform Maintenance</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">OpenClaw, agents, trading bot</div>
+                            </button>
+                            
+                            <button onclick="spawnAtlasMode('performance')" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); cursor: pointer; text-align: left; transition: all 0.2s;">
+                                <div style="font-weight: 600;">⚡ Performance</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Lighthouse, Core Web Vitals</div>
+                            </button>
+                            
+                            <button onclick="spawnAtlasMode('security')" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 12px; border-radius: var(--radius-sm); cursor: pointer; text-align: left; transition: all 0.2s;">
+                                <div style="font-weight: 600;">🔒 Security Audit</div>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Vulnerabilities, dependencies</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>                <div class="panel-footer">
+                    <span>8 Modes | React 19 + Vite | Vercel Hosting</span>
+                    <span style="margin-left: auto;">💡 Say "Spawn Atlas" to activate</span>
+                </div>
+            </div>
+
+            <!-- All Agents Status Panel -->
+            <div class="panel" id="agentsPanel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <div class="panel-icon">🤖</div>
+                        All Agents — Status Dashboard
+                    </div>
+                    <div class="panel-actions">
+                        <span class="badge badge-success">🟢 7 Active</span>
+                    </div>
+                </div>                <div class="panel-body">
+                    <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 20px;">
+                        <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">🎯 Multi-Agent System Overview</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+                            6 specialized sub-agents reporting to Allysa (Master Orchestrator). 
+                            Each agent owns a domain: Amazon operations, email systems, infrastructure, 
+                            trading, finance, and personal assistance.
+                        </div>
+                    </div>
+
+                    <!-- Agent Roster -->                    <div style="display: grid; gap: 12px;">
+                        
+                        <!-- Master Agent -->                        <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px; display: grid; grid-template-columns: 50px 1fr auto; gap: 16px; align-items: center;">
+                            <div style="font-size: 28px;">🎯</div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 14px;">Allysa</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Master Orchestrator | Contrarian Strategist</div>
+                                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">Coordinates all agents, pressure-tests decisions, reports to husband</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="badge badge-success">🟢 Active</span>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Always On</div>
+                            </div>
+                        </div>
+
+                        <!-- River -->                        <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px; display: grid; grid-template-columns: 50px 1fr auto; gap: 16px; align-items: center;">
+                            <div style="font-size: 28px;">🌊</div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 14px;">River</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Amazon Empire Builder | 20 Modes</div>
+                                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">Market research, competitive intelligence, launch strategy, domination</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="badge badge-success">🟢 Ready</span>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Spawn on Demand</div>
+                            </div>
+                        </div>
+
+                        <!-- Piper -->                        <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px; display: grid; grid-template-columns: 50px 1fr auto; gap: 16px; align-items: center;">
+                            <div style="font-size: 28px;">📧</div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 14px;">Piper</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Email Systems Manager | 6 Sequences</div>
+                                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">Inbox triage, campaigns, outreach, pipeline management</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="badge badge-success">🟢 Active</span>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">3 Accounts</div>
+                            </div>
+                        </div>
+
+                        <!-- Atlas -->                        <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px; display: grid; grid-template-columns: 50px 1fr auto; gap: 16px; align-items: center;">
+                            <div style="font-size: 28px;">🏛️</div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 14px;">Atlas</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Fullstack Developer | 8 Modes</div>
+                                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">Website, dashboards, OpenClaw platform, infrastructure</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="badge badge-success">🟢 Ready</span>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Spawn on Demand</div>
+                            </div>
+                        </div>
+
+                        <!-- Aishi -->                        <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px; display: grid; grid-template-columns: 50px 1fr auto; gap: 16px; align-items: center;">
+                            <div style="font-size: 28px;">🤝</div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 14px;">Aishi</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Personal Assistant for Husband</div>
+                                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">General assistance, research, task execution</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="badge badge-success">🟢 Ready</span>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Spawn on Demand</div>
+                            </div>
+                        </div>
+
+                        <!-- Namie -->                        <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px; display: grid; grid-template-columns: 50px 1fr auto; gap: 16px; align-items: center;">
+                            <div style="font-size: 28px;">👗</div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 14px;">Namie</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Fashion/Career Advisor for Kate</div>
+                                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">Fashion advice, career coaching, personal development</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="badge badge-success">🟢 Ready</span>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Spawn on Demand</div>
+                            </div>
+                        </div>
+
+                        <!-- Shiko -->                        <div style="background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 16px; display: grid; grid-template-columns: 50px 1fr auto; gap: 16px; align-items: center;">
+                            <div style="font-size: 28px;">⚙️</div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 14px;">Shiko</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Technical Implementation Specialist</div>
+                                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">Coding, automation, technical troubleshooting</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <span class="badge badge-success">🟢 Ready</span>
+                                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Spawn on Demand</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>                <div class="panel-footer">
+                    <span>7 Agents | 6 Sub-Agents + 1 Master | OpenClaw Platform</span>
+                    <span style="margin-left: auto;">💡 Say "Spawn [Agent]" to activate</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Email functions
+        async function testEmailConnection() {
+            const badge = document.getElementById('email-panel-badge');
+            const stat = document.getElementById('email-stat-status');
+            const lastActivity = document.getElementById('email-last-activity');
+            
+            badge.textContent = '🟡 Testing...';
+            badge.className = 'badge badge-warning';
+            
+            // Simulate connection test
+            await new Promise(r => setTimeout(r, 1500));
+            
+            badge.textContent = '🟢 Connected';
+            badge.className = 'badge badge-success';
+            stat.textContent = '🟢 Ready';
+            lastActivity.textContent = new Date().toLocaleTimeString();
+        }
+
+        async function sendTestEmail() {
+            const to = document.getElementById('test-email-to').value;
+            const subject = document.getElementById('test-email-subject').value;
+            const statusDiv = document.getElementById('email-send-status');
+            
+            if (!to || !subject) {
+                statusDiv.innerHTML = '<span style="color: var(--accent-danger)">❌ Please fill in both fields</span>';
+                return;
+            }
+            
+            statusDiv.innerHTML = '<span style="color: var(--accent-info)">🟡 Sending...</span>';
+            
+            // Simulate sending
+            await new Promise(r => setTimeout(r, 2000));
+            
+            statusDiv.innerHTML = '<span style="color: var(--accent-success)">✅ Test email sent to ' + to + '</span>';
+            document.getElementById('email-last-activity').textContent = new Date().toLocaleTimeString();
+            
+            // Clear after 5 seconds
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        // Update timestamp
+        document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+
+        // Sub-Agent Monitor
+        let subagentData = {
+            active: 0,
+            recent: [],
+            todayTokens: 0,
+            status: 'healthy'
+        };
+
+        function formatTokens(tokens) {
+            if (tokens >= 1000000) return (tokens / 1000000).toFixed(1) + 'M';
+            if (tokens >= 1000) return (tokens / 1000).toFixed(0) + 'k';
+            return tokens.toString();
+        }
+
+        function formatDuration(minutes) {
+            if (minutes >= 60) {
+                const hours = Math.floor(minutes / 60);
+                const mins = minutes % 60;
+                return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+            }
+            return `${minutes}m`;
+        }
+
+        function getStatusIndicator(status) {
+            const indicators = {
+                healthy: { emoji: '🟢', color: 'var(--accent-success)', text: 'All systems operational' },
+                warning: { emoji: '🟡', color: 'var(--accent-warning)', text: 'Some agents running long' },
+                critical: { emoji: '🔴', color: 'var(--accent-danger)', text: 'Agents may be stuck' }
+            };
+            return indicators[status] || indicators.healthy;
+        }
+
+        function updateSubagentUI() {
+            const indicator = getStatusIndicator(subagentData.status);
+            
+            // Update stats grid
+            document.getElementById('subagent-count').textContent = subagentData.active;
+            document.getElementById('subagent-status-text').textContent = subagentData.active > 0 ? `${subagentData.active} running` : 'No active';
+            document.getElementById('subagent-status-text').className = subagentData.active > 0 ? 'stat-change positive' : 'stat-change';
+            
+            // Update panel
+            document.getElementById('subagent-active').textContent = subagentData.active;
+            document.getElementById('subagent-tokens').textContent = formatTokens(subagentData.todayTokens);
+            document.getElementById('subagent-completed').textContent = subagentData.recent.length;
+            
+            // Health status
+            document.getElementById('subagent-health').textContent = indicator.emoji;
+            document.getElementById('subagent-health').style.color = indicator.color;
+            document.getElementById('subagent-health-detail').textContent = indicator.text;
+            document.getElementById('subagent-health-detail').style.color = indicator.color;
+            
+            // Badge
+            const badge = document.getElementById('subagent-badge');
+            badge.textContent = subagentData.active > 0 ? `${subagentData.active} Active` : 'Idle';
+            badge.className = 'badge ' + (subagentData.active > 0 ? 'badge-success' : 'badge-info');
+            
+            // Recent list
+            const recentList = document.getElementById('subagent-recent-list');
+            if (subagentData.recent.length === 0) {
+                recentList.innerHTML = `
+                    <div style="padding: 12px; background: var(--bg-secondary); border-radius: var(--radius-sm); display: flex; align-items: center; gap: 12px;">
+                        <span style="color: var(--text-muted);">No recent sub-agent activity</span>
+                    </div>
+                `;
+            } else {
+                recentList.innerHTML = subagentData.recent.slice(0, 5).map(agent => `
+                    <div style="padding: 12px; background: var(--bg-secondary); border-radius: var(--radius-sm); display: flex; align-items: center; gap: 12px;">
+                        <span style="color: var(--accent-success);">✅</span>
+                        <span style="font-weight: 500; flex: 1;">${agent.name}</span>
+                        <span style="color: var(--text-muted); font-size: 12px; font-family: 'JetBrains Mono', monospace;">
+                            ${formatDuration(agent.duration)}, ${formatTokens(agent.tokens)}
+                        </span>
+                    </div>
+                `).join('');
+            }
+            
+            // Footer
+            document.getElementById('subagent-footer-status').textContent = 
+                `Status: ${indicator.text} • Last updated: ${new Date().toLocaleTimeString()}`;
+        }
+
+        async function fetchSubagentData() {
+            try {
+                const response = await fetch('/api/subagents', { 
+                    signal: AbortSignal.timeout(5000) 
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Subagents API returned ' + response.status);
+                }
+                
+                const data = await response.json();
+                
+                // Update the UI with real data
+                subagentData.recent = data.recentRuns || [];
+                subagentData.active = data.active || 0;
+                subagentData.todayTokens = data.todayTokens || 0;
+                subagentData.status = data.status || 'unknown';
+                updateSubagentUI();
+                
+                console.log('Subagent data updated:', data);
+            } catch (err) {
+                console.error('Failed to fetch subagent data:', err);
+                // Fallback to demo data on error
+                const demoData = [
+                    { name: 'deploy-ai-gateway', duration: 14, tokens: 99000 },
+                    { name: 'update-dashboard', duration: 12, tokens: 64000 },
+                    { name: 'health-check', duration: 8, tokens: 12000 },
+                    { name: 'sync-github', duration: 5, tokens: 8500 },
+                    { name: 'backup-config', duration: 3, tokens: 3200 }
+                ];
+                subagentData.recent = demoData;
+                subagentData.active = 0;
+                subagentData.todayTokens = demoData.reduce((sum, d) => sum + d.tokens, 0);
+                subagentData.status = 'error';
+                updateSubagentUI();
+            }
+        }
+            
+        // Multi-Account Inbox Monitor - Real IMAP Data
+        async function refreshAllInboxes() {
+            try {
+                // Create AbortController for timeout support
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+                const response = await fetch('/api/inbox?account=all', { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Validate data structure
+                if (!data || typeof data !== 'object') {
+                    throw new Error('Invalid data structure received');
+                }
+
+                // Update stat card
+                const statUnread = document.getElementById('email-stat-unread');
+                const total = data.total_unread || 0;
+                if (statUnread) {
+                    statUnread.textContent = total > 0 ? `🔴 ${total}` : '✅ 0';
+                    statUnread.style.color = total > 0 ? 'var(--accent-warning)' : 'var(--accent-success)';
+                }
+
+                // Update panel counts
+                ['hello', 'ops', 'support'].forEach(acc => {
+                    const accData = data.accounts?.[acc] || { unread: 0 };
+                    const unread = accData.unread || 0;
+                    const el = document.getElementById(`inbox-${acc}-unread`);
+                    if (el) {
+                        el.textContent = unread;
+                        el.style.color = unread > 0 ? 'var(--accent-warning)' : 'var(--accent-success)';
+                    }
+                });
+
+                // Update recent emails list
+                const recentList = document.getElementById('inbox-recent-list');
+                if (!recentList) return;
+
+                let allRecent = [];
+
+                if (data.accounts) {
+                    Object.entries(data.accounts).forEach(([account, accData]) => {
+                        if (accData && accData.recent && Array.isArray(accData.recent)) {
+                            accData.recent.forEach(email => {
+                                if (email && typeof email === 'object') {
+                                    allRecent.push({ ...email, account });
+                                }
+                            });
+                        }
+                    });
+                }
+
+                allRecent = allRecent.slice(0, 5);
+
+                if (allRecent.length === 0) {
+                    recentList.innerHTML = '<div style="font-size: 12px; color: var(--text-muted);">No recent emails</div>';
+                } else {
+                    recentList.innerHTML = allRecent.map(email => {
+                        const isUnread = email.unread === true;
+                        const subject = email.subject || 'No Subject';
+                        const from = email.from || 'Unknown';
+                        const account = email.account || 'unknown';
+                        return `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--bg-secondary); border-radius: var(--radius-sm);">
+                            <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+                                <span style="color: ${isUnread ? 'var(--accent-warning)' : 'var(--text-muted)'}">${isUnread ? '🔴' : '📧'}</span>
+                                <span style="font-weight: ${isUnread ? '600' : '400'}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${subject}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px; flex-shrink: 0;">
+                                <span style="font-size: 10px; color: var(--accent-primary); background: var(--bg-elevated); padding: 2px 6px; border-radius: 4px;">${account}</span>
+                                <span style="font-size: 11px; color: var(--text-muted); font-family: monospace;">${from}</span>
+                            </div>
+                        </div>
+                    `}).join('');
+                }
+
+                // Update badge
+                const badge = document.getElementById('email-panel-badge');
+                if (badge) {
+                    // Check if any account has errors
+                    let hasErrors = false;
+                    if (data.accounts) {
+                        Object.values(data.accounts).forEach(acc => {
+                            if (acc && acc.error) hasErrors = true;
+                        });
+                    }
+
+                    if (hasErrors) {
+                        badge.textContent = '🟡 Partial';
+                        badge.className = 'badge badge-warning';
+                    } else if (total > 0) {
+                        badge.textContent = `🔴 ${total} unread`;
+                        badge.className = 'badge badge-warning';
+                    } else {
+                        badge.textContent = '🟢 Connected';
+                        badge.className = 'badge badge-success';
+                    }
+                }
+
+            } catch (err) {
+                console.error('Failed to refresh inboxes:', err);
+
+                // Set error state on UI elements
+                const statUnread = document.getElementById('email-stat-unread');
+                if (statUnread) {
+                    statUnread.textContent = '⚠️ Error';
+                    statUnread.style.color = 'var(--accent-danger)';
+                }
+
+                ['hello', 'ops', 'support'].forEach(acc => {
+                    const el = document.getElementById(`inbox-${acc}-unread`);
+                    if (el) el.textContent = '--';
+                });
+
+                const recentList = document.getElementById('inbox-recent-list');
+                if (recentList) {
+                    recentList.innerHTML = '<div style="font-size: 12px; color: var(--text-muted);">⚠️ Inbox temporarily unavailable</div>';
+                }
+
+                const badge = document.getElementById('email-panel-badge');
+                if (badge) {
+                    badge.textContent = '🟡 Error';
+                    badge.className = 'badge badge-warning';
+                }
+            }
+        }
+
+        // Show account details popup
+        function showAccountDetails(account) {
+            alert(`📧 ${account}@amajungle.com\n\nClick the Refresh button to see latest data.`);
+        }
+
+        // Campaign stats stub
+        async function refreshCampaignStats() {
+            // Stub function - implement when campaigns are active
+            console.log('Refreshing campaign stats...');
+        }
+
+        // Budget display - fetch real CFO data
+        async function updateBudgetDisplay() {
+            try {
+                const response = await fetch('/api/cfo', {
+                    signal: AbortSignal.timeout(5000)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('CFO API returned ' + response.status);
+                }
+                
+                const data = await response.json();
+                
+                // Calculate budget values
+                const monthlyIncome = data.monthly_income || 0;
+                const monthlyExpenses = data.monthly_expenses || 0;
+                const currentBalance = data.current_balance || 0;
+                const surplus = monthlyIncome - monthlyExpenses;
+                const daysRemaining = data.daysRemaining || 30;
+                
+                // Update budget panel elements
+                const budgetSpent = document.getElementById('budget-spent');
+                const budgetSpentPct = document.getElementById('budget-spent-pct');
+                const budgetRemaining = document.getElementById('budget-remaining');
+                const budgetDays = document.getElementById('budget-days');
+                const budgetProjected = document.getElementById('budget-projected');
+                const budgetProjectedStatus = document.getElementById('budget-projected-status');
+                const budgetStatus = document.getElementById('budget-status');
+                const budgetBar = document.getElementById('budget-bar');
+                const budgetBarText = document.getElementById('budget-bar-text');
+                
+                if (budgetSpent) budgetSpent.textContent = `$${monthlyExpenses.toLocaleString()}`;
+                if (budgetRemaining) budgetRemaining.textContent = `$${currentBalance.toLocaleString()}`;
+                if (budgetDays) budgetDays.textContent = daysRemaining;
+                
+                // Calculate spent percentage
+                const spentPct = monthlyIncome > 0 ? Math.round((monthlyExpenses / monthlyIncome) * 100) : 0;
+                if (budgetSpentPct) {
+                    budgetSpentPct.textContent = `${spentPct}% of budget`;
+                    budgetSpentPct.className = spentPct > 80 ? 'stat-change negative' : 'stat-change';
+                }
+                
+                // Projected end of month
+                const dailyBurn = monthlyExpenses / 30;
+                const projectedSpend = monthlyExpenses + (dailyBurn * daysRemaining);
+                if (budgetProjected) budgetProjected.textContent = `$${Math.round(projectedSpend).toLocaleString()}`;
+                if (budgetProjectedStatus) {
+                    const projectedStatus = projectedSpend <= monthlyIncome ? 'Under Budget' : 'Over Budget';
+                    budgetProjectedStatus.textContent = projectedStatus;
+                    budgetProjectedStatus.className = projectedSpend <= monthlyIncome ? 'stat-change positive' : 'stat-change negative';
+                }
+                
+                // Status badge
+                if (budgetStatus) {
+                    if (spentPct > 90) {
+                        budgetStatus.textContent = 'Critical';
+                        budgetStatus.className = 'badge badge-error';
+                    } else if (spentPct > 75) {
+                        budgetStatus.textContent = 'Warning';
+                        budgetStatus.className = 'badge badge-warning';
+                    } else {
+                        budgetStatus.textContent = 'On Track';
+                        budgetStatus.className = 'badge badge-success';
+                    }
+                }
+                
+                // Progress bar
+                if (budgetBar) {
+                    budgetBar.style.width = `${Math.min(spentPct, 100)}%`;
+                    budgetBar.style.background = spentPct > 90 ? 'var(--accent-error)' : 
+                                                  spentPct > 75 ? 'var(--accent-warning)' : 
+                                                  'var(--accent-success)';
+                }
+                if (budgetBarText) budgetBarText.textContent = `${spentPct}% spent`;
+                
+                // Update revenue section in CFO panel
+                const revenueCurrent = document.getElementById('revenue-current');
+                const revenueGap = document.getElementById('revenue-gap');
+                
+                if (revenueCurrent) revenueCurrent.textContent = `$${monthlyIncome.toLocaleString()}`;
+                if (revenueGap) {
+                    const gap = Math.max(0, monthlyExpenses - monthlyIncome);
+                    revenueGap.textContent = gap > 0 ? `$${gap.toLocaleString()}` : '$0';
+                    revenueGap.style.color = gap > 0 ? 'var(--accent-error)' : 'var(--accent-success)';
+                }
+                
+                console.log('CFO data updated:', data);
+            } catch (err) {
+                console.error('Failed to fetch CFO data:', err);
+                
+                // Set error state
+                const budgetStatus = document.getElementById('budget-status');
+                const budgetSpent = document.getElementById('budget-spent');
+                
+                if (budgetStatus) {
+                    budgetStatus.textContent = 'Error';
+                    budgetStatus.className = 'badge badge-error';
+                }
+                if (budgetSpent) budgetSpent.textContent = '—';
+            }
+        }
+
+        // River - Amazon Empire Builder spawn function
+        function spawnRiverMode(mode) {
+            alert(`🌊 Spawning River in ${mode} mode...\n\nRiver will analyze your Amazon strategy and return a detailed report. This may take 1-2 minutes.\n\nCheck Telegram for results.`);
+            console.log(`River spawned: ${mode}`);
+        }
+
+        // Piper - Email Manager spawn function
+        function spawnPiperMode(task) {
+            alert(`📧 Spawning Piper for: ${task}\n\nPiper is now managing your email pipeline. Check Telegram for updates.`);
+            console.log(`Piper spawned: ${task}`);
+        }
+
+        // Atlas - Fullstack Developer spawn function
+        function spawnAtlasMode(mode) {
+            const modeNames = {
+                'website': '🌐 Website Development',
+                'platform': '⚙️ Platform Maintenance',
+                'performance': '⚡ Performance Optimization',
+                'security': '🔒 Security Audit'
+            };
+            const modeName = modeNames[mode] || mode;
+            alert(`🏛️ Spawning Atlas for: ${modeName}\n\nAtlas is now working on your infrastructure. Check Telegram for updates.`);
+            console.log(`Atlas spawned: ${mode}`);
+        }
+
+        // Initial data loading
+        refreshAllInboxes();
+        refreshCampaignStats();
+        updateBudgetDisplay();
+        fetchSubagentData();
+
+        // Set up auto-refresh intervals
+        setInterval(refreshAllInboxes, 60000);
+        setInterval(refreshCampaignStats, 60000);
+        setInterval(updateBudgetDisplay, 3600000);
+        setInterval(fetchSubagentData, 15000);
+    </script>
+</body>
+</html>

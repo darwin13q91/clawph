@@ -1,0 +1,335 @@
+# MEMORY — Master Agent (Allysa)
+
+## Agent Memory System (New — March 10, 2026)
+**Location:** `/memory/agents/`
+
+**Purpose:** Centralized logging for all sub-agent activity, decisions, and errors.
+
+### Structure
+```
+/memory/agents/
+├── daily/
+│   ├── 2026-03-10_river.md      # River's daily activity
+│   ├── 2026-03-10_atlas.md      # Atlas's daily activity
+│   ├── 2026-03-10_piper.md      # Piper's daily activity
+│   └── 2026-03-10_echo.md       # Echo's daily activity
+├── decisions/
+│   └── 2026-03.json             # Agent decisions with outcomes
+├── errors/
+│   └── 2026-03.json             # Errors and resolutions
+└── patterns/
+    └── weekly-summary.md        # Fleet-wide pattern analysis
+```
+
+### What's Logged
+| Agent | Daily | Decisions | Errors |
+|-------|-------|-----------|--------|
+| **River** | Audits completed, scores | Pricing/positioning calls | Analysis failures |
+| **Atlas** | Deployments, health checks | Infrastructure changes | System incidents |
+| **Piper** | Emails sent, metrics | Campaign/pipeline moves | Delivery issues |
+| **Echo** | Emails processed, queue | Escalation reasons | Reply failures |
+
+### How to Use
+- **Daily review:** Check `/memory/agents/daily/` for yesterday's activity
+- **Weekly patterns:** Read `/memory/agents/patterns/weekly-summary.md`
+- **Decision audit:** Review `/memory/agents/decisions/` for outcome tracking
+- **Error analysis:** Check `/memory/agents/errors/` for recurring issues
+
+---
+
+## System Overview
+- **Master Agent:** Allysa (contrarian strategist)
+- **Active Sub-Agents:** Echo, River, Piper, Atlas, Shiko
+- **Config-Only Agents:** Aishi, Namie
+- **Personal Agent:** Husband (with Kate/Darwin bot)
+
+## Agent Structure (Cleaned March 7, 2026)
+**Removed 20 unused agents:**
+- 7 demo/test agents (demo_client, bobs_restaurant, etc.)
+- 13 generic role templates (analyst, sales-agent, etc.)
+
+**Remaining 8 functional agents:**
+
+## Workspace Structure
+
+### Standard Agent Path (Production)
+**All agents live in:** `/home/darwin/.openclaw/agents/`
+
+### Agent Types
+
+| Type | Structure | Agents |
+|------|-----------|--------|
+| **OpenClaw Native** | `agent/`, `sessions/` | Allysa (master), Shiko |
+| **AI Persona OS** | `SOUL.md`, `data/`, `scripts/`, `skills/`, `README.md` | Echo, River, Atlas, Piper |
+| **Config Only** | Documented in AGENTS.md | Aishi, Namie |
+
+### Active Agent Paths
+```
+/agents/
+├── master/          # Allysa - Master Orchestrator (OpenClaw)
+├── echo/            # Echo - Email Support (AI Persona OS)
+├── river/           # River - Amazon Specialist (AI Persona OS)
+├── piper/           # Piper - Email Systems (AI Persona OS)
+├── atlas/           # Atlas - Infrastructure (AI Persona OS)
+└── shiko/           # Shiko - Technical (OpenClaw)
+```
+
+### Key Workspace Paths
+| Path | Purpose |
+|------|---------|
+| `/agents/<name>/` | Agent configurations and code |
+| `/memory/` | Daily logs and decision records |
+| `/skills/` | Reusable skill modules |
+| `/.env` | Credentials and secrets |
+
+## Key Decisions Log
+
+### March 18, 2026
+- ✅ **Pipeline v3 — Scout Primary, RapidAPI Backup** — Changed audit data flow
+  - **NEW:** Echo → Scout (browser) → [fallback] → RapidAPI → River → Piper → Client
+  - **OLD:** Echo → RapidAPI → River → Piper → Client
+  - Scout attempts visual audit first (90s timeout)
+  - If Scout fails/times out → automatic RapidAPI fallback
+  - Better data quality: browser-rendered page + screenshots
+  - Telegram alerts now show source: 🎯 Scout or ⚡ RapidAPI
+  - Updated: `pipeline_bridge.py`, `config.py`, `echo_monitor.py`
+- ✅ **Echo fixes** — Blocked emails now properly enforced (config import path fix)
+- ✅ **Duplicate prevention** — Added fingerprint tracking (60-min window)
+- ✅ **System email filtering** — Added IGNORED_SENDERS list (mailer-daemon, postmaster, etc.)
+- ✅ **Domain blocking** — Added jellyfish.systems (bounce emails)
+- ✅ **Fleet audit** — Verified all 12 agents, 12 skills, 9 SOULs intact
+
+### March 7, 2026
+- ✅ **Agent cleanup** — Deleted 20 unused agents (7 demo + 13 generic templates)
+- ✅ **Agent inventory** — Consolidated to 8 functional agents
+- ✅ **Calendly consistency** — All email templates now use 30-min (was 15-min)
+- ✅ **RapidAPI dual provider** — Real-Time Amazon Data + Axesso (1000 req/mo total)
+- ✅ **Store Health Check v2** — Category-aware scoring (consumables vs high-ticket)
+- ✅ **Audit automation LIVE** — Form → Echo → RapidAPI → River → Piper = fully automated
+- ✅ **21 audits processed** — Knog (40/100), Little Hotties (71/100), KALIDI (40/100)
+- ✅ **Dashboard v2** — Real-time agent status + animations (port 8789)
+
+### March 6, 2026
+- ✅ Fixed Echo email signature duplication issue
+- ✅ Applied dark green Amajungle HTML signature to all email scripts
+- ✅ Echo agent moved to correct location (/agents/echo/)
+- ✅ Tested email sending from hello@ and support@ amajungle.com
+- ✅ Memory system path issues identified
+- ✅ **Workspace cleanup** — Archived 37 old files (patches, setups, configs, docs) to ARCHIVED/
+- ✅ Consolidated all agents to /agents/ path
+- ✅ Added Telegram notifications to Echo
+- ✅ Fixed Echo contact form handling (extracts email from body)
+
+### March 5, 2026
+- ✅ Echo SOUL finalized (824 lines, 16 templates, 3-tier classification)
+- ✅ Echo monitor script created and configured
+- ✅ Echo checking hello@, support@, ops@amajungle.com every 5 minutes
+- ✅ Email reply system with queue/approval workflow working
+- ⚠️ Memory capture gaps detected - detailed configs not fully logged
+
+### March 2, 2026
+- Created Husband agent with 6 skills
+- Transferred Allysa→Kate naming
+- Fixed SOUL paths
+- Set up HEARTBEAT tasks
+
+## User Preferences
+
+### Husband (6504570121)
+- Income: $1,800/month
+- Timezone: Asia/Manila
+- Vibe: Playful, automation-obsessed
+- Loves: Systems, scripts, no manual work
+
+### Vercel Deployment
+- **Account:** darwin13q91@gmail.com (NOT darwin@amajungle.com)
+- **Project:** amajungleai
+- **Team:** darwin13q91's projects
+- **Auto-deploy:** Enabled on push to main
+
+### Kate (6911459418)
+- Access: Personal AI (Darwin)
+- Skills: Fashion, career, finance, travel, etc.
+
+## Active Projects
+1. **Echo (Email Support)** — Inbound email monitoring for amajungle.com accounts
+2. **Command Center** — Dashboard on port 8888
+3. **Multi-Agent System** — 8 agents configured (Allysa + 7 sub-agents)
+4. **Email Outreach** — B2B cold email system for amajungle
+5. **Amazon Specialist** — River: Amazon operations for client services
+6. **Email Management** — Piper: Email systems and campaigns
+7. **Infrastructure** — Atlas: Website and dashboard maintenance
+
+### Vercel Deployment (amajungle.com)
+- **Account:** `darwin13q91@gmail.com` (NOT darwin@amajungle.com)
+- **Repo:** `darwin13q91/amajungle`
+- **Project:** amajungle
+- **Domain:** amajungle.com
+
+## Agent Inventory (8 Active)
+| Agent | Role | Status | Location | Structure |
+|-------|------|--------|----------|-----------|
+| Allysa | Master Orchestrator | 🟢 Active | `/agents/master/` | OpenClaw native |
+| Echo | Support & Inbox Manager | 🟢 Active (cron) | `/agents/echo/` | AI Persona OS |
+| River | Amazon Specialist | 🟢 Active | `/agents/river/` | AI Persona OS |
+| Piper | Email Systems Manager | 🟢 Active | `/agents/piper/` | AI Persona OS |
+| Atlas | Infrastructure Specialist | 🟢 Active | `/agents/atlas/` | AI Persona OS |
+| Shiko | Technical Specialist | 🟢 Ready | `/agents/shiko/` | OpenClaw native |
+| Aishi | Personal Assistant | 🟢 Ready | Config only | AGENTS.md |
+| Namie | Fashion/Careur Advisor | 🟢 Ready | Config only | AGENTS.md |
+
+### Sub-Agent Spawn Timeout Convention
+| Task Type | Timeout | Example |
+|-----------|---------|---------|
+| **Quick tasks** (1-liners, reads) | 60s | Read file, check status |
+| **Standard tasks** (small edits) | 180s (3 min) | Update copy, fix typos |
+| **Code reviews / audits** | 1200s (20 min) | Full codebase analysis |
+| **Complex builds** | 1200s+ (20+ min) | Multi-file refactoring |
+
+**Rule:** Always specify `runTimeoutSeconds` explicitly. Default is often too short (30-60s).
+
+## Audit Automation Pipeline (LIVE)
+
+**Workflow:** Form → Echo → RapidAPI → River v2 → Piper → Client Email
+
+```
+Client submits on amajungle.com
+           ↓
+    Email to hello@/support@
+           ↓
+    Echo (every 5 min cron)
+           ↓
+    Extract ASIN from URL
+           ↓
+    RapidAPI Proxy (dual provider)
+           ↓
+    River v2 Category-Aware Analysis
+           ↓
+    Score /100 with specific findings
+           ↓
+    Piper sends audit email
+           ↓
+    Client receives + Calendly link
+```
+
+**v2 Scoring Framework:**
+- Consumables ($5-30): 39 reviews = GOOD (Little Hotties: 71/100)
+- High-Ticket ($80+): 17 reviews = WEAK (Knog: 40/100)
+- Category-aware benchmarks, not universal
+
+**Current Stats:**
+- 21 audits processed
+- 95% conversion rate
+- Avg score: 47/100
+
+---
+
+## RapidAPI Configuration
+
+**Provider 1: Real-Time Amazon Data**
+- Endpoints: product-details, search, product-reviews
+- Free tier: 500 requests/month
+- Status: ✅ Active
+
+**Provider 2: Axesso**
+- Endpoints: seller-lookup, product-alternatives
+- Free tier: 500 requests/month  
+- Status: ✅ Active
+
+**Combined:** 1,000 free requests/month
+
+**Dashboard:** `http://localhost:8789`
+- Real-time API usage tracking (both providers)
+- Live audit queue and stats
+- Agent status monitoring with animations
+
+---
+
+## Email Infrastructure (Current — March 2026)
+
+**Outbound Email API:**
+- **Endpoint:** `/api/send-email` (POST)
+- **Provider:** PrivateEmail SMTP
+- **Service:** Amajungle Email API v1.0.0
+- **Health Check:** `/health` (GET)
+- **Status:** Active
+
+**Email Flow:**
+1. Website form submits to `/api/send-email`
+2. PrivateEmail SMTP sends from hello@amajungle.com
+3. Echo monitors hello@/support@/ops@ for replies
+
+---
+
+## Echo Email Agent — Quick Reference
+
+**What:** Inbound email support for amajungle.com  
+**Where:** `/home/darwin/.openclaw/agents/echo/`  
+**Monitors:** hello@, support@, ops@amajungle.com  
+**How Often:** Every 5 minutes (cron)  
+
+**Key Files:**
+- `SOUL.md` — Agent personality & templates
+- `scripts/echo_monitor.py` — Checks inbox
+- `scripts/echo_reply.py` — Sends replies
+- `data/signature.html` — Dark green HTML signature
+
+**To Send Queued Emails:**
+```bash
+cd /home/darwin/.openclaw/agents/echo && python3 scripts/echo_reply.py approve-all
+```
+
+**Full config:** See `/home/darwin/.openclaw/workspace/memory/echo-configuration.md`
+
+---
+
+## Agent Orchestration Protocol
+
+**Role:** Allysa spawns sub-agents based on task type  
+**Log:** `/home/darwin/.openclaw/workspace/memory/agent-orchestration.md`  
+
+### Spawn Rules
+| Task Type | Agent | Mode |
+|-----------|-------|------|
+| Personal tasks | Aishi | Spawn |
+| Fashion/Career (Kate) | Namie | Spawn |
+| Technical coding | Shiko | Spawn |
+| Amazon operations | River | Spawn |
+| Email campaigns | Piper | Spawn |
+| Infrastructure | Atlas | Spawn |
+| Email replies | Echo | Pre-running (cron) |
+| Simple 1-step | — | Inline |
+
+### Current Status
+```
+🟢 Echo      - Running (cron every 5 min)
+🟢 Atlas     - Available
+🟢 Piper     - Available
+🟢 River     - Available
+🟢 Shiko     - Available
+🟢 Aishi     - Available
+🟢 Namie     - Available
+```
+
+### Spawn Report Format
+Every reply will include:
+```
+📊 Agent Activity:
+- Spawned: [Agent] for [Task]
+- Inline: [Task]
+- Pre-running: [Echo/Atlas cron jobs]
+```
+
+## Budget Tracking
+- Monthly: $1,800
+- Status: Not actively tracking yet
+
+## Security Status
+- Telegram: Locked down (allowlist only)
+- Gateway: Running on 18789
+- No critical warnings
+
+## Notes
+- Husband builds systems for a living — automate everything
+- Kate gets personal AI support via Darwin
+- Trading: 20 max positions, 15% stop loss

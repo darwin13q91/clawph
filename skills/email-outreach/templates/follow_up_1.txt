@@ -1,0 +1,9 @@
+Hi {{name}},
+
+Quick follow-up on my email from a few days ago about automating {{company}}'s Amazon operations.
+
+I know you're busy, so I'll keep this short:
+
+We help Amazon sellers with {{sku_count}}+ SKUs save 10+ hours/week on manual tasks (inventory, pricing, reporting).
+
+Worth a brief chat? If not, no problem — I won't follow up again.
