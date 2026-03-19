@@ -254,7 +254,7 @@ export default function HeroSection() {
               </CalendlyButton>
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                onClick={() => scrollToSection('audit')}
+                onClick={() => scrollToSection('process')}
                 className="btn-secondary w-full sm:w-auto flex items-center justify-center gap-2"
               >
                 <Play size={18} />
