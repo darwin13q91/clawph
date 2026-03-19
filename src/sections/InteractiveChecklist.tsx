@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Circle, Sparkles, ArrowRight } from 'lucide-react';
+import { Check, Sparkles, ArrowRight } from 'lucide-react';
 
 const checklistItems = [
   { id: 1, text: 'Connect Amazon account', completed: true },

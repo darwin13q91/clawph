@@ -4,7 +4,6 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Toaster } from 'sonner';
 import { Analytics } from '@vercel/analytics/react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 import Navigation from './components/Navigation';
 import Footer from './components/Footer';
@@ -23,7 +22,6 @@ import InteractiveChecklist from './sections/InteractiveChecklist';
 import InteractiveFAQ from './sections/InteractiveFAQ';
 import HowItWorksSection from './sections/HowItWorksSection';
 import SimplePricingSection from './sections/SimplePricingSection';
-import SimpleFAQSection from './sections/SimpleFAQSection';
 import ContactSection from './sections/ContactSection';
 
 gsap.registerPlugin(ScrollTrigger);
