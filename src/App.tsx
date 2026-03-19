@@ -11,6 +11,7 @@ import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
 import LeadMagnetPopup from './components/LeadMagnetPopup';
 import StickyCTA from './components/StickyCTA';
+import BackgroundEffects from './components/BackgroundEffects';
 
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -222,6 +223,9 @@ function App() {
       <ScrollToTop />
       <ErrorBoundary>
       <div className="relative bg-jungle min-h-screen">
+        {/* Jungle Theme Background Effects */}
+        <BackgroundEffects />
+
         <AnimatePresence>
           <motion.div
             initial={{ opacity: 0 }}

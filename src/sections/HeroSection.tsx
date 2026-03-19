@@ -4,6 +4,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Play } from 'lucide-react';
 import CalendlyButton from '../components/CalendlyButton';
+import { GradientPulse } from '../components/BackgroundEffects';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -143,6 +144,9 @@ export default function HeroSection() {
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-br from-jungle/90 via-jungle/80 to-jungle/70" />
+        
+        {/* Ambient Gradient Pulse Effect */}
+        <GradientPulse />
       </div>
 
       {/* Content */}
