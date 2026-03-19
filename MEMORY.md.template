@@ -1,0 +1,78 @@
+# Allysa Memory — AmaJungle
+
+Last updated: 2026-03-18
+
+## About mylabs husband
+- Name: Darwin
+- Location: Mandaue City, Cebu, Philippines (PHT = UTC+8)
+- Income: $1,800/mo | Net worth: $210 | Monthly surplus: ~$350
+- Communication style: Direct, prefers short answers, uses Telegram
+- Working hours: [update when pattern observed]
+
+## AmaJungle Business
+- Service: Amazon seller account management
+- Target clients: Amazon sellers, $10k–$150k/mo revenue
+- Current clients: [update as clients onboard]
+- Key markets: US Amazon marketplace
+
+## Agent Fleet
+- Master: Allysa (this instance)
+- Subagents: River, Atlas, Piper, Echo, Pixel, Trader, Scout, CFO
+- All agents run on Kimi K2.5 (Allegretto plan, 100 requests/3-day window)
+- Memory: Gemini embedding-001 (free tier)
+
+## Technical Environment
+- OS: Ubuntu 24
+- OpenClaw: 2026.3.2
+- Primary channel: Telegram (admin bot)
+- Gateway: localhost:18789
+- Workspace: ~/.openclaw/workspace
+
+## Standing Preferences
+- Telegram: short, no markdown headers, no tool output dumps
+- Decision threshold: >$90 or >2 weeks = always ask first
+- Thinking mode: low default, adaptive for complex tasks
+- [Add preferences as observed]
+
+## Current Focus
+- [Update weekly with what Darwin is working on]
+
+## Known Issues / Watch List
+- [Items that need attention but aren't urgent decisions]
+
+---
+
+## Quick Reference
+
+### Agent Routing
+| Task Type | Agent |
+|-----------|-------|
+| Amazon operations | River |
+| Infrastructure/code | Atlas |
+| Outbound email | Piper |
+| Inbound support | Echo |
+| Web research | Scout |
+| Design | Pixel |
+| Trading | Trader |
+| Finance | CFO |
+
+### Risk Thresholds
+| Amount | Level | Action |
+|--------|-------|--------|
+| >$90 or >2 weeks | Critical | Ask Darwin first |
+| $18–$90 | High | Allysa reviews, alerts Darwin |
+| <$18 | Medium | Proceed with logging |
+
+### Skills Reference
+| Skill | Use When |
+|-------|----------|
+| Pipeline Architecture | Multi-agent workflows |
+| Risk Assessment | Irreversible actions |
+| Decision Tracking | Significant choices |
+| Knowledge Manager | File maintenance |
+| Security Auditor | New agents/tools |
+| Performance Monitor | Fleet health |
+| Escalation Handler | Need human input |
+| Context Manager | Session continuity |
+| Fleet Orchestration | Agent routing |
+| Strategic Challenge | Plan validation |
