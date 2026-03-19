@@ -15,6 +15,27 @@ import StickyCTA from './components/StickyCTA';
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
+// Page transition variants
+const pageVariants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      duration: 0.4,
+      ease: [0.22, 1, 0.36, 1]
+    }
+  },
+  exit: { 
+    opacity: 0, 
+    y: -20,
+    transition: {
+      duration: 0.3,
+      ease: [0.22, 1, 0.36, 1]
+    }
+  }
+};
+
 import HeroSection from './sections/HeroSection';
 import LeadMagnetSection from './sections/LeadMagnetSection';
 import ROICalculator from './sections/ROICalculator';
@@ -46,6 +67,68 @@ function ScrollToTop() {
   }, [pathname, hash]);
   
   return null;
+}
+
+// Animated Routes wrapper component
+function AnimatedRoutes() {
+  const location = useLocation();
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const loadTimer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 100);
+    return () => clearTimeout(loadTimer);
+  }, []);
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={
+          <motion.div
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            <motion.div
+              initial={{ y: -100, opacity: 0 }}
+              animate={{ y: isLoaded ? 0 : -100, opacity: isLoaded ? 1 : 0 }}
+              transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <Navigation />
+            </motion.div>
+            <HomePage />
+            <Footer />
+          </motion.div>
+        } />
+        <Route path="/about" element={
+          <motion.div
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            <Navigation />
+            <AboutPage />
+            <Footer />
+          </motion.div>
+        } />
+        <Route path="*" element={
+          <motion.div
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            <Navigation />
+            <NotFoundPage />
+            <Footer />
+          </motion.div>
+        } />
+      </Routes>
+    </AnimatePresence>
+  );
 }
 
 // Home page component
@@ -120,22 +203,15 @@ function HomePage() {
 }
 
 function App() {
-  const [isLoaded, setIsLoaded] = useState(false);
   const [showGrain, setShowGrain] = useState(false);
 
   useEffect(() => {
-    // Page load sequence
-    const loadTimer = setTimeout(() => {
-      setIsLoaded(true);
-    }, 100);
-
     // Grain overlay fade in
     const grainTimer = setTimeout(() => {
       setShowGrain(true);
     }, 300);
 
     return () => {
-      clearTimeout(loadTimer);
       clearTimeout(grainTimer);
       ScrollTrigger.getAll().forEach(st => st.kill());
     };
@@ -180,23 +256,7 @@ function App() {
             <div className="w-8 h-8 border-2 border-neon border-t-transparent rounded-full animate-spin" />
           </div>
         }>
-          <Routes>
-            <Route path="/" element={
-              <>
-                <motion.div
-                  initial={{ y: -100, opacity: 0 }}
-                  animate={{ y: isLoaded ? 0 : -100, opacity: isLoaded ? 1 : 0 }}
-                  transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <Navigation />
-                </motion.div>
-                <HomePage />
-                <Footer />
-              </>
-            } />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
+          <AnimatedRoutes />
         </Suspense>
         <Analytics />
       </div>

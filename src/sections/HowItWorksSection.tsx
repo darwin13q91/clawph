@@ -67,6 +67,7 @@ export default function HowItWorksSection() {
               x: 0,
               opacity: 1,
               duration: 0.6,
+              delay: index * 0.1, // Stagger: 0.1s delay per step
               scrollTrigger: {
                 trigger: step,
                 start: 'top 85%',

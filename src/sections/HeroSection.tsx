@@ -1,4 +1,5 @@
 import { useEffect, useRef, useLayoutEffect } from 'react';
+import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Play } from 'lucide-react';
@@ -247,13 +248,14 @@ export default function HeroSection() {
               <CalendlyButton className="w-full sm:w-auto justify-center">
                 Book Free 30-Min Audit
               </CalendlyButton>
-              <button
+              <motion.button
+                whileTap={{ scale: 0.95 }}
                 onClick={() => scrollToSection('audit')}
                 className="btn-secondary w-full sm:w-auto flex items-center justify-center gap-2"
               >
                 <Play size={18} />
                 See How It Works
-              </button>
+              </motion.button>
             </div>
 
             {/* Secondary Trust Signals */}

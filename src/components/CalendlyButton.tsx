@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Calendar, X } from 'lucide-react';
 
 interface CalendlyButtonProps {
@@ -20,13 +21,14 @@ export default function CalendlyButton({
 
   return (
     <>
-      <button
+      <motion.button
+        whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(true)}
         className={`${buttonClass} flex items-center gap-2 ${className}`}
       >
         <Calendar size={18} />
         {children}
-      </button>
+      </motion.button>
 
       {/* Calendly Modal */}
       {isOpen && (
