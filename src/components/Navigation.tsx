@@ -10,19 +10,19 @@ const menuVariants = {
   closed: {
     x: '100%',
     transition: {
-      type: 'tween',
+      type: 'tween' as const,
       duration: 0.3,
-      ease: [0.22, 1, 0.36, 1],
-      when: 'afterChildren',
+      ease: [0.22, 1, 0.36, 1] as const,
+      when: 'afterChildren' as const,
     },
   },
   open: {
     x: 0,
     transition: {
-      type: 'tween',
+      type: 'tween' as const,
       duration: 0.3,
-      ease: [0.22, 1, 0.36, 1],
-      when: 'beforeChildren',
+      ease: [0.22, 1, 0.36, 1] as const,
+      when: 'beforeChildren' as const,
       staggerChildren: 0.1,
     },
   },
@@ -41,7 +41,7 @@ const menuItemVariants = {
     opacity: 1,
     transition: {
       duration: 0.3,
-      ease: [0.22, 1, 0.36, 1],
+      ease: [0.22, 1, 0.36, 1] as const,
     },
   },
 };
