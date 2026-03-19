@@ -40,7 +40,15 @@
 **Role:** Email Systems Manager
 **Status:** 🟢 Active
 **Reports to:** Allysa
+**Skills Path:** `agents/piper/skills/`
 **Skills:**
+- **email-campaigns** — Cold outreach, warm nurture, hot closing sequences
+- **inbox-triage** — Sort, prioritize, auto-reply to inbound emails
+- **template-management** — Create, update, A/B test email templates
+- **delivery-optimization** — SPF/DKIM/DMARC, reputation, inbox placement
+- **list-management** — Segmentation, cleaning, growth, compliance
+- **analytics-tracking** — Open rates, clicks, conversions, reporting
+**Current Capabilities:**
 - Inbox triage and prioritization
 - Email campaign coordination
 - Performance tracking
@@ -52,7 +60,14 @@
 **Status:** 🟢 Active
 **Reports to:** Allysa
 **Cron Jobs:** Weekly, Monthly, Quarterly maintenance
+**Skills Path:** `agents/atlas/skills/`
 **Skills:**
+- **infrastructure-maintenance** — Website/dashboard upkeep, server health, cron jobs
+- **security-hardening** — System security, permission audits, vulnerability scans
+- **deployment-automation** — Deploy scripts, CI/CD, release management
+- **monitoring-alerting** — Health checks, metrics, uptime monitoring
+- **debugging-troubleshooting** — System diagnosis, log analysis, root cause
+**Current Capabilities:**
 - Website maintenance (amajungle.com)
 - Dashboard monitoring (8888, 8789)
 - Server health checks
