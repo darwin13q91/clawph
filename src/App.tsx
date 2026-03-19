@@ -17,9 +17,10 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 import HeroSection from './sections/HeroSection';
 import LeadMagnetSection from './sections/LeadMagnetSection';
-import VisualDemoSection from './sections/VisualDemoSection';
 import ROICalculator from './sections/ROICalculator';
 import BeforeAfterSlider from './sections/BeforeAfterSlider';
+import InteractiveChecklist from './sections/InteractiveChecklist';
+import InteractiveFAQ from './sections/InteractiveFAQ';
 import HowItWorksSection from './sections/HowItWorksSection';
 import SimplePricingSection from './sections/SimplePricingSection';
 import SimpleFAQSection from './sections/SimpleFAQSection';
@@ -107,12 +108,10 @@ function HomePage() {
       <LeadMagnetSection />
       <ROICalculator />
       <BeforeAfterSlider />
-      <VisualDemoSection />
+      <InteractiveChecklist />
       <HowItWorksSection />
       <SimplePricingSection />
-      <SimpleFAQSection />
-      <SimplePricingSection />
-      <SimpleFAQSection />
+      <InteractiveFAQ />
       <ContactSection />
       
       {/* Sticky Mobile CTA */}
