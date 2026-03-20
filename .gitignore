@@ -65,6 +65,12 @@ apps/*
 !apps/dashboard/
 apps/dashboard/*
 !apps/dashboard/public/
+
+# Dashboard files (local only, not tracked)
+apps/dashboard/public/cfo.html
+apps/dashboard/public/crm.html
+apps/dashboard/public/dashboard.css
+apps/dashboard/public/index.html
 ARCHIVED/
 bot-maintenance/
 brain/
