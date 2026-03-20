@@ -64,7 +64,6 @@ export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
-  const [isVisible, setIsVisible] = useState(true);
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -77,9 +76,6 @@ export default function Navigation() {
       
       // Update scrolled state for background change
       setIsScrolled(currentScrollY > 50);
-      
-      // Keep nav visible at all times (sticky behavior)
-      setIsVisible(true);
       
       // Update active section
       if (isHomePage) {
@@ -153,10 +149,7 @@ export default function Navigation() {
       {/* Navigation Bar */}
       <motion.header
         initial={{ y: -100, opacity: 0 }}
-        animate={{ 
-          y: isVisible ? 0 : -100, 
-          opacity: isVisible ? 1 : 0 
-        }}
+        animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 gpu ${
           isScrolled
