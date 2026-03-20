@@ -3,11 +3,11 @@ import { motion } from 'framer-motion';
 import { Check, Sparkles, ArrowRight } from 'lucide-react';
 
 const checklistItems = [
-  { id: 1, text: 'Connect Amazon account', completed: true },
-  { id: 2, text: 'Run River AI audit', completed: true },
-  { id: 3, text: 'Review automation plan', completed: false },
-  { id: 4, text: 'Approve & build', completed: false },
-  { id: 5, text: 'Launch & handoff', completed: false },
+  { id: 1, text: 'Share your store URL', completed: true },
+  { id: 2, text: 'River AI audit completes', completed: true },
+  { id: 3, text: 'Review your recommendations', completed: false },
+  { id: 4, text: 'Approve your action plan', completed: false },
+  { id: 5, text: 'Implement with your team or ours', completed: false },
 ];
 
 export default function InteractiveChecklist() {
