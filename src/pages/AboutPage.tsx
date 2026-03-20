@@ -2,9 +2,8 @@ import { useRef, useLayoutEffect, useState, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowLeft, Clock, Shield, Zap, MessageCircle, Menu, X } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import CalendlyButton from '../components/CalendlyButton';
-import AnimatedLogo from '../components/AnimatedLogo';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -459,32 +458,6 @@ export default function AboutPage() {
           <CalendlyButton className="mx-auto" />
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="py-12 px-6 lg:px-12 border-t border-warm/10">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <Link to="/" className="flex items-center gap-3">
-            <AnimatedLogo size={32} />
-            <span className="font-display text-2xl font-bold text-warm tracking-tight">
-              amajungle
-            </span>
-          </Link>
-          <p className="text-warm-72 text-sm">
-            © {new Date().getFullYear()} amajungle. All rights reserved.
-          </p>
-          <div className="flex items-center gap-6">
-            <Link to="/" className="text-warm-72 hover:text-warm transition-colors text-sm">
-              Home
-            </Link>
-            <a href="/#pricing" onClick={(e) => handleHashLink(e, '/#pricing')} className="text-warm-72 hover:text-warm transition-colors text-sm">
-              Pricing
-            </a>
-            <a href="/#faq" onClick={(e) => handleHashLink(e, '/#faq')} className="text-warm-72 hover:text-warm transition-colors text-sm">
-              FAQ
-            </a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
