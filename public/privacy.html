@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy | Amajungle</title>
+  <meta name="description" content="Amajungle Privacy Policy - How we collect, use, and protect your personal information.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --jungle: #0B3A2C;
+      --jungle-light: #145A42;
+      --jungle-dark: #062A1E;
+      --neon: #CFFF00;
+      --neon-dim: #9FBF00;
+      --warm: #F6F7EB;
+      --warm-72: rgba(246, 247, 235, 0.72);
+      --warm-48: rgba(246, 247, 235, 0.48);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, #0a0f0d 0%, var(--jungle-dark) 50%, #0a0f0d 100%);
+      background-attachment: fixed;
+      color: var(--warm);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    
+    /* Header */
+    header {
+      background: rgba(11, 58, 44, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(207, 255, 0, 0.1);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--warm);
+      transition: opacity 0.3s ease;
+    }
+
+    .logo:hover {
+      opacity: 0.8;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      filter: drop-shadow(0 0 8px rgba(207, 255, 0, 0.5));
+    }
+
+    .logo-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .logo-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    
+    .back-link {
+      color: var(--warm-72);
+      text-decoration: none;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.3s ease;
+    }
+    
+    .back-link:hover {
+      color: var(--neon);
+    }
+    
+    /* Main Content */
+    main {
+      padding: 60px 0;
+    }
+    
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 42px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: -1px;
+    }
+    
+    h1 span {
+      color: var(--neon);
+    }
+    
+    .subtitle {
+      font-size: 18px;
+      color: var(--warm-72);
+      margin-bottom: 60px;
+      max-width: 600px;
+    }
+    
+    .last-updated {
+      font-size: 14px;
+      color: var(--warm-48);
+      margin-bottom: 48px;
+      padding: 12px 16px;
+      background: rgba(207, 255, 0, 0.05);
+      border-radius: 8px;
+      border: 1px solid rgba(207, 255, 0, 0.1);
+    }
+    
+    h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 28px;
+      font-weight: 600;
+      margin: 48px 0 24px;
+      letter-spacing: -0.5px;
+      color: var(--neon);
+    }
+    
+    h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      margin: 32px 0 16px;
+      color: var(--warm);
+    }
+    
+    p {
+      margin-bottom: 16px;
+      color: var(--warm-72);
+    }
+    
+    strong {
+      color: var(--warm);
+      font-weight: 600;
+    }
+    
+    /* Info Box */
+    .info-box {
+      background: rgba(207, 255, 0, 0.05);
+      border: 1px solid rgba(207, 255, 0, 0.2);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 32px 0;
+    }
+    
+    .info-box h3 {
+      color: var(--neon);
+      margin-top: 0;
+    }
+    
+    /* List Styles */
+    ul {
+      margin: 16px 0;
+      padding-left: 24px;
+    }
+    
+    li {
+      margin-bottom: 8px;
+      color: var(--warm-72);
+    }
+    
+    a {
+      color: var(--neon);
+      text-decoration: none;
+    }
+    
+    a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Divider */
+    hr {
+      border: none;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(207, 255, 0, 0.3), transparent);
+      margin: 48px 0;
+    }
+    
+    /* Footer */
+    footer {
+      background: var(--jungle-dark);
+      border-top: 1px solid rgba(207, 255, 0, 0.1);
+      padding: 48px 0;
+    }
+
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--warm);
+      transition: opacity 0.3s ease;
+    }
+
+    .footer-logo:hover {
+      opacity: 0.8;
+    }
+
+    .footer-logo-icon {
+      width: 32px;
+      height: 32px;
+      filter: drop-shadow(0 0 6px rgba(207, 255, 0, 0.4));
+    }
+
+    .footer-logo-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .footer-logo-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      color: var(--warm-72);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--warm);
+    }
+
+    .footer-divider {
+      width: 100%;
+      max-width: 600px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(207, 255, 0, 0.2), transparent);
+    }
+
+    .footer-copyright {
+      color: var(--warm-48);
+      font-size: 14px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 32px;
+      }
+      
+      h2 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="/" class="logo">
+          <div class="logo-icon">
+            <svg viewBox="0 0 100 100" width="40" height="40">
+              <g fill="none" stroke="#CFFF00" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M50 85 L50 50" />
+                <path d="M50 50 L30 40 L20 35" />
+                <path d="M50 50 L35 55 L25 60" />
+                <path d="M50 50 L40 45 L28 42" />
+                <path d="M50 65 L35 70 L25 75" />
+                <path d="M50 35 L38 30 L28 25" />
+                <path d="M50 50 L70 40 L80 35" />
+                <path d="M50 50 L65 55 L75 60" />
+                <path d="M50 50 L60 45 L72 42" />
+                <path d="M50 65 L65 70 L75 75" />
+                <path d="M50 35 L62 30 L72 25" />
+                <path d="M30 40 L35 55" />
+                <path d="M70 40 L65 55" />
+                <path d="M35 70 L40 45" />
+                <path d="M65 70 L60 45" />
+                <path d="M38 30 L42 25" />
+                <path d="M62 30 L58 25" />
+              </g>
+              <g fill="#CFFF00">
+                <circle cx="50" cy="50" r="4" />
+                <circle cx="50" cy="65" r="2.5" />
+                <circle cx="50" cy="35" r="2.5" />
+                <circle cx="30" cy="40" r="2" />
+                <circle cx="20" cy="35" r="2" />
+                <circle cx="25" cy="60" r="2" />
+                <circle cx="28" cy="42" r="2" />
+                <circle cx="25" cy="75" r="2" />
+                <circle cx="28" cy="25" r="2" />
+                <circle cx="70" cy="40" r="2" />
+                <circle cx="80" cy="35" r="2" />
+                <circle cx="75" cy="60" r="2" />
+                <circle cx="72" cy="42" r="2" />
+                <circle cx="75" cy="75" r="2" />
+                <circle cx="72" cy="25" r="2" />
+              </g>
+              <circle cx="50" cy="50" r="42" fill="none" stroke="#CFFF00" stroke-width="0.5" opacity="0.2" />
+            </svg>
+          </div>
+          <span class="logo-text">amajungle</span>
+        </a>
+        <a href="/" class="back-link">← Back to Home</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <h1>Privacy <span>Policy</span></h1>
+      <p class="subtitle">How we collect, use, and protect your personal information when you use our services.</p>
+      
+      <div class="last-updated">
+        <strong>Last Updated:</strong> March 20, 2026
+      </div>
+
+      <h2>1. Introduction</h2>
+      <p>At amajungle ("we," "our," or "us"), we respect your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or use our services.</p>
+      <p>By using our website or services, you consent to the practices described in this Privacy Policy. If you do not agree with this policy, please do not use our services.</p>
+
+      <h2>2. Information We Collect</h2>
+      
+      <h3>2.1 Personal Information</h3>
+      <p>We may collect personal information that you voluntarily provide to us, including:</p>
+      <ul>
+        <li>Name and contact information (email address, phone number)</li>
+        <li>Company or business name</li>
+        <li>Amazon seller account information (for service delivery)</li>
+        <li>Payment information (processed securely through our payment providers)</li>
+        <li>Communications and correspondence with us</li>
+      </ul>
+
+      <h3>2.2 Automatically Collected Information</h3>
+      <p>When you visit our website, we may automatically collect:</p>
+      <ul>
+        <li>IP address and browser type</li>
+        <li>Device information (type, operating system)</li>
+        <li>Pages visited and time spent on our site</li>
+        <li>Referring website or source</li>
+        <li>Cookies and similar tracking technologies</li>
+      </ul>
+
+      <h2>3. How We Use Your Information</h2>
+      <p>We use your personal information for the following purposes:</p>
+      <ul>
+        <li><strong>Service Delivery:</strong> To provide and maintain our AI automation and Amazon management services</li>
+        <li><strong>Communication:</strong> To respond to inquiries, send updates, and provide customer support</li>
+        <li><strong>Improvement:</strong> To analyze usage patterns and improve our website and services</li>
+        <li><strong>Marketing:</strong> To send promotional materials (with your consent, which you can withdraw anytime)</li>
+        <li><strong>Compliance:</strong> To comply with legal obligations and protect our rights</li>
+      </ul>
+
+      <h2>4. Data Security</h2>
+      <p>We implement appropriate technical and organizational measures to protect your personal information:</p>
+      <ul>
+        <li>Encryption of data in transit (HTTPS/TLS)</li>
+        <li>Secure data storage with access controls</li>
+        <li>Regular security assessments and updates</li>
+        <li>Limited access to personal information by authorized personnel only</li>
+      </ul>
+      <p>However, no method of transmission over the internet is 100% secure. While we strive to protect your information, we cannot guarantee absolute security.</p>
+
+      <h2>5. Data Sharing and Disclosure</h2>
+      <p>We do not sell your personal information. We may share your information only in the following circumstances:</p>
+      <ul>
+        <li><strong>Service Providers:</strong> With trusted third parties who assist us in operating our business (payment processors, email services)</li>
+        <li><strong>Legal Requirements:</strong> When required by law, court order, or governmental regulation</li>
+        <li><strong>Business Transfers:</strong> In connection with a merger, acquisition, or sale of assets</li>
+        <li><strong>With Your Consent:</strong> When you explicitly authorize us to share your information</li>
+      </ul>
+
+      <h2>6. Your Rights</h2>
+      <p>Depending on your location, you may have the following rights regarding your personal information:</p>
+      <ul>
+        <li><strong>Access:</strong> Request a copy of the personal information we hold about you</li>
+        <li><strong>Correction:</strong> Request that we correct inaccurate or incomplete information</li>
+        <li><strong>Deletion:</strong> Request that we delete your personal information</li>
+        <li><strong>Restriction:</strong> Request that we limit the processing of your information</li>
+        <li><strong>Portability:</strong> Request transfer of your information to another service</li>
+        <li><strong>Objection:</strong> Object to the processing of your information for certain purposes</li>
+      </ul>
+      <p>To exercise these rights, please contact us at <a href="mailto:hello@amajungle.com">hello@amajungle.com</a>.</p>
+
+      <h2>7. Cookies and Tracking</h2>
+      <p>We use cookies and similar tracking technologies to enhance your browsing experience. These include:</p>
+      <ul>
+        <li><strong>Essential Cookies:</strong> Required for the website to function properly</li>
+        <li><strong>Analytics Cookies:</strong> Help us understand how visitors interact with our site</li>
+        <li><strong>Marketing Cookies:</strong> Used to deliver relevant advertisements</li>
+      </ul>
+      <p>You can manage cookie preferences through your browser settings. Note that disabling certain cookies may affect website functionality.</p>
+
+      <h2>8. Third-Party Links</h2>
+      <p>Our website may contain links to third-party websites. We are not responsible for the privacy practices or content of these external sites. We encourage you to review the privacy policies of any third-party sites you visit.</p>
+
+      <h2>9. Children's Privacy</h2>
+      <p>Our services are not intended for individuals under the age of 18. We do not knowingly collect personal information from children. If you believe we have inadvertently collected information from a child, please contact us immediately.</p>
+
+      <h2>10. International Data Transfers</h2>
+      <p>Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place to protect your information during such transfers, in compliance with applicable data protection laws.</p>
+
+      <h2>11. Changes to This Policy</h2>
+      <p>We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated "Last Updated" date. We encourage you to review this policy periodically.</p>
+
+      <h2>12. Contact Us</h2>
+      <p>If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:</p>
+      
+      <div class="info-box">
+        <h3>📧 amajungle</h3>
+        <p><strong>Email:</strong> <a href="mailto:hello@amajungle.com">hello@amajungle.com</a></p>
+        <p><strong>Phone:</strong> +63 0995 450 5206</p>
+        <p><strong>Address:</strong> Philippines (Remote worldwide)</p>
+      </div>
+
+      <hr>
+
+      <p style="font-size: 14px; color: var(--warm-48);">By using our website and services, you acknowledge that you have read and understood this Privacy Policy.</p>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <a href="/" class="footer-logo">
+          <div class="footer-logo-icon">
+            <svg viewBox="0 0 100 100" width="32" height="32">
+              <g fill="none" stroke="#CFFF00" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M50 85 L50 50" />
+                <path d="M50 50 L30 40 L20 35" />
+                <path d="M50 50 L35 55 L25 60" />
+                <path d="M50 50 L40 45 L28 42" />
+                <path d="M50 65 L35 70 L25 75" />
+                <path d="M50 35 L38 30 L28 25" />
+                <path d="M50 50 L70 40 L80 35" />
+                <path d="M50 50 L65 55 L75 60" />
+                <path d="M50 50 L60 45 L72 42" />
+                <path d="M50 65 L65 70 L75 75" />
+                <path d="M50 35 L62 30 L72 25" />
+                <path d="M30 40 L35 55" />
+                <path d="M70 40 L65 55" />
+                <path d="M35 70 L40 45" />
+                <path d="M65 70 L60 45" />
+                <path d="M38 30 L42 25" />
+                <path d="M62 30 L58 25" />
+              </g>
+              <g fill="#CFFF00">
+                <circle cx="50" cy="50" r="4" />
+                <circle cx="50" cy="65" r="2.5" />
+                <circle cx="50" cy="35" r="2.5" />
+                <circle cx="30" cy="40" r="2" />
+                <circle cx="20" cy="35" r="2" />
+                <circle cx="25" cy="60" r="2" />
+                <circle cx="28" cy="42" r="2" />
+                <circle cx="25" cy="75" r="2" />
+                <circle cx="28" cy="25" r="2" />
+                <circle cx="70" cy="40" r="2" />
+                <circle cx="80" cy="35" r="2" />
+                <circle cx="75" cy="60" r="2" />
+                <circle cx="72" cy="42" r="2" />
+                <circle cx="75" cy="75" r="2" />
+                <circle cx="72" cy="25" r="2" />
+              </g>
+              <circle cx="50" cy="50" r="42" fill="none" stroke="#CFFF00" stroke-width="0.5" opacity="0.2" />
+            </svg>
+          </div>
+          <span class="footer-logo-text">amajungle</span>
+        </a>
+
+        <nav class="footer-links">
+          <a href="/">Home</a>
+          <a href="/compliance.html">Compliance</a>
+          <a href="/privacy.html">Privacy Policy</a>
+          <a href="/terms.html">Terms of Service</a>
+        </nav>
+
+        <div class="footer-divider"></div>
+
+        <p class="footer-copyright">© 2026 amajungle. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -27,9 +27,9 @@ const initialFormData: FormData = {
 
 const services = [
   { value: '', label: 'Select a service...' },
-  { value: 'ai_automation', label: 'AI Intelligence Setup — $997' },
-  { value: 'amazon_growth', label: 'Amazon Growth Management — $999/mo' },
-  { value: 'website_dev', label: 'Brand Website Development — $1,497' },
+  { value: 'ai_automation', label: 'River AI Intelligence — $499' },
+  { value: 'amazon_growth', label: 'River Amazon Growth — Custom Pricing' },
+  { value: 'website_dev', label: 'Brand Website — $599' },
   { value: 'audit', label: 'Free Amazon Audit' },
   { value: 'other', label: 'Other / Not sure yet' },
 ];

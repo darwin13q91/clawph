@@ -38,8 +38,8 @@ const footerLinks: FooterLinkGroup[] = [
     title: 'Legal',
     links: [
       { label: 'Compliance', href: '/compliance.html', isExternal: true },
-      { label: 'Privacy Policy', href: '#' },
-      { label: 'Terms of Service', href: '#' },
+      { label: 'Privacy Policy', href: '/privacy.html', isExternal: true },
+      { label: 'Terms of Service', href: '/terms.html', isExternal: true },
     ],
   },
 ];
