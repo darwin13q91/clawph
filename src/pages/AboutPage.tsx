@@ -2,7 +2,7 @@ import { useRef, useLayoutEffect, useState, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowLeft, Clock, Shield, Zap, MessageCircle, Menu, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import CalendlyButton from '../components/CalendlyButton';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -149,201 +149,124 @@ export default function AboutPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-jungle overflow-x-hidden">
+    <div className="min-h-screen bg-jungle">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-jungle/90 backdrop-blur-md py-4">
-        <div className="w-full px-6 lg:px-12 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
-            <AnimatedLogo size={40} />
-            <span className="font-display text-2xl font-bold text-warm tracking-tight hidden sm:block">
-              amajungle
-            </span>
-          </Link>
-          
-          {/* Desktop Back Link */}
-          <Link 
-            to="/" 
-            className="hidden md:flex items-center gap-2 text-warm-72 hover:text-warm transition-colors"
-          >
-            <ArrowLeft size={18} />
-            <span className="text-sm">Back to home</span>
-          </Link>
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-jungle/95 backdrop-blur-sm border-b border-warm/10">
+        <div className="max-w-6xl mx-auto px-6 lg:px-12">
+          <div className="flex items-center justify-between h-16">
+            <Link to="/" className="flex items-center gap-3">
+              <span className="font-display text-xl font-bold text-warm tracking-tight">
+                amajungle
+              </span>
+            </Link>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-warm p-2 rounded-lg hover:bg-warm/10 transition-colors"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={isMobileMenuOpen}
-          >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-8">
+              <a href="/#services" onClick={(e) => handleHashLink(e, '/#services')} className="text-warm-72 hover:text-warm transition-colors text-sm">
+                Services
+              </a>
+              <a href="/#pricing" onClick={(e) => handleHashLink(e, '/#pricing')} className="text-warm-72 hover:text-warm transition-colors text-sm">
+                Pricing
+              </a>
+              <a href="/#faq" onClick={(e) => handleHashLink(e, '/#faq')} className="text-warm-72 hover:text-warm transition-colors text-sm">
+                FAQ
+              </a>
+              <Link to="/about" className="text-neon font-medium text-sm">
+                About
+              </Link>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              className="md:hidden p-2 text-warm"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
-      </nav>
 
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-jungle/98 backdrop-blur-lg md:hidden"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Mobile navigation menu"
-          onKeyDown={(e) => {
-            if (e.key === 'Escape') {
-              setIsMobileMenuOpen(false);
-            }
-          }}
-        >
-          <div className="flex flex-col items-center justify-center h-full gap-6 pt-20">
-            <Link 
-              to="/" 
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="flex items-center gap-2 text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
-            >
-              <ArrowLeft size={20} />
-              Back to home
-            </Link>
-            <Link 
-              to="/#pricing" 
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
-            >
-              Pricing
-            </Link>
-            <Link 
-              to="/#contact" 
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
-            >
-              Contact
-            </Link>
-            <div onClick={() => setIsMobileMenuOpen(false)} className="mt-4">
-              <CalendlyButton>Book a Call</CalendlyButton>
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-jungle border-t border-warm/10">
+            <div className="px-6 py-4 space-y-3">
+              <a href="/#services" onClick={(e) => handleHashLink(e, '/#services')} className="block text-warm-72 hover:text-warm transition-colors py-2">
+                Services
+              </a>
+              <a href="/#pricing" onClick={(e) => handleHashLink(e, '/#pricing')} className="block text-warm-72 hover:text-warm transition-colors py-2">
+                Pricing
+              </a>
+              <a href="/#faq" onClick={(e) => handleHashLink(e, '/#faq')} className="block text-warm-72 hover:text-warm transition-colors py-2">
+                FAQ
+              </a>
+              <Link to="/about" className="block text-neon font-medium py-2">
+                About
+              </Link>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </nav>
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6 lg:px-12">
-        <div ref={heroRef} className="max-w-4xl mx-auto text-center">
-          <span className="inline-block px-4 py-2 rounded-full bg-neon/10 text-neon text-sm font-mono mb-6">
-            About Us
-          </span>
-          <h1 className="font-display text-[clamp(36px,5vw,72px)] font-black text-warm uppercase tracking-tight mb-6 leading-[0.95]">
-            10 Years of Amazon.<br />
-            <span className="text-neon">Now Powered by AI.</span>
+      {/* Hero */}
+      <section className="pt-32 pb-24 px-6 lg:px-12">
+        <div ref={heroRef} className="max-w-4xl mx-auto">
+          <Link to="/" className="inline-flex items-center gap-2 text-warm-72 hover:text-warm transition-colors mb-8">
+            <ArrowLeft size={20} />
+            <span>Back to Home</span>
+          </Link>
+          
+          <h1 className="font-display text-[clamp(40px,6vw,64px)] font-black text-warm uppercase tracking-tight leading-[0.95] mb-6">
+            We\'ve Spent a Decade in the Amazon Trenches
           </h1>
-          <p className="text-warm-72 text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed">
-            amajungle is built on a decade of hands-on Amazon experience — from Seller Central support 
-            to managing multi-marketplace accounts across the US, UK, and EU. We combined that expertise 
-            with AI intelligence so you can scale faster with less effort.
+          <p className="text-warm-72 text-xl leading-relaxed max-w-2xl">
+            From Seller Central support tickets to managing 10+ accounts across three continents. 
+            We built amajungle because we were tired of watching sellers drown in busywork.
           </p>
-          <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <CalendlyButton>Book a free call</CalendlyButton>
-            <a href="/#pricing" onClick={(e) => handleHashLink(e, '/#pricing')} className="btn-secondary">
-              See pricing
-            </a>
-          </div>
         </div>
       </section>
 
-      {/* Our Story */}
-      <section className="py-24 px-6 lg:px-12 border-y border-warm/10">
+      {/* Story */}
+      <section className="py-24 px-6 lg:px-12 bg-jungle-light">
         <div ref={storyRef} className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="font-display text-[clamp(32px,4vw,48px)] font-black text-warm uppercase tracking-tight mb-4">
-              Why We Exist
-            </h2>
-          </div>
-          
-          {/* Team Section - Fixed Image Alignment */}
-          <div className="my-12">
-            <h3 className="text-center text-warm font-display text-2xl font-bold uppercase mb-8">Meet the Team</h3>
-            <div className="flex flex-col md:flex-row justify-center items-start gap-8 md:gap-12">
-              {/* Founder Photo */}
-              <div className="flex flex-col items-center">
-                <div className="w-56 h-72 rounded-2xl overflow-hidden border-4 border-neon/30 shadow-lg shadow-neon/10 bg-jungle-light">
-                  <img 
-                    src="/images/founder.png" 
-                    alt="Allysa Kate Estardo — Founder of amajungle" 
-                    className="w-full h-full object-cover object-center"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="mt-4 text-center">
-                  <p className="text-warm font-medium text-lg">Allysa Kate Estardo</p>
-                  <p className="text-warm-72 text-sm">Founder & CEO</p>
-                </div>
-              </div>
-
-              {/* River AI Team Member */}
-              <div className="flex flex-col items-center">
-                <div className="w-56 h-72 rounded-2xl overflow-hidden border-4 border-neon/30 shadow-lg shadow-neon/10 bg-jungle-light flex items-center justify-center">
-                  <div className="text-center p-6">
-                    <div className="w-24 h-24 rounded-full bg-neon/20 flex items-center justify-center mx-auto mb-4">
-                      <span className="text-5xl">🤖</span>
-                    </div>
-                    <div className="text-4xl mb-2">🌊</div>
-                  </div>
-                </div>
-                <div className="mt-4 text-center">
-                  <p className="text-warm font-medium text-lg">River</p>
-                  <p className="text-neon text-sm">Lead Amazon Strategist</p>
-                  <p className="text-warm-72 text-xs mt-2 max-w-[224px]">23 specialized Amazon analysis modes. Compliance-first recommendations. River analyzes 10,000+ data points per account.</p>
-                </div>
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="font-display text-[clamp(28px,3vw,40px)] font-black text-warm uppercase tracking-tight mb-6">
+                The Real Story
+              </h2>
+              <div className="space-y-4 text-warm-72 leading-relaxed">
+                <p>
+                  <strong className="text-warm">2014:</strong> Started in Amazon Seller Central support, 
+                  handling 50+ tickets daily from frustrated sellers.
+                </p>
+                <p>
+                  <strong className="text-warm">2016:</strong> Moved to account management, overseeing 
+                  $2M+ monthly revenue across US, UK, and EU.
+                </p>
+                <p>
+                  <strong className="text-warm">2019:</strong> Built first automation scripts to handle 
+                  repetitive tasks. Saved 15+ hours/week per account.
+                </p>
+                <p>
+                  <strong className="text-warm">2024:</strong> Launched amajungle to bring AI automation 
+                  to every Amazon seller who\'s tired of the grind.
+                </p>
               </div>
             </div>
-          </div>
-
-          <div className="space-y-6 text-warm-72 text-lg leading-relaxed">
-            <p>
-              amajungle started with a simple question: why are Amazon sellers still doing 
-              everything manually when AI can handle 80% of the work?
-            </p>
-            <p>
-              Our founder, Allysa Kate Estardo, spent over a decade in the Amazon ecosystem. 
-              She started as an Amazon Seller Support, helping sellers navigate account concerns, subscription fees, 
-              listings, and shipment discrepancies across FBM, FBA, and ILAC platforms.
-            </p>
-            <p>
-              At Nieboo UK, she managed product listings end-to-end — optimizing for visibility 
-              and sales, creating shipments, monitoring inventory, and correcting errors. 
-              At Sweese, she ran multi-platform support across Amazon, Shopify, Facebook, 
-              Instagram, and the brand's own website.
-            </p>
-            <p>
-              As an Amazon Technician at Machete Systems, she managed up to 10 accounts 
-              simultaneously, leading teams from the Philippines and India. She handled 
-              account management, inventory control, SEO, PPC campaigns, and customer 
-              service — driving measurable improvements in sales and satisfaction.
-            </p>
-            <p>
-              Most recently, as an Amazon Account Health Manager at Camden Pharma, she 
-              led teams managing multiple accounts across US, UK, and all EU marketplaces — 
-              overseeing violations, restrictions, IP rights, stranded inventory, and policy compliance.
-            </p>
-            <p className="text-warm font-medium">
-              After 10 years of solving the same problems manually, she built amajungle 
-              to combine deep Amazon expertise with AI intelligence — so sellers can finally 
-              focus on growth instead of busywork.
-            </p>
-          </div>
-
-          {/* Signature - Fixed Image Alignment */}
-          <div className="mt-12 flex items-center gap-4 justify-center">
-            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-neon/30 flex-shrink-0 bg-jungle-light">
-              <img 
-                src="/images/founder.png" 
-                alt="Allysa Kate Estardo" 
-                className="w-full h-full object-cover object-center"
-                loading="lazy"
-              />
-            </div>
-            <div className="text-left">
-              <p className="text-warm font-medium">Allysa Kate Estardo</p>
-              <p className="text-warm-72 text-sm">Founder, amajungle</p>
-              <p className="text-warm-72 text-xs">10 Years Amazon Experience • All Around Account Management</p>
+            <div className="card-jungle p-8">
+              <blockquote className="text-warm text-lg italic leading-relaxed mb-6">
+                "The sellers who succeeded weren\'t the ones working hardest. 
+                They were the ones who automated the busywork and focused on strategy."
+              </blockquote>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-neon/20 flex items-center justify-center">
+                  <span className="text-neon font-bold">A</span>
+                </div>
+                <div>
+                  <p className="text-warm font-medium">Founder</p>
+                  <p className="text-warm-72 text-sm">10 Years in Amazon</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
