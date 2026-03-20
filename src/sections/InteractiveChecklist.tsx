@@ -46,8 +46,8 @@ export default function InteractiveChecklist() {
             transition={{ delay: 0.1 }}
             className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-warm mb-4"
           >
-            Your Automation{' '}
-            <span className="text-neon">Journey</span>
+            How AmaJungle{' '}
+            <span className="text-neon">Works</span>
           </motion.h2>
           
           <motion.p
@@ -136,7 +136,7 @@ export default function InteractiveChecklist() {
               className="mt-8 text-center p-6 sm:p-8 bg-neon/10 border border-neon/30 rounded-xl sm:rounded-2xl"
             >
               <Sparkles className="w-10 h-10 text-neon mx-auto mb-3" />
-              <p className="text-neon font-display font-bold text-xl mb-2">Ready to automate! 🚀</p>
+              <p className="text-neon font-display font-bold text-xl mb-2">Ready to grow! 🚀</p>
               <p className="text-warm/70 text-sm sm:text-base">Book your free strategy call to get started</p>
             </motion.div>
           )}

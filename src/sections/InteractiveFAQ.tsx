@@ -9,8 +9,8 @@ interface FAQ {
 
 const faqs: FAQ[] = [
   {
-    question: 'What exactly do you automate?',
-    answer: 'We build custom AI agents that handle repetitive Amazon tasks: listing optimization, PPC bid adjustments, inventory monitoring, review request automation, pricing updates, and report generation. You describe your workflow, we build the agent.',
+    question: 'What exactly do you do?',
+    answer: 'We provide AI-powered analysis and recommendations for Amazon sellers. River AI audits your listings, identifies optimization opportunities, and creates actionable growth plans. We advise on listing optimization, PPC strategy, inventory monitoring, and competitive positioning. You decide what to implement and when.',
   },
   {
     question: 'How long does implementation take?',
@@ -18,7 +18,7 @@ const faqs: FAQ[] = [
   },
   {
     question: 'Do I need technical skills to use this?',
-    answer: 'No. We handle all technical setup. You interact with your AI agent through simple interfaces: Telegram notifications, email reports, or a dashboard. If you can use Amazon Seller Central, you can use our automation.',
+    answer: 'No. We handle all technical setup. You interact with your AI agent through simple interfaces: Telegram notifications, email reports, or a dashboard. If you can use email, you can use our recommendations.',
   },
   {
     question: 'What if something goes wrong?',
