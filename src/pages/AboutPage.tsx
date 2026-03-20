@@ -300,7 +300,7 @@ export default function AboutPage() {
       <section ref={statsRef} className="py-12 px-6 border-y border-warm/10 bg-jungle-dark/50">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {stats.map((stat, index) => (
+            {stats.map((stat, _index) => (
               <div 
                 key={stat.label}
                 className="stat-item text-center lg:text-left p-4 rounded-2xl bg-warm/5 border border-warm/5 hover:border-neon/20 transition-colors duration-300"
@@ -367,7 +367,7 @@ export default function AboutPage() {
               <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-neon/50 via-neon/20 to-transparent" />
               
               <div className="space-y-8">
-                {timeline.map((item, index) => (
+                {timeline.map((item, _index) => (
                   <div key={item.year} className="timeline-item relative pl-16">
                     <div className="absolute left-0 top-0 w-12 h-12 rounded-full bg-jungle border-2 border-neon flex items-center justify-center">
                       <span className="text-neon font-mono font-bold text-sm">{item.year.slice(-2)}</span>
@@ -437,7 +437,7 @@ export default function AboutPage() {
           </div>
 
           <div className="space-y-6">
-            {differentiators.map((item, index) => (
+            {differentiators.map((item, _index) => (
               <div 
                 key={item.title}
                 className="diff-card flex flex-col lg:flex-row lg:items-center gap-6 p-6 lg:p-8 rounded-3xl bg-warm/5 border border-warm/10 hover:border-neon/20 transition-all duration-300"
