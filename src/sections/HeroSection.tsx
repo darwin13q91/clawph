@@ -246,5 +246,4 @@ export default function HeroSection() {
       </div>
     </section>
   );
-}iv>
-          </div>
+}
