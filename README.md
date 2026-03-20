@@ -32,3 +32,4 @@ amajungle combines 10 years of hands-on Amazon expertise with AI automation to h
 - **Email:** ops@amajungle.com
 - **Calendly:** [Book a free 30-min call](https://calendly.com/ops-amajungle/30min)
 # Force redeploy Sun Mar 15 06:44:23 PM PST 2026
+# Vercel deploy trigger Fri Mar 20 07:59:21 PM PST 2026
