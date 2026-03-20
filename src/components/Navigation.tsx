@@ -65,7 +65,6 @@ export default function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
   const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -76,16 +75,11 @@ export default function Navigation() {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
-      // Update scrolled state
+      // Update scrolled state for background change
       setIsScrolled(currentScrollY > 50);
       
-      // Auto-hide on scroll down, show on scroll up
-      if (currentScrollY > 200) {
-        setIsVisible(currentScrollY < lastScrollY || currentScrollY < 100);
-      } else {
-        setIsVisible(true);
-      }
-      setLastScrollY(currentScrollY);
+      // Keep nav visible at all times (sticky behavior)
+      setIsVisible(true);
       
       // Update active section
       if (isHomePage) {
@@ -103,9 +97,12 @@ export default function Navigation() {
       }
     };
     
+    // Initial check
+    handleScroll();
+    
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [isHomePage, lastScrollY]);
+  }, [isHomePage]);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
