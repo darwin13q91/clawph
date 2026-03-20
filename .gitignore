@@ -54,3 +54,74 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# Non-website files - Agent/System directories (keep repo clean for website only)
+.obsidian/
+.openclaw/
+ai-gateway/
+allysa_master.py
+api/
+apps/
+ARCHIVED/
+bot-maintenance/
+brain/
+build-everything/
+business/
+channels/
+client-management/
+CFO/
+core/
+dashboard/
+docs/
+email-api-server.py
+infrastructure/
+memory/
+personal/
+reports/
+safety_logic.py
+scripts/
+sessions/
+skills/
+test_*.py
+vps/
+
+# Non-website documentation (keep only README.md)
+AGENTS.md
+AGENT_FLEET_MANIFEST.md
+ARCHITECTURE.md
+AUDIT_REPORT.md
+COMPLIANCE_AUDIT_REPORT.md
+CONFIG_MANIFEST.md
+CRM_FIX_SUMMARY.md
+DASHBOARD_REALTIME_AUDIT_REPORT.md
+DESIGN_AUDIT_REPORT.md
+EMAILJS_TEMPLATE_CONFIG.md
+EMAIL_NURTURE_INTEGRATION.md
+FLEET_AUDIT_*.md
+HEARTBEAT.md
+IDENTITY.md
+info.md
+MEMORY.md
+NEMOTRON_GUIDE.md
+NURTURE_SYSTEM_REPORT.md
+REALTIME_DASHBOARD_SETUP.md
+SKILL_SECURITY.md
+SOUL.md
+SOUL.md.backup
+TOOLS.md
+USER.md
+WORKFLOW_AUTO.md
+dashboard-fixes-report.md
+
+# Marker/EOF files
+CRONEOF
+EOF
+GUARDEOF
+MEMORY.md.template
+MONITOREOF
+PYEOF
+RESTOREEOF
+SNAPSHOTEOF
+
+# Runtime files
+server.pid
