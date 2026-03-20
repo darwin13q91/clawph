@@ -8,7 +8,7 @@ gsap.registerPlugin(ScrollTrigger);
 const benefits = [
   { icon: Clock, value: '10+', label: 'Hours Saved Weekly' },
   { icon: MessageSquare, value: '24/7', label: 'AI Monitoring' },
-  { icon: TrendingUp, value: '35%', label: 'Avg. Efficiency Gain' },
+  { icon: TrendingUp, value: '5+', label: 'Hours Weekly Savings' },
   { icon: Shield, value: '100%', label: 'You Control Everything' },
 ];
 

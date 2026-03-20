@@ -44,9 +44,9 @@ interface TimelineItem {
 
 const stats: Stat[] = [
   { value: '10+', label: 'Years Experience', icon: Clock },
-  { value: '$50M+', label: 'Revenue Managed', icon: TrendingUp },
-  { value: '10+', label: 'Accounts Managed', icon: Users },
-  { value: '3', label: 'Continents', icon: Target },
+  { value: '$2M+', label: 'Monthly Revenue Managed (Peak)', icon: TrendingUp },
+  { value: '50+', label: 'Daily Support Tickets Solved', icon: Users },
+  { value: '3', label: 'Continents Served', icon: Target },
 ];
 
 const values: Value[] = [

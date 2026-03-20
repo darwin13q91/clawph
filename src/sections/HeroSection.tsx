@@ -10,8 +10,8 @@ const painPoints = [
 ];
 
 const trustBadges = [
-  { label: '30-Day Guarantee', color: 'neon' as const },
-  { label: 'Trusted by Sellers', color: 'amazon' as const },
+  { label: '30-Day Money-Back Guarantee', color: 'neon' as const },
+  { label: 'Amazon TOS Compliant', color: 'amazon' as const },
   { label: 'Secure Checkout', color: 'neon' as const },
 ];
 
