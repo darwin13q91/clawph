@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Send, Mail, Phone, MapPin, MessageSquare, ChevronDown, Loader2, CheckCircle2 } from 'lucide-react';
+import { Send, Mail, Phone, MapPin, MessageSquare, ChevronDown, Loader2, CheckCircle2, Zap, TrendingUp, Globe, Search, HelpCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import CalendlyButton from '../components/CalendlyButton';
 
@@ -26,12 +26,12 @@ const initialFormData: FormData = {
 };
 
 const services = [
-  { value: '', label: 'Select a service...' },
-  { value: 'ai_automation', label: 'River AI Intelligence — $499' },
-  { value: 'amazon_growth', label: 'River Amazon Growth — Custom Pricing' },
-  { value: 'website_dev', label: 'Brand Website — $599' },
-  { value: 'audit', label: 'Free Amazon Audit' },
-  { value: 'other', label: 'Other / Not sure yet' },
+  { value: '', label: 'Select a service...', icon: HelpCircle },
+  { value: 'ai_automation', label: 'River AI Intelligence — $499', icon: Zap },
+  { value: 'amazon_growth', label: 'River Amazon Growth — Custom Pricing', icon: TrendingUp },
+  { value: 'website_dev', label: 'Brand Website — $599', icon: Globe },
+  { value: 'audit', label: 'Free Amazon Audit', icon: Search },
+  { value: 'other', label: 'Other / Not sure yet', icon: HelpCircle },
 ];
 
 const contactInfo = [

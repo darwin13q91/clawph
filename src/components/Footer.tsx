@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowUpRight, Mail, MapPin, Phone } from 'lucide-react';
+import { ArrowUpRight, Mail, MapPin, Phone, Linkedin, Twitter, MessageCircle, Bot, TrendingUp, Globe, Search, Users, FileText, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import AnimatedLogo from './AnimatedLogo';
 import CalendlyButton from './CalendlyButton';
@@ -7,6 +7,7 @@ import CalendlyButton from './CalendlyButton';
 interface FooterLink {
   label: string;
   href: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
   isExternal?: boolean;
 }
 
@@ -19,27 +20,27 @@ const footerLinks: FooterLinkGroup[] = [
   {
     title: 'Services',
     links: [
-      { label: 'River AI Intelligence', href: '/#pricing' },
-      { label: 'Amazon Growth', href: '/#pricing' },
-      { label: 'Brand Websites', href: '/#pricing' },
-      { label: 'Free Audit', href: '/#audit' },
+      { label: 'River AI Intelligence', href: '/#pricing', icon: Bot },
+      { label: 'Amazon Growth', href: '/#pricing', icon: TrendingUp },
+      { label: 'Brand Websites', href: '/#pricing', icon: Globe },
+      { label: 'Free Audit', href: '/#audit', icon: Search },
     ],
   },
   {
     title: 'Company',
     links: [
-      { label: 'About Us', href: '/about' },
-      { label: 'How It Works', href: '/#process' },
-      { label: 'FAQ', href: '/#faq' },
-      { label: 'Contact', href: '/#contact' },
+      { label: 'About Us', href: '/about', icon: Users },
+      { label: 'How It Works', href: '/#process', icon: ArrowUpRight },
+      { label: 'FAQ', href: '/#faq', icon: FileText },
+      { label: 'Contact', href: '/#contact', icon: Mail },
     ],
   },
   {
     title: 'Legal',
     links: [
-      { label: 'Compliance', href: '/compliance.html', isExternal: true },
-      { label: 'Privacy Policy', href: '/privacy.html', isExternal: true },
-      { label: 'Terms of Service', href: '/terms.html', isExternal: true },
+      { label: 'Compliance', href: '/compliance.html', icon: Shield, isExternal: true },
+      { label: 'Privacy Policy', href: '/privacy.html', icon: FileText, isExternal: true },
+      { label: 'Terms of Service', href: '/terms.html', icon: FileText, isExternal: true },
     ],
   },
 ];
@@ -155,6 +156,40 @@ export default function Footer() {
                 </div>
               ))}
             </div>
+
+            {/* Social Links */}
+            <div className="mt-6 pt-6 border-t border-warm/10">
+              <p className="text-warm-400 text-xs uppercase tracking-wide mb-3">Follow Us</p>
+              <div className="flex items-center gap-3">
+                <a
+                  href="https://linkedin.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-xl bg-warm/5 border border-warm/10 flex items-center justify-center text-warm-400 hover:text-neon hover:bg-neon/10 hover:border-neon/30 transition-all"
+                  aria-label="LinkedIn"
+                >
+                  <Linkedin size={18} aria-hidden="true" />
+                </a>
+                <a
+                  href="https://twitter.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-xl bg-warm/5 border border-warm/10 flex items-center justify-center text-warm-400 hover:text-neon hover:bg-neon/10 hover:border-neon/30 transition-all"
+                  aria-label="Twitter"
+                >
+                  <Twitter size={18} aria-hidden="true" />
+                </a>
+                <a
+                  href="https://telegram.org"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-xl bg-warm/5 border border-warm/10 flex items-center justify-center text-warm-400 hover:text-neon hover:bg-neon/10 hover:border-neon/30 transition-all"
+                  aria-label="Telegram"
+                >
+                  <MessageCircle size={18} aria-hidden="true" />
+                </a>
+              </div>
+            </div>
           </motion.div>
 
           {/* Links Columns */}
@@ -178,24 +213,27 @@ export default function Footer() {
                           href={link.href}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-warm-400 hover:text-neon text-sm transition-colors inline-flex items-center gap-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-500 focus-visible:ring-offset-2 focus-visible:ring-offset-jungle-900 rounded px-1 -mx-1"
+                          className="text-warm-400 hover:text-neon text-sm transition-colors inline-flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-500 focus-visible:ring-offset-2 focus-visible:ring-offset-jungle-900 rounded px-1 -mx-1"
                         >
-                          {link.label}
+                          <link.icon size={14} className="text-warm-500 group-hover:text-neon transition-colors" aria-hidden="true" />
+                          <span>{link.label}</span>
                           <ArrowUpRight size={12} className="opacity-50 group-hover:opacity-100" aria-hidden="true" />
                         </a>
                       ) : link.href.startsWith('/#') ? (
                         <HashLink
                           to={link.href}
-                          className="text-warm-400 hover:text-neon text-sm transition-colors inline-flex items-center gap-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-500 focus-visible:ring-offset-2 focus-visible:ring-offset-jungle-900 rounded px-1 -mx-1"
+                          className="text-warm-400 hover:text-neon text-sm transition-colors inline-flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-500 focus-visible:ring-offset-2 focus-visible:ring-offset-jungle-900 rounded px-1 -mx-1"
                         >
-                          {link.label}
+                          <link.icon size={14} className="text-warm-500 group-hover:text-neon transition-colors" aria-hidden="true" />
+                          <span>{link.label}</span>
                         </HashLink>
                       ) : (
                         <Link
                           to={link.href}
-                          className="text-warm-400 hover:text-neon text-sm transition-colors inline-flex items-center gap-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-500 focus-visible:ring-offset-2 focus-visible:ring-offset-jungle-900 rounded px-1 -mx-1"
+                          className="text-warm-400 hover:text-neon text-sm transition-colors inline-flex items-center gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-500 focus-visible:ring-offset-2 focus-visible:ring-offset-jungle-900 rounded px-1 -mx-1"
                         >
-                          {link.label}
+                          <link.icon size={14} className="text-warm-500 group-hover:text-neon transition-colors" aria-hidden="true" />
+                          <span>{link.label}</span>
                         </Link>
                       )}
                     </li>

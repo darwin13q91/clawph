@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Menu, X, ChevronRight } from 'lucide-react';
+import { Menu, X, ChevronRight, Search, Eye, Workflow, Tag, Info } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import CalendlyButton from './CalendlyButton';
@@ -8,14 +8,15 @@ import AnimatedLogo from './AnimatedLogo';
 interface NavItem {
   label: string;
   href: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
   isExternal?: boolean;
 }
 
 const navItems: NavItem[] = [
-  { label: 'Free Audit', href: '#audit' },
-  { label: 'See Demo', href: '#demo' },
-  { label: 'How It Works', href: '#process' },
-  { label: 'Pricing', href: '#pricing' },
+  { label: 'Free Audit', href: '#audit', icon: Search },
+  { label: 'See Demo', href: '#demo', icon: Eye },
+  { label: 'How It Works', href: '#process', icon: Workflow },
+  { label: 'Pricing', href: '#pricing', icon: Tag },
 ];
 
 // Animation variants
@@ -319,7 +320,12 @@ export default function Navigation() {
                       className="w-full flex items-center justify-between p-4 rounded-2xl text-left text-warm text-xl font-display font-bold hover:bg-warm/5 transition-colors group"
                       style={{ animationDelay: `${index * 0.05}s` }}
                     >
-                      <span>{item.label}</span>
+                      <span className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 transition-colors">
+                          <item.icon size={20} className="text-neon" aria-hidden="true" />
+                        </div>
+                        {item.label}
+                      </span>
                       <ChevronRight 
                         size={20} 
                         className="text-warm-400 group-hover:text-neon group-hover:translate-x-1 transition-all" 
@@ -334,7 +340,12 @@ export default function Navigation() {
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="w-full flex items-center justify-between p-4 rounded-2xl text-left text-warm text-xl font-display font-bold hover:bg-warm/5 transition-colors group"
                     >
-                      <span>About</span>
+                      <span className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 transition-colors">
+                          <Info size={20} className="text-neon" aria-hidden="true" />
+                        </div>
+                        About
+                      </span>
                       <ChevronRight 
                         size={20} 
                         className="text-warm-400 group-hover:text-neon group-hover:translate-x-1 transition-all" 

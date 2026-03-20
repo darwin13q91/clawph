@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
 import CalendlyButton from './CalendlyButton';
 
 export default function StickyCTA() {
@@ -25,10 +26,10 @@ export default function StickyCTA() {
           className="absolute top-2 right-2 text-warm/60 hover:text-warm p-1"
           aria-label="Dismiss"
         >
-          ✕
+          <X size={16} aria-hidden="true" />
         </button>
-        <CalendlyButton className="w-full justify-center btn-primary">
-          Book Free Strategy Call →
+        <CalendlyButton className="w-full justify-center btn-primary" showIcon={true}>
+          Book Free Strategy Call
         </CalendlyButton>
         <p className="text-center text-warm/60 text-xs mt-2">
           30-min audit • No commitment

@@ -318,10 +318,11 @@ export default function SimplePricingSection() {
 
                   {/* CTA */}
                   <CalendlyButton
-                    className="w-full justify-center text-sm sm:text-base"
+                    className="w-full justify-center text-sm sm:text-base gap-2"
                     variant={pkg.popular ? 'primary' : 'secondary'}
                   >
                     {pkg.cta}
+                    <ArrowRight size={16} aria-hidden="true" />
                   </CalendlyButton>
                 </div>
               </div>
