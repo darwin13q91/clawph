@@ -50,11 +50,11 @@ export default function BeforeAfterSlider() {
   ];
 
   const afterTasks = [
-    'Listings auto-optimized by River AI',
-    'PPC adjusts automatically based on ACoS',
-    'All data synced in real-time dashboard',
-    'Instant alerts via Telegram/Email',
-    'Working 40 hours, growing faster',
+    'Listings analyzed by River AI with specific recommendations',
+    'PPC recommendations based on ACoS and conversion data',
+    'Weekly performance reports via Telegram/Email',
+    'Alerts for critical issues (stockouts, policy changes)',
+    '5+ hours saved weekly on monitoring and analysis',
   ];
 
   return (
@@ -78,7 +78,7 @@ export default function BeforeAfterSlider() {
             className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-warm mb-4"
           >
             Before vs{' '}
-            <span className="text-neon">After Automation</span>
+            <span className="text-neon">With AmaJungle</span>
           </motion.h2>
           
           <motion.p
@@ -131,7 +131,7 @@ export default function BeforeAfterSlider() {
           >
             <div className="h-full flex flex-col">
               <h3 className="font-display text-xl sm:text-2xl font-bold text-neon mb-4 sm:mb-6">
-                ✅ Automated
+                ✅ With AmaJungle
               </h3>
               <ul className="space-y-3 sm:space-y-4 flex-1 overflow-y-auto">
                 {afterTasks.map((task, i) => (
@@ -142,7 +142,7 @@ export default function BeforeAfterSlider() {
                 ))}
               </ul>
               <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-neon/10 rounded-lg border border-neon/30">
-                <p className="text-neon font-bold text-sm sm:text-base">40 hours/week</p>
+                <p className="text-neon font-bold text-sm sm:text-base">5+ hours saved weekly</p>
                 <p className="text-warm/60 text-xs sm:text-sm">Proactive, strategic, scaling fast</p>
               </div>
             </div>
