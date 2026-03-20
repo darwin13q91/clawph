@@ -397,15 +397,60 @@
   .text-jungle-300 { color: var(--warm-300); }
   .text-jungle-400 { color: var(--warm-400); }
   
+  .text-warm { color: var(--warm-100); }
+  .text-warm-50 { color: var(--warm-50); }
+  .text-warm-100 { color: var(--warm-100); }
+  .text-warm-200 { color: var(--warm-200); }
+  .text-warm-300 { color: var(--warm-300); }
+  .text-warm-400 { color: var(--warm-400); }
+  .text-warm-72 { color: rgba(246, 247, 235, 0.72); }
+  
   .text-neon { color: var(--neon-500); }
+  .text-neon-400 { color: var(--neon-400); }
+  .text-neon-500 { color: var(--neon-500); }
+  .text-neon-600 { color: var(--neon-600); }
   .text-neon-light { color: var(--neon-400); }
   .text-neon-dark { color: var(--neon-600); }
   
   .text-violet { color: var(--violet-500); }
+  .text-violet-400 { color: var(--violet-400); }
+  .text-violet-500 { color: var(--violet-500); }
+  .text-violet-600 { color: var(--violet-600); }
   .text-violet-light { color: var(--violet-400); }
   .text-violet-dark { color: var(--violet-600); }
   
   .text-amazon { color: var(--amazon-orange); }
+  .text-amazon-orange { color: var(--amazon-orange); }
+  
+  /* Background opacity utilities */
+  .bg-neon\/10 { background-color: rgba(207, 255, 0, 0.1); }
+  .bg-neon\/20 { background-color: rgba(207, 255, 0, 0.2); }
+  .bg-amazon\/20 { background-color: rgba(255, 153, 0, 0.2); }
+  .bg-violet\/20 { background-color: rgba(110, 46, 140, 0.2); }
+  .bg-warm\/5 { background-color: rgba(246, 247, 235, 0.05); }
+  .bg-warm\/10 { background-color: rgba(246, 247, 235, 0.1); }
+  
+  /* Border opacity utilities */
+  .border-warm\/10 { border-color: rgba(246, 247, 235, 0.1); }
+  .border-warm\/20 { border-color: rgba(246, 247, 235, 0.2); }
+  .border-neon\/10 { border-color: rgba(207, 255, 0, 0.1); }
+  .border-neon\/20 { border-color: rgba(207, 255, 0, 0.2); }
+  .border-neon\/30 { border-color: rgba(207, 255, 0, 0.3); }
+  .border-violet\/20 { border-color: rgba(110, 46, 140, 0.2); }
+  
+  /* Focus ring utilities */
+  .focus\:ring-neon-500:focus {
+    --tw-ring-color: var(--neon-500);
+  }
+  
+  /* Ring offset utilities */
+  .ring-offset-jungle-800 {
+    --tw-ring-offset-color: var(--jungle-800);
+  }
+  
+  .ring-offset-jungle-900 {
+    --tw-ring-offset-color: var(--jungle-900);
+  }
 }
 
 /* ============================================
@@ -601,6 +646,30 @@
   
   .card-interactive:active {
     transform: translateY(0);
+  }
+
+  /* Card Jungle - for demo section cards */
+  .card-jungle {
+    @apply rounded-3xl;
+    background: rgba(11, 58, 44, 0.6);
+    border: 1px solid rgba(246, 247, 235, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  
+  .card-jungle:hover {
+    border-color: rgba(246, 247, 235, 0.2);
+  }
+  
+  /* Card Hover Effect */
+  .card-hover {
+    transition: all var(--transition-normal) var(--ease-smooth);
+  }
+  
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl), var(--shadow-neon);
+    border-color: rgba(207, 255, 0, 0.2);
   }
 }
 
