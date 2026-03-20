@@ -228,11 +228,11 @@ function App() {
       <ScrollToTop />
       <ErrorBoundary>
       <div className="relative bg-jungle min-h-screen">
-        {/* Animated Particle Network Background */}
-        <BackgroundAnimation />
-        
-        {/* Jungle Theme Background Effects */}
+        {/* Jungle Theme Background Effects (bottom layer) */}
         <BackgroundEffects />
+        
+        {/* Animated Particle Network Background (top layer) */}
+        <BackgroundAnimation />
 
         <AnimatePresence>
           <motion.div
