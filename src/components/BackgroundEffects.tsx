@@ -52,7 +52,7 @@ const FloatingLeaf = ({
         x: [`0vw`, `${endX - startX}vw`],
         y: [0, -20, 10, -15, 5],
         rotate: [rotation, rotation + 15, rotation - 10, rotation + 8, rotation],
-        opacity: [0, 0.15, 0.12, 0.1, 0],
+        opacity: [0, 0.08, 0.06, 0.04, 0],
       }}
       transition={{
         duration: duration,
@@ -65,13 +65,14 @@ const FloatingLeaf = ({
         viewBox="0 0 100 100"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full"
+        className="w-full h-full blur-sm"
+        style={{ filter: 'blur(2px)' }}
       >
         {/* Tropical leaf shape */}
         <path
           d="M50 5 C30 15, 10 35, 5 60 C15 55, 25 58, 35 65 C25 62, 15 68, 8 80 C20 75, 30 78, 40 85 C35 82, 25 88, 20 95 C35 90, 45 92, 50 95 C55 92, 65 90, 80 95 C75 88, 65 82, 60 85 C70 78, 80 75, 92 80 C85 68, 75 62, 65 65 C75 58, 85 55, 95 60 C90 35, 70 15, 50 5 Z"
           fill="#CFFF00"
-          fillOpacity="0.4"
+          fillOpacity="0.15"
         />
         {/* Leaf vein */}
         <path
@@ -114,7 +115,7 @@ const FloatingVine = ({
       animate={{
         x: [`0vw`, `${endX - startX}vw`],
         y: [0, -30, 20, -15, 0],
-        opacity: [0, 0.08, 0.06, 0.04, 0],
+        opacity: [0, 0.04, 0.03, 0.02, 0],
       }}
       transition={{
         duration: duration,
@@ -176,7 +177,7 @@ const ParticleEffect = ({
           }}
           animate={{ 
             y: '-10vh',
-            opacity: [0, 0.2, 0.15, 0.1, 0],
+            opacity: [0, 0.12, 0.08, 0.05, 0],
             scale: [0.5, 1, 1.2, 1, 0.8],
           }}
           transition={{
