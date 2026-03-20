@@ -34,7 +34,7 @@ export default function ROICalculator() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-warm mb-4"
+            className="font-display text-[clamp(2rem,4vw,3rem)] font-bold text-warm leading-[1.1] mb-4"
           >
             Calculate Your{' '}
             <span className="text-neon">Time Savings</span>
@@ -216,5 +216,8 @@ function ResultCard({ icon: Icon, label, value, delay, highlight = false }: {
         {value}
       </p>
     </motion.div>
+  );
+}
+   </motion.div>
   );
 }

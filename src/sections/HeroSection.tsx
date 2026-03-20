@@ -215,13 +215,13 @@ export default function HeroSection() {
             </div>
 
             {/* Trust Badges */}
-            <div className="hero-trust flex flex-wrap items-center justify-center gap-3 sm:gap-6 px-4">
+            <div className="hero-trust flex flex-wrap items-center justify-center gap-4 sm:gap-8">
               {trustBadges.map((badge, i) => (
-                <div key={i} className="flex items-center gap-1.5 sm:gap-2">
-                  <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full flex-shrink-0 ${
+                <div key={i} className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
                     badge.color === 'neon' ? 'bg-neon' : 'bg-amazon'
                   }`} />
-                  <span className="text-warm text-xs sm:text-sm font-medium">{badge.label}</span>
+                  <span className="text-warm/90 text-xs sm:text-sm font-medium">{badge.label}</span>
                 </div>
               ))}
             </div>
@@ -241,6 +241,12 @@ export default function HeroSection() {
                 <ArrowDown size={20} />
               </motion.div>
             </motion.div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}iv>
           </div>
         </div>
       </div>

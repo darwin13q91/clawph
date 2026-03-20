@@ -139,16 +139,16 @@ export default function ContactSection() {
         <div ref={contentRef} className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
           {/* Left Content */}
           <div>
-            <span className="inline-block px-4 py-2 rounded-full bg-neon/10 text-neon text-sm font-mono mb-6">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon/10 border border-neon/20 text-neon text-sm font-mono font-medium mb-6">
               Let's Talk
             </span>
             
-            <h2 className="font-display text-[clamp(36px,4vw,64px)] font-black text-warm uppercase tracking-tight mb-6">
+            <h2 className="font-display text-[clamp(2rem,4vw,3.5rem)] font-black text-warm uppercase tracking-tight leading-[1.1] mb-6">
               Ready to Get<br />
               <span className="text-neon">5+ Hours Back?</span>
             </h2>
             
-            <p className="text-warm-72 text-lg leading-relaxed mb-10">
+            <p className="text-warm/70 text-lg leading-relaxed mb-10">
               Book a free 30-minute call. We'll learn about your business, 
               identify your biggest time-wasters, and show you exactly how 
               we can help — no pressure, no pitch.
@@ -324,6 +324,14 @@ export default function ContactSection() {
                   </>
                 )}
               </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+ </button>
             </form>
           </div>
         </div>

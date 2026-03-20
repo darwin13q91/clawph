@@ -140,28 +140,28 @@ export default function LeadMagnetSection() {
               <span className="text-neon">Amazon Audit</span>
             </h2>
             
-            <p className="text-warm-72 text-lg mb-8 leading-relaxed">
+            <p className="text-warm/80 text-lg leading-relaxed mb-8">
               Send us your store URL and we'll deliver a detailed written audit 
               showing exactly what's hurting your sales and how to fix it.
             </p>
 
             <div className="space-y-4">
               {auditBenefits.map((benefit) => (
-                <div key={benefit.text} className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-neon/20 flex items-center justify-center">
+                <div key={benefit.text} className="flex items-center gap-4 group">
+                  <div className="w-11 h-11 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 transition-colors duration-300">
                     <benefit.icon className="text-neon" size={18} />
                   </div>
-                  <span className="text-warm">{benefit.text}</span>
+                  <span className="text-warm/90 font-medium">{benefit.text}</span>
                 </div>
               ))}
             </div>
 
-            {/* Social Proof (Even if small) */}
-            <div className="mt-8 sm:mt-10 p-4 sm:p-5 rounded-2xl bg-warm/5 border border-warm/10">
-              <p className="text-warm-72 text-sm italic mb-2">
+            {/* Social Proof */}
+            <div className="mt-8 sm:mt-10 p-5 sm:p-6 rounded-2xl bg-warm/5 border border-warm/10 hover:border-neon/10 transition-colors duration-300">
+              <p className="text-warm/70 text-sm italic mb-3 leading-relaxed">
                 "The audit found 3 issues I never knew existed. Fixed them and saw a 15% bump in conversions within 2 weeks."
               </p>
-              <p className="text-warm text-sm font-medium">
+              <p className="text-warm text-sm font-semibold">
                 — Beta tester, Home & Kitchen seller
               </p>
             </div>

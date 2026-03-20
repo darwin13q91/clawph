@@ -85,7 +85,7 @@ export default function InteractiveChecklist() {
           </div>
 
           {/* Checklist */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             {items.map((item, index) => (
               <motion.button
                 key={item.id}
@@ -95,24 +95,24 @@ export default function InteractiveChecklist() {
                 transition={{ delay: index * 0.1 }}
                 className={`w-full flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 ${
                   item.completed
-                    ? 'bg-neon/10 border-neon/30'
-                    : 'bg-warm/5 border-warm/10 hover:border-warm/20'
+                    ? 'bg-neon/5 border-neon/20'
+                    : 'bg-warm/[0.02] border-warm/10 hover:border-warm/20 hover:bg-warm/[0.04]'
                 }`}
               >
                 <motion.div
                   animate={{
-                    scale: item.completed ? 1 : 0.9,
-                    backgroundColor: item.completed ? '#9FBF00' : 'transparent',
+                    scale: item.completed ? 1 : 0.95,
+                    backgroundColor: item.completed ? 'rgba(207, 255, 0, 0.15)' : 'transparent',
                   }}
-                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                    item.completed ? 'border-neon' : 'border-warm/30'
+                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
+                    item.completed ? 'border-neon' : 'border-warm/20'
                   }`}
                 >
-                  {item.completed && <Check className="w-4 h-4 text-jungle-green" />}
+                  {item.completed && <Check className="w-4 h-4 text-neon" />}
                 </motion.div>
                 
-                <span className={`flex-1 text-left transition-all ${
-                  item.completed ? 'text-warm line-through opacity-60' : 'text-warm'
+                <span className={`flex-1 text-left text-sm sm:text-base transition-all duration-300 ${
+                  item.completed ? 'text-warm/50 line-through' : 'text-warm/90'
                 }`}>
                   {item.text}
                 </span>
@@ -131,13 +131,13 @@ export default function InteractiveChecklist() {
 
           {progress === 100 && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="mt-8 text-center p-6 bg-neon/10 border border-neon/30 rounded-xl"
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              className="mt-8 text-center p-6 sm:p-8 bg-neon/10 border border-neon/30 rounded-xl sm:rounded-2xl"
             >
-              <Sparkles className="w-8 h-8 text-neon mx-auto mb-2" />
-              <p className="text-neon font-bold text-lg">Ready to automate! 🚀</p>
-              <p className="text-warm-72">Book your free strategy call to get started</p>
+              <Sparkles className="w-10 h-10 text-neon mx-auto mb-3" />
+              <p className="text-neon font-display font-bold text-xl mb-2">Ready to automate! 🚀</p>
+              <p className="text-warm/70 text-sm sm:text-base">Book your free strategy call to get started</p>
             </motion.div>
           )}
         </motion.div>

@@ -51,7 +51,7 @@ export default function InteractiveFAQ() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-warm mb-4"
+            className="font-display text-[clamp(2rem,4vw,3rem)] font-bold text-warm leading-[1.1] mb-4"
           >
             Common{' '}
             <span className="text-neon">Questions</span>
@@ -66,11 +66,11 @@ export default function InteractiveFAQ() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.08 }}
-              className="bg-warm/5 border border-warm/10 rounded-xl overflow-hidden"
+              className="bg-warm/5 border border-warm/10 rounded-xl sm:rounded-2xl overflow-hidden hover:border-warm/20 transition-colors duration-300"
             >
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full flex items-center justify-between p-4 sm:p-6 text-left hover:bg-warm/5 transition-colors"
+                className="w-full flex items-center justify-between p-4 sm:p-6 text-left hover:bg-warm/[0.03] transition-colors"
               >
                 <span className="font-semibold text-warm text-sm sm:text-base lg:text-lg pr-4">
                   {faq.question}
@@ -91,7 +91,7 @@ export default function InteractiveFAQ() {
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
                   >
-                    <div className="px-4 sm:px-6 pb-4 sm:pb-6 text-warm-72 text-sm sm:text-base leading-relaxed">
+                    <div className="px-4 sm:px-6 pb-4 sm:pb-6 text-warm/70 text-sm sm:text-base leading-relaxed">
                       {faq.answer}
                     </div>
                   </motion.div>

@@ -92,10 +92,10 @@ export default function HowItWorksSection() {
       <div className="max-w-4xl mx-auto px-6">
         {/* Header */}
         <div ref={headerRef} className="text-center mb-12 sm:mb-16 px-4">
-          <span className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-neon/10 text-neon text-xs sm:text-sm font-mono mb-4">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon/10 border border-neon/20 text-neon text-sm font-mono font-medium mb-6">
             How It Works
           </span>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-[clamp(36px,4vw,64px)] font-black text-warm uppercase tracking-tight mb-4">
+          <h2 className="font-display text-[clamp(2rem,4vw,3.5rem)] font-black text-warm uppercase tracking-tight leading-[1.1] mb-5">
             From Call to Live<br />in Under a Week
           </h2>
           <p className="text-warm-72 text-base sm:text-lg max-w-xl mx-auto">
@@ -104,29 +104,29 @@ export default function HowItWorksSection() {
         </div>
 
         {/* Steps */}
-        <div className="space-y-8">
+        <div className="space-y-4 sm:space-y-6">
           {steps.map((step, index) => (
             <div
               key={step.number}
               ref={(el) => { stepsRef.current[index] = el; }}
-              className="flex flex-col sm:flex-row items-start gap-6 p-6 lg:p-8 rounded-3xl bg-warm/5 border border-warm/10 hover:border-neon/30 transition-colors duration-300"
+              className="flex flex-col sm:flex-row items-start gap-5 sm:gap-6 p-5 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl bg-warm/5 border border-warm/10 hover:border-neon/30 hover:bg-warm/[0.07] transition-all duration-300 group"
             >
               {/* Number & Icon */}
-              <div className="flex items-center gap-4 sm:w-48 flex-shrink-0">
-                <span className="font-mono text-3xl font-bold text-neon/50">
+              <div className="flex items-center gap-3 sm:gap-4 sm:w-48 flex-shrink-0">
+                <span className="font-mono text-2xl sm:text-3xl font-bold text-neon/40 group-hover:text-neon/60 transition-colors">
                   {step.number}
                 </span>
-                <div className="w-12 h-12 rounded-full bg-neon/20 flex items-center justify-center">
-                  <step.icon className="text-neon" size={22} />
+                <div className="w-11 h-11 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 transition-colors">
+                  <step.icon className="text-neon" size={20} />
                 </div>
               </div>
 
               {/* Content */}
-              <div>
-                <h3 className="font-display text-xl font-bold text-warm uppercase mb-2">
+              <div className="flex-1">
+                <h3 className="font-display text-lg sm:text-xl font-bold text-warm uppercase mb-2">
                   {step.title}
                 </h3>
-                <p className="text-warm-72 leading-relaxed">
+                <p className="text-warm/70 leading-relaxed text-sm sm:text-base">
                   {step.description}
                 </p>
               </div>
@@ -135,5 +135,8 @@ export default function HowItWorksSection() {
         </div>
       </div>
     </section>
+  );
+}
+
   );
 }

@@ -187,17 +187,17 @@ export default function SimplePricingSection() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
         {/* Header */}
-        <div ref={headerRef} className="text-center mb-16">
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon/10 text-neon text-sm font-mono mb-6">
+        <div ref={headerRef} className="text-center mb-16 sm:mb-20">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon/10 border border-neon/20 text-neon text-sm font-mono font-medium mb-6">
             <Sparkles size={14} />
             Simple Pricing — No Hidden Fees
           </span>
           
-          <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black text-warm uppercase tracking-tight mb-6">
+          <h2 className="font-display text-[clamp(2rem,4vw,3.5rem)] font-black text-warm uppercase tracking-tight leading-[1.1] mb-5">
             Choose Your Path
           </h2>
           
-          <p className="text-warm-72 text-lg sm:text-xl max-w-2xl mx-auto">
+          <p className="text-warm/70 text-base sm:text-lg max-w-2xl mx-auto">
             Three ways to grow. Pick what fits your biggest pain point right now.
           </p>
         </div>

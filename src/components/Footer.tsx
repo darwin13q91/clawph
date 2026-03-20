@@ -63,37 +63,37 @@ export default function Footer() {
                 amajungle
               </span>
             </Link>
-            
+
             <p className="text-warm-72 leading-relaxed mb-6 max-w-sm">
-              AI-powered Amazon intelligence and management for sellers who want to 
+              AI-powered Amazon intelligence and management for sellers who want to
               scale without drowning in busywork.
             </p>
 
             {/* Contact Info */}
             <div className="space-y-3">
-              <a 
+              <a
                 href="mailto:hello@amajungle.com"
-                className="flex items-center gap-3 text-warm-72 hover:text-neon transition-colors group"
+                className="flex items-center gap-3 text-warm/70 hover:text-neon transition-colors group"
               >
-                <div className="w-8 h-8 rounded-lg bg-warm/5 flex items-center justify-center group-hover:bg-neon/10 transition-colors">
-                  <Mail size={14} />
+                <div className="w-9 h-9 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 transition-colors">
+                  <Mail size={14} className="text-neon" />
                 </div>
                 <span className="text-sm">hello@amajungle.com</span>
               </a>
               
-              <a 
+              <a
                 href="tel:+6309954505206"
-                className="flex items-center gap-3 text-warm-72 hover:text-neon transition-colors group"
+                className="flex items-center gap-3 text-warm/70 hover:text-neon transition-colors group"
               >
-                <div className="w-8 h-8 rounded-lg bg-warm/5 flex items-center justify-center group-hover:bg-neon/10 transition-colors">
-                  <Phone size={14} />
+                <div className="w-9 h-9 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 transition-colors">
+                  <Phone size={14} className="text-neon" />
                 </div>
                 <span className="text-sm">+63 0995 450 5206</span>
               </a>
               
-              <div className="flex items-center gap-3 text-warm-72">
-                <div className="w-8 h-8 rounded-lg bg-warm/5 flex items-center justify-center">
-                  <MapPin size={14} />
+              <div className="flex items-center gap-3 text-warm/70">
+                <div className="w-9 h-9 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center">
+                  <MapPin size={14} className="text-neon" />
                 </div>
                 <span className="text-sm">Philippines • Remote worldwide</span>
               </div>
@@ -110,7 +110,7 @@ export default function Footer() {
               <ul className="space-y-3">
                 {footerLinks.services.map((link) => (
                   <li key={link.label}>
-                    <HashLink 
+                    <HashLink
                       to={link.href}
                       className="text-warm-72 hover:text-neon text-sm transition-colors inline-flex items-center gap-1 group"
                     >
@@ -130,14 +130,14 @@ export default function Footer() {
                 {footerLinks.company.map((link) => (
                   <li key={link.label}>
                     {link.href.startsWith('/#') ? (
-                      <HashLink 
+                      <HashLink
                         to={link.href}
                         className="text-warm-72 hover:text-neon text-sm transition-colors inline-flex items-center gap-1 group"
                       >
                         {link.label}
                       </HashLink>
                     ) : (
-                      <Link 
+                      <Link
                         to={link.href}
                         className="text-warm-72 hover:text-neon text-sm transition-colors inline-flex items-center gap-1 group"
                       >
@@ -157,7 +157,7 @@ export default function Footer() {
               <ul className="space-y-3">
                 {footerLinks.legal.map((link) => (
                   <li key={link.label}>
-                    <a 
+                    <a
                       href={link.href}
                       className="text-warm-72 hover:text-neon text-sm transition-colors inline-flex items-center gap-1 group"
                     >
@@ -179,7 +179,7 @@ export default function Footer() {
               <CalendlyButton className="w-full justify-center text-sm">
                 Book a Call
               </CalendlyButton>
-              
+
               <p className="text-warm-50 text-xs text-center">
                 Free 30-min consultation
               </p>

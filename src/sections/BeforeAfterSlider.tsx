@@ -97,12 +97,12 @@ export default function BeforeAfterSlider() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
-          className="relative rounded-2xl overflow-hidden border border-warm/10 shadow-2xl"
+          className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-warm/10 shadow-2xl"
           style={{ height: 'min(500px, 70vh)' }}
           ref={containerRef}
         >
           {/* Before Side */}
-          <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 to-jungle-dark/40 p-6 sm:p-8">
+          <div className="absolute inset-0 bg-gradient-to-br from-red-950/30 to-jungle-dark/50 p-6 sm:p-8 lg:p-10">
             <div className="h-full flex flex-col">
               <h3 className="font-display text-xl sm:text-2xl font-bold text-red-400 mb-4 sm:mb-6">
                 ❌ Manual Grind
