@@ -1,8 +1,8 @@
-import { useRef, useLayoutEffect, useState, useEffect } from 'react';
+import { useRef, useLayoutEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowLeft, Clock, Shield, Zap, MessageCircle, Menu, X } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Clock, Shield, Zap, MessageCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import CalendlyButton from '../components/CalendlyButton';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -53,25 +53,6 @@ export default function AboutPage() {
   const storyRef = useRef<HTMLDivElement>(null);
   const valuesRef = useRef<HTMLDivElement>(null);
   const differentRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // Handle body scroll lock when mobile menu is open
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isMobileMenuOpen]);
-
-  const handleHashLink = (e: React.MouseEvent, to: string) => {
-    e.preventDefault();
-    navigate(to);
-  };
 
   useLayoutEffect(() => {
     // Check for reduced motion preference
@@ -149,65 +130,7 @@ export default function AboutPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-jungle">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-jungle/95 backdrop-blur-sm border-b border-warm/10">
-        <div className="max-w-6xl mx-auto px-6 lg:px-12">
-          <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-3">
-              <span className="font-display text-xl font-bold text-warm tracking-tight">
-                amajungle
-              </span>
-            </Link>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-8">
-              <a href="/#services" onClick={(e) => handleHashLink(e, '/#services')} className="text-warm-72 hover:text-warm transition-colors text-sm">
-                Services
-              </a>
-              <a href="/#pricing" onClick={(e) => handleHashLink(e, '/#pricing')} className="text-warm-72 hover:text-warm transition-colors text-sm">
-                Pricing
-              </a>
-              <a href="/#faq" onClick={(e) => handleHashLink(e, '/#faq')} className="text-warm-72 hover:text-warm transition-colors text-sm">
-                FAQ
-              </a>
-              <Link to="/about" className="text-neon font-medium text-sm">
-                About
-              </Link>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              className="md:hidden p-2 text-warm"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden bg-jungle border-t border-warm/10">
-            <div className="px-6 py-4 space-y-3">
-              <a href="/#services" onClick={(e) => handleHashLink(e, '/#services')} className="block text-warm-72 hover:text-warm transition-colors py-2">
-                Services
-              </a>
-              <a href="/#pricing" onClick={(e) => handleHashLink(e, '/#pricing')} className="block text-warm-72 hover:text-warm transition-colors py-2">
-                Pricing
-              </a>
-              <a href="/#faq" onClick={(e) => handleHashLink(e, '/#faq')} className="block text-warm-72 hover:text-warm transition-colors py-2">
-                FAQ
-              </a>
-              <Link to="/about" className="block text-neon font-medium py-2">
-                About
-              </Link>
-            </div>
-          </div>
-        )}
-      </nav>
-
+    <div className="min-h-screen bg-jungle pt-16">
       {/* Hero */}
       <section className="pt-32 pb-24 px-6 lg:px-12">
         <div ref={heroRef} className="max-w-4xl mx-auto">
