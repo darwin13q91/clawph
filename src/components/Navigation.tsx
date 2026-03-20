@@ -161,11 +161,15 @@ export default function Navigation() {
           opacity: isVisible ? 1 : 0 
         }}
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 gpu ${
           isScrolled
-            ? 'glass py-3 shadow-lg'
+            ? 'nav-glass py-3 shadow-lg'
             : 'bg-transparent py-4'
         }`}
+        style={{
+          willChange: 'background-color, backdrop-filter',
+          backfaceVisibility: 'hidden',
+        }}
       >
         <nav 
           className="container-base flex items-center justify-between"
