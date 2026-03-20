@@ -61,7 +61,10 @@ yarn-error.log*
 ai-gateway/
 allysa_master.py
 api/
-apps/
+apps/*
+!apps/dashboard/
+apps/dashboard/*
+!apps/dashboard/public/
 ARCHIVED/
 bot-maintenance/
 brain/
