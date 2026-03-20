@@ -1,11 +1,15 @@
-import { useRef, useLayoutEffect } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { MessageSquare, Wrench, Rocket, Headphones } from 'lucide-react';
 
-gsap.registerPlugin(ScrollTrigger);
+interface Step {
+  number: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  title: string;
+  description: string;
+}
 
-const steps = [
+const steps: Step[] = [
   {
     number: '01',
     icon: MessageSquare,
@@ -32,107 +36,123 @@ const steps = [
   },
 ];
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.22, 1, 0.36, 1] as const,
+    },
+  },
+};
+
 export default function HowItWorksSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const stepsRef = useRef<(HTMLDivElement | null)[]>([]);
-
-  useLayoutEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        headerRef.current,
-        { y: '4vh', opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.6,
-          scrollTrigger: {
-            trigger: headerRef.current,
-            start: 'top 80%',
-            end: 'top 60%',
-            scrub: 0.5,
-          },
-        }
-      );
-
-      stepsRef.current.forEach((step, index) => {
-        if (step) {
-          gsap.fromTo(
-            step,
-            { x: index % 2 === 0 ? '-5vw' : '5vw', opacity: 0 },
-            {
-              x: 0,
-              opacity: 1,
-              duration: 0.6,
-              delay: index * 0.1, // Stagger: 0.1s delay per step
-              scrollTrigger: {
-                trigger: step,
-                start: 'top 85%',
-                end: 'top 60%',
-                scrub: 0.5,
-              },
-            }
-          );
-        }
-      });
-    }, section);
-
-    return () => ctx.revert();
-  }, []);
+  const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
 
   return (
     <section
       ref={sectionRef}
       id="process"
-      className="relative z-60 bg-jungle py-24 lg:py-32"
+      className="relative z-10 bg-jungle-800 section-lg overflow-hidden"
     >
-      <div className="max-w-4xl mx-auto px-6">
+      {/* Background Decoration */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-warm/5 to-transparent" />
+        <div className="absolute top-0 right-1/4 w-px h-full bg-gradient-to-b from-transparent via-warm/5 to-transparent" />
+      </div>
+
+      <div className="container-base relative z-10">
         {/* Header */}
-        <div ref={headerRef} className="text-center mb-12 sm:mb-16 px-4">
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon/10 border border-neon/20 text-neon text-sm font-mono font-medium mb-6">
-            How It Works
-          </span>
-          <h2 className="font-display text-[clamp(2rem,4vw,3.5rem)] font-black text-warm uppercase tracking-tight leading-[1.1] mb-5">
-            From Call to Live<br />in Under a Week
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="text-center mb-16 sm:mb-20"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-500/10 border border-neon-500/20 mb-6">
+            <span className="text-neon text-sm font-mono font-medium">How It Works</span>
+          </div>
+          
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-black text-warm uppercase tracking-tight leading-[1.1] mb-5">
+            From Call to Live
+            <span className="block text-gradient mt-2">in Under a Week</span>
           </h2>
-          <p className="text-warm-72 text-base sm:text-lg max-w-xl mx-auto">
+          
+          <p className="text-warm-400 text-base sm:text-lg max-w-xl mx-auto">
             No long onboarding. No confusing contracts. Just results.
           </p>
-        </div>
+        </motion.div>
 
         {/* Steps */}
-        <div className="space-y-4 sm:space-y-6">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+          className="max-w-3xl mx-auto space-y-4"
+        >
           {steps.map((step, index) => (
-            <div
+            <motion.div
               key={step.number}
-              ref={(el) => { stepsRef.current[index] = el; }}
-              className="flex flex-col sm:flex-row items-start gap-5 sm:gap-6 p-5 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl bg-warm/5 border border-warm/10 hover:border-neon/30 hover:bg-warm/[0.07] transition-all duration-300 group"
+              variants={itemVariants}
+              className="group relative"
             >
-              {/* Number & Icon */}
-              <div className="flex items-center gap-3 sm:gap-4 sm:w-48 flex-shrink-0">
-                <span className="font-mono text-2xl sm:text-3xl font-bold text-neon/40 group-hover:text-neon/60 transition-colors">
-                  {step.number}
-                </span>
-                <div className="w-11 h-11 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 transition-colors">
-                  <step.icon className="text-neon" size={20} />
+              {/* Connector Line */}
+              {index < steps.length - 1 && (
+                <div className="absolute left-6 sm:left-8 top-16 sm:top-20 w-px h-[calc(100%+1rem)] bg-gradient-to-b from-neon-500/30 to-transparent hidden sm:block" />
+              )}
+
+              <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6 p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-warm/5 border border-warm/10 hover:border-neon-500/30 hover:bg-warm/[0.07] transition-all duration-300">
+                {/* Number & Icon */}
+                <div className="flex items-center gap-3 sm:gap-4 sm:w-48 flex-shrink-0">
+                  <span className="font-mono text-2xl sm:text-3xl font-bold text-neon-500/40 group-hover:text-neon-500/60 transition-colors">
+                    {step.number}
+                  </span>
+                  <div className="w-12 h-12 rounded-xl bg-neon-500/10 border border-neon-500/20 flex items-center justify-center group-hover:bg-neon-500/20 transition-colors">
+                    <step.icon className="text-neon-500" size={24} aria-hidden="true" />
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 pt-1">
+                  <h3 className="font-display text-lg sm:text-xl font-bold text-warm uppercase mb-2">
+                    {step.title}
+                  </h3>
+                  <p className="text-warm-400 leading-relaxed text-sm sm:text-base">
+                    {step.description}
+                  </p>
                 </div>
               </div>
-
-              {/* Content */}
-              <div className="flex-1">
-                <h3 className="font-display text-lg sm:text-xl font-bold text-warm uppercase mb-2">
-                  {step.title}
-                </h3>
-                <p className="text-warm/70 leading-relaxed text-sm sm:text-base">
-                  {step.description}
-                </p>
-              </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
+
+        {/* Bottom Note */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-12 sm:mt-16 text-center"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-3 rounded-2xl bg-warm/5 border border-warm/10">
+            <div className="w-2 h-2 rounded-full bg-neon-500 animate-pulse" aria-hidden="true" />
+            <span className="text-warm-400 text-sm">
+              Average setup time: <span className="text-warm font-medium">48 hours</span> for AI agents
+            </span>
+          </div>
+        </motion.div>
       </div>
     </section>
   );

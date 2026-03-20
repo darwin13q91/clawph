@@ -1,7 +1,69 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowUpRight, Mail, MapPin, Phone } from 'lucide-react';
+import { motion } from 'framer-motion';
 import AnimatedLogo from './AnimatedLogo';
 import CalendlyButton from './CalendlyButton';
+
+interface FooterLink {
+  label: string;
+  href: string;
+  isExternal?: boolean;
+}
+
+interface FooterLinkGroup {
+  title: string;
+  links: FooterLink[];
+}
+
+const footerLinks: FooterLinkGroup[] = [
+  {
+    title: 'Services',
+    links: [
+      { label: 'River AI Intelligence', href: '/#pricing' },
+      { label: 'Amazon Growth', href: '/#pricing' },
+      { label: 'Brand Websites', href: '/#pricing' },
+      { label: 'Free Audit', href: '/#audit' },
+    ],
+  },
+  {
+    title: 'Company',
+    links: [
+      { label: 'About Us', href: '/about' },
+      { label: 'How It Works', href: '/#process' },
+      { label: 'FAQ', href: '/#faq' },
+      { label: 'Contact', href: '/#contact' },
+    ],
+  },
+  {
+    title: 'Legal',
+    links: [
+      { label: 'Compliance', href: '/compliance.html', isExternal: true },
+      { label: 'Privacy Policy', href: '#' },
+      { label: 'Terms of Service', href: '#' },
+    ],
+  },
+];
+
+const contactInfo = [
+  {
+    icon: Mail,
+    label: 'Email us',
+    value: 'hello@amajungle.com',
+    href: 'mailto:hello@amajungle.com',
+  },
+  {
+    icon: Phone,
+    label: 'Call or text',
+    value: '+63 0995 450 5206',
+    href: 'tel:+6309954505206',
+  },
+  {
+    icon: MapPin,
+    label: 'Based in',
+    value: 'Philippines • Remote worldwide',
+    href: null,
+  },
+];
 
 function HashLink({ to, children, className }: { to: string; children: React.ReactNode; className?: string }) {
   const navigate = useNavigate();
@@ -25,184 +87,178 @@ function HashLink({ to, children, className }: { to: string; children: React.Rea
   );
 }
 
-const footerLinks = {
-  services: [
-    { label: 'River AI Intelligence', href: '/#pricing' },
-    { label: 'Amazon Growth', href: '/#pricing' },
-    { label: 'Brand Websites', href: '/#pricing' },
-    { label: 'Free Audit', href: '/#audit' },
-  ],
-  company: [
-    { label: 'About Us', href: '/about' },
-    { label: 'How It Works', href: '/#process' },
-    { label: 'FAQ', href: '/#faq' },
-    { label: 'Contact', href: '/#contact' },
-  ],
-  legal: [
-    { label: 'Compliance', href: '/compliance.html' },
-    { label: 'Privacy Policy', href: '#' },
-    { label: 'Terms of Service', href: '#' },
-  ],
-};
-
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative z-50 bg-jungle-dark border-t border-warm/10">
+    <footer className="relative z-50 bg-jungle-900 border-t border-warm/10">
       {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-16 lg:py-20">
+      <div className="container-base py-16 lg:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
           {/* Brand Column */}
-          <div className="lg:col-span-4">
-            <Link to="/" className="flex items-center gap-3 group mb-6">
-              <div className="transition-transform duration-300 group-hover:scale-105">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="lg:col-span-4"
+          >
+            <Link 
+              to="/" 
+              className="flex items-center gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-500 focus-visible:ring-offset-2 focus-visible:ring-offset-jungle-900 rounded-lg w-fit"
+              aria-label="amajungle - Home"
+            >
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                className="transition-transform"
+              >
                 <AnimatedLogo size={40} />
-              </div>
+              </motion.div>
               <span className="font-display text-2xl font-bold text-warm tracking-tight">
                 amajungle
               </span>
             </Link>
 
-            <p className="text-warm-72 leading-relaxed mb-6 max-w-sm">
+            <p className="text-warm-400 leading-relaxed mt-6 mb-8 max-w-sm">
               AI-powered Amazon intelligence and management for sellers who want to
               scale without drowning in busywork.
             </p>
 
             {/* Contact Info */}
-            <div className="space-y-3">
-              <a
-                href="mailto:hello@amajungle.com"
-                className="flex items-center gap-3 text-warm/70 hover:text-neon transition-colors group"
-              >
-                <div className="w-9 h-9 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 transition-colors">
-                  <Mail size={14} className="text-neon" />
+            <div className="space-y-4">
+              {contactInfo.map((item) => (
+                <div key={item.label} className="flex items-center gap-3">
+                  {item.href ? (
+                    <a
+                      href={item.href}
+                      className="flex items-center gap-3 text-warm-400 hover:text-neon transition-colors group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-500 focus-visible:ring-offset-2 focus-visible:ring-offset-jungle-900 rounded-lg"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 transition-colors">
+                        <item.icon size={16} className="text-neon" aria-hidden="true" />
+                      </div>
+                      <div>
+                        <p className="text-warm-400 text-xs">{item.label}</p>
+                        <p className="text-warm text-sm font-medium">{item.value}</p>
+                      </div>
+                    </a>
+                  ) : (
+                    <div className="flex items-center gap-3 text-warm-400">
+                      <div className="w-10 h-10 rounded-xl bg-neon/10 border border-neon/20 flex items-center justify-center">
+                        <item.icon size={16} className="text-neon" aria-hidden="true" />
+                      </div>
+                      <div>
+                        <p className="text-warm-400 text-xs">{item.label}</p>
+                        <p className="text-warm text-sm font-medium">{item.value}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <span className="text-sm">hello@amajungle.com</span>
-              </a>
-              
-              <a
-                href="tel:+6309954505206"
-                className="flex items-center gap-3 text-warm/70 hover:text-neon transition-colors group"
-              >
-                <div className="w-9 h-9 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 transition-colors">
-                  <Phone size={14} className="text-neon" />
-                </div>
-                <span className="text-sm">+63 0995 450 5206</span>
-              </a>
-              
-              <div className="flex items-center gap-3 text-warm/70">
-                <div className="w-9 h-9 rounded-lg bg-neon/10 border border-neon/20 flex items-center justify-center">
-                  <MapPin size={14} className="text-neon" />
-                </div>
-                <span className="text-sm">Philippines • Remote worldwide</span>
-              </div>
+              ))}
             </div>
-          </div>
+          </motion.div>
 
           {/* Links Columns */}
-          <div className="lg:col-span-6 grid grid-cols-2 sm:grid-cols-3 gap-8">
-            {/* Services */}
-            <div>
-              <h4 className="font-display text-sm font-bold text-warm uppercase tracking-wider mb-4">
-                Services
-              </h4>
-              <ul className="space-y-3">
-                {footerLinks.services.map((link) => (
-                  <li key={link.label}>
-                    <HashLink
-                      to={link.href}
-                      className="text-warm-72 hover:text-neon text-sm transition-colors inline-flex items-center gap-1 group"
-                    >
-                      {link.label}
-                    </HashLink>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Company */}
-            <div>
-              <h4 className="font-display text-sm font-bold text-warm uppercase tracking-wider mb-4">
-                Company
-              </h4>
-              <ul className="space-y-3">
-                {footerLinks.company.map((link) => (
-                  <li key={link.label}>
-                    {link.href.startsWith('/#') ? (
-                      <HashLink
-                        to={link.href}
-                        className="text-warm-72 hover:text-neon text-sm transition-colors inline-flex items-center gap-1 group"
-                      >
-                        {link.label}
-                      </HashLink>
-                    ) : (
-                      <Link
-                        to={link.href}
-                        className="text-warm-72 hover:text-neon text-sm transition-colors inline-flex items-center gap-1 group"
-                      >
-                        {link.label}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Legal */}
-            <div>
-              <h4 className="font-display text-sm font-bold text-warm uppercase tracking-wider mb-4">
-                Legal
-              </h4>
-              <ul className="space-y-3">
-                {footerLinks.legal.map((link) => (
-                  <li key={link.label}>
-                    <a
-                      href={link.href}
-                      className="text-warm-72 hover:text-neon text-sm transition-colors inline-flex items-center gap-1 group"
-                    >
-                      {link.label}
-                      {link.href !== '#' && <ArrowUpRight size={12} className="opacity-50" />}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          <div className="lg:col-span-5 grid grid-cols-2 sm:grid-cols-3 gap-8">
+            {footerLinks.map((group, groupIndex) => (
+              <motion.div 
+                key={group.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: groupIndex * 0.1 }}
+              >
+                <h4 className="font-display text-sm font-bold text-warm uppercase tracking-wider mb-5">
+                  {group.title}
+                </h4>
+                <ul className="space-y-3">
+                  {group.links.map((link) => (
+                    <li key={link.label}>
+                      {link.isExternal ? (
+                        <a
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-warm-400 hover:text-neon text-sm transition-colors inline-flex items-center gap-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-500 focus-visible:ring-offset-2 focus-visible:ring-offset-jungle-900 rounded px-1 -mx-1"
+                        >
+                          {link.label}
+                          <ArrowUpRight size={12} className="opacity-50 group-hover:opacity-100" aria-hidden="true" />
+                        </a>
+                      ) : link.href.startsWith('/#') ? (
+                        <HashLink
+                          to={link.href}
+                          className="text-warm-400 hover:text-neon text-sm transition-colors inline-flex items-center gap-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-500 focus-visible:ring-offset-2 focus-visible:ring-offset-jungle-900 rounded px-1 -mx-1"
+                        >
+                          {link.label}
+                        </HashLink>
+                      ) : (
+                        <Link
+                          to={link.href}
+                          className="text-warm-400 hover:text-neon text-sm transition-colors inline-flex items-center gap-1 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-500 focus-visible:ring-offset-2 focus-visible:ring-offset-jungle-900 rounded px-1 -mx-1"
+                        >
+                          {link.label}
+                        </Link>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            ))}
           </div>
 
           {/* CTA Column */}
-          <div className="lg:col-span-2">
-            <h4 className="font-display text-sm font-bold text-warm uppercase tracking-wider mb-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="lg:col-span-3"
+          >
+            <h4 className="font-display text-sm font-bold text-warm uppercase tracking-wider mb-5">
               Get Started
             </h4>
-            <div className="space-y-3">
-              <CalendlyButton className="w-full justify-center text-sm">
+            <div className="space-y-4">
+              <CalendlyButton className="w-full justify-center">
                 Book a Call
               </CalendlyButton>
 
-              <p className="text-warm-50 text-xs text-center">
+              <p className="text-warm-400 text-xs text-center leading-relaxed">
                 Free 30-min consultation
+                <br />
+                No commitment required
               </p>
             </div>
-          </div>
+
+            {/* Trust Badge */}
+            <div className="mt-8 p-4 rounded-2xl bg-warm/5 border border-warm/10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-neon/10 flex items-center justify-center flex-shrink-0">
+                  <span className="text-lg">🌊</span>
+                </div>
+                <div>
+                  <p className="text-warm text-sm font-medium">Powered by River AI</p>
+                  <p className="text-warm-400 text-xs">23 specialized modes</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </div>
 
       {/* Bottom Bar */}
       <div className="border-t border-warm/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-6">
+        <div className="container-base py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Copyright */}
-            <p className="text-warm-50 text-sm">
+            <p className="text-warm-400 text-sm">
               © {currentYear} amajungle. All rights reserved.
             </p>
 
-            {/* River AI Badge */}
-            <div className="flex items-center gap-2 text-warm-50 text-xs">
-              <span className="text-lg">🌊</span>
-              <span>Powered by River AI Technology</span>
-              <span className="text-warm/30">|</span>
-              <span>23 specialized Amazon intelligence modes</span>
+            {/* Badges */}
+            <div className="flex items-center gap-4 text-warm-400 text-xs">
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-neon animate-pulse" aria-hidden="true" />
+                All systems operational
+              </span>
             </div>
           </div>
         </div>
