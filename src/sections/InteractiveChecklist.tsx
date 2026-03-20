@@ -26,7 +26,7 @@ export default function InteractiveChecklist() {
   };
 
   return (
-    <section className="py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-12 bg-jungle relative overflow-hidden">
+    <section className="py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-12 bg-jungle/80 backdrop-blur-sm relative overflow-hidden">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-10 sm:mb-12">
           <motion.div

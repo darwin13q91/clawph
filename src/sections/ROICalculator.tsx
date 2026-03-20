@@ -13,7 +13,7 @@ export default function ROICalculator() {
   const roi = ((yearlySavings - 12000) / 12000) * 100; // Assuming $12k automation cost
 
   return (
-    <section className="py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-12 bg-jungle relative overflow-hidden">
+    <section className="py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-12 bg-jungle/80 backdrop-blur-sm relative overflow-hidden">
       {/* Background glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] bg-neon/5 rounded-full blur-[100px] pointer-events-none" />
       

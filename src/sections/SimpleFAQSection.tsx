@@ -66,7 +66,7 @@ export default function SimpleFAQSection() {
     <section
       ref={sectionRef}
       id="faq"
-      className="relative z-60 bg-jungle py-24 lg:py-32"
+      className="relative z-10 bg-jungle/80 backdrop-blur-sm py-24 lg:py-32"
     >
       <div className="max-w-3xl mx-auto px-6">
         {/* Header */}

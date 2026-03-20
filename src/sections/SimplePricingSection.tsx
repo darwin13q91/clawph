@@ -168,7 +168,7 @@ export default function SimplePricingSection() {
     <section
       ref={sectionRef}
       id="pricing"
-      className="relative z-10 bg-jungle-800 section-xl overflow-hidden"
+      className="relative z-10 bg-jungle-800/80 backdrop-blur-sm section-xl overflow-hidden"
     >
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none">

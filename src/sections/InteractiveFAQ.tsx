@@ -44,7 +44,7 @@ export default function InteractiveFAQ() {
   return (
     <section
       id="faq"
-      className="relative z-10 bg-jungle-800 section-lg"
+      className="relative z-10 bg-jungle-800/80 backdrop-blur-sm section-lg"
     >
       <div className="container-base">
         <div className="max-w-3xl mx-auto">

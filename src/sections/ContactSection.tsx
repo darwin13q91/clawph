@@ -141,7 +141,7 @@ export default function ContactSection() {
     <section
       ref={sectionRef}
       id="contact"
-      className="relative z-10 bg-jungle-700 section-lg overflow-hidden"
+      className="relative z-10 bg-jungle-700/80 backdrop-blur-sm section-lg overflow-hidden"
     >
       {/* Background */}
       <div className="absolute inset-0 pointer-events-none">

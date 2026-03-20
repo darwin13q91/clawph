@@ -66,7 +66,7 @@ export default function HowItWorksSection() {
     <section
       ref={sectionRef}
       id="process"
-      className="relative z-10 bg-jungle-800 section-lg overflow-hidden"
+      className="relative z-10 bg-jungle-800/80 backdrop-blur-sm section-lg overflow-hidden"
     >
       {/* Background Decoration */}
       <div className="absolute inset-0 pointer-events-none">
