@@ -9,7 +9,8 @@ interface Package {
   name: string;
   tagline: string;
   price: string;
-  originalPrice: string;
+  priceSubtext?: string;
+  originalPrice?: string;
   badge: string;
   description: string;
   features: string[];
@@ -60,8 +61,8 @@ const packages: Package[] = [
     icon: TrendingUp,
     name: 'River Amazon Growth',
     tagline: 'Strategic guidance for scaling',
-    price: '$999/mo',
-    originalPrice: '$1,999/mo',
+    price: 'Custom',
+    priceSubtext: 'based on size',
     badge: 'Most Popular',
     description: 'River-powered strategic guidance for listings, PPC, inventory, and growth acceleration.',
     features: [
@@ -262,7 +263,12 @@ export default function SimplePricingSection() {
                       <span className={`font-mono text-3xl sm:text-4xl lg:text-5xl font-bold ${colors.text}`}>
                         {pkg.price}
                       </span>
-                      <span className="text-warm-400 line-through text-sm">{pkg.originalPrice}</span>
+                      {pkg.priceSubtext && (
+                        <span className="text-warm-400 text-sm">{pkg.priceSubtext}</span>
+                      )}
+                      {pkg.originalPrice && (
+                        <span className="text-warm-400 line-through text-sm">{pkg.originalPrice}</span>
+                      )}
                     </div>
                     <p className="text-warm-400 text-xs sm:text-sm mt-2">{pkg.description}</p>
                   </div>
