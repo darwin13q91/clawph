@@ -220,8 +220,8 @@ export default function SimplePricingSection() {
                 }`}
               >
                 {/* Badge */}
-                <div className="absolute -top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                  <span className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${colors.badge}`}>
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
+                  <span className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg ${colors.badge}`}>
                     {pkg.popular && <Sparkles size={12} />}
                     {pkg.badge}
                   </span>
