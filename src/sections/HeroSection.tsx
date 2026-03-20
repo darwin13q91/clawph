@@ -64,22 +64,14 @@ export default function HeroSection() {
       aria-label="Hero section"
     >
       {/* Background Layers */}
-      <div className="absolute inset-0 z-0">
-        {/* Base Background Image */}
-        <div className="absolute inset-0">
-          <img
-            src="/images/hero_leaf_bg.jpg"
-            alt=""
-            className="w-full h-full object-cover"
-            loading="eager"
-            fetchPriority="high"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-jungle-950/95 via-jungle-900/90 to-jungle-800/85" />
-          <div className="absolute inset-0 bg-gradient-to-t from-jungle-800 via-transparent to-transparent" />
-        </div>
+      <div className="absolute inset-0 z-[-1]">
+        {/* Particle background visible through semi-transparent overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-jungle-950/70 via-jungle-900/60 to-jungle-800/50" />
+        <div className="absolute inset-0 bg-gradient-to-t from-jungle-800 via-transparent to-transparent" />
+      </div>
 
-        {/* Animated Gradient Orbs */}
-        <motion.div
+      {/* Animated Gradient Orbs */}
+      <motion.div
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],

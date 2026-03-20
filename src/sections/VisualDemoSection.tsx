@@ -96,7 +96,7 @@ export default function VisualDemoSection() {
     <section
       ref={sectionRef}
       id="demo"
-      className="relative z-60 bg-jungle py-24 lg:py-32 overflow-hidden"
+      className="relative z-10 bg-jungle/80 backdrop-blur-sm py-24 lg:py-32 overflow-hidden"
     >
       {/* Background glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-neon/5 rounded-full blur-3xl pointer-events-none" />
