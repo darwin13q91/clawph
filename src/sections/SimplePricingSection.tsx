@@ -241,7 +241,7 @@ export default function SimplePricingSection() {
                 <div className={`absolute inset-0 bg-gradient-to-b ${colors.gradient} opacity-50`} />
 
                 {/* Card Content */}
-                <div className="relative card p-6 sm:p-8 flex flex-col h-full">
+                <div className="relative card pt-14 pb-6 px-6 sm:pt-16 sm:pb-8 sm:px-8 flex flex-col h-full">
                   {/* Header */}
                   <div className="flex items-start gap-3 sm:gap-4 mb-5">
                     <div
