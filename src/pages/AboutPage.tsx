@@ -16,6 +16,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import CalendlyButton from '../components/CalendlyButton';
+import BackgroundAnimation from '../components/BackgroundAnimation';
 
 interface Stat {
   value: string;
@@ -170,6 +171,9 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-jungle-800 pt-20">
+      {/* Particle Background Animation */}
+      <BackgroundAnimation />
+
       {/* Hero Section */}
       <section ref={heroRef} className="relative section-xl overflow-hidden">
         {/* Background decorations */}
