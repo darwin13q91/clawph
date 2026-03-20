@@ -254,7 +254,3 @@ export default function LeadMagnetSection() {
     </section>
   );
 }
-  </div>
-    </section>
-  );
-}
