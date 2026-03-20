@@ -1,47 +1,52 @@
 import { useEffect, useState } from 'react';
-import { Menu, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Menu, X, ChevronRight } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import CalendlyButton from './CalendlyButton';
 import AnimatedLogo from './AnimatedLogo';
 
+const navItems = [
+  { label: 'Free Audit', href: '#audit' },
+  { label: 'See Demo', href: '#demo' },
+  { label: 'How It Works', href: '#process' },
+  { label: 'Pricing', href: '#pricing' },
+];
+
 // Mobile menu animation variants
 const menuVariants = {
   closed: {
-    x: '100%',
+    opacity: 0,
     transition: {
-      type: 'tween' as const,
-      duration: 0.3,
-      ease: [0.22, 1, 0.36, 1] as const,
-      when: 'afterChildren' as const,
+      duration: 0.2,
+      ease: [0.22, 1, 0.36, 1],
+      when: 'afterChildren',
     },
   },
   open: {
-    x: 0,
+    opacity: 1,
     transition: {
-      type: 'tween' as const,
       duration: 0.3,
-      ease: [0.22, 1, 0.36, 1] as const,
-      when: 'beforeChildren' as const,
-      staggerChildren: 0.1,
+      ease: [0.22, 1, 0.36, 1],
+      when: 'beforeChildren',
+      staggerChildren: 0.08,
     },
   },
 };
 
 const menuItemVariants = {
   closed: {
-    x: 50,
+    y: 20,
     opacity: 0,
     transition: {
       duration: 0.2,
     },
   },
   open: {
-    x: 0,
+    y: 0,
     opacity: 1,
     transition: {
-      duration: 0.3,
-      ease: [0.22, 1, 0.36, 1] as const,
+      duration: 0.4,
+      ease: [0.22, 1, 0.36, 1],
     },
   },
 };
@@ -49,14 +54,46 @@ const menuItemVariants = {
 export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('');
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
 
+  // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
+      setIsScrolled(window.scrollY > 50);
+      
+      // Update active section based on scroll position
+      if (isHomePage) {
+        const sections = ['audit', 'demo', 'process', 'pricing', 'faq', 'contact'];
+        for (const section of sections) {
+          const element = document.getElementById(section);
+          if (element) {
+            const rect = element.getBoundingClientRect();
+            if (rect.top <= 150 && rect.bottom >= 150) {
+              setActiveSection(section);
+              break;
+            }
+          }
+        }
+      }
     };
+    
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isHomePage]);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -71,62 +108,69 @@ export default function Navigation() {
       {/* Skip to content link for accessibility */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[60] bg-neon text-jungle px-4 py-2 rounded-lg font-semibold"
+        className="skip-link"
       >
         Skip to main content
       </a>
-      <nav
+
+      {/* Navigation Bar */}
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isScrolled
-            ? 'bg-jungle/90 backdrop-blur-md py-4'
-            : 'bg-transparent py-6'
+            ? 'bg-jungle/95 backdrop-blur-xl shadow-lg shadow-black/10 py-3'
+            : 'bg-transparent py-5'
         }`}
       >
-        <div className="w-full px-6 lg:px-12 flex items-center justify-between">
+        <div className="w-full px-4 sm:px-6 lg:px-12 flex items-center justify-between">
           {/* Logo */}
           <Link
             to="/"
-            className="flex items-center gap-3"
+            className="flex items-center gap-2 sm:gap-3 group"
           >
-            <AnimatedLogo size={40} />
-            <span className="font-display text-2xl font-bold text-warm tracking-tight hidden sm:block">
+            <div className="transition-transform duration-300 group-hover:scale-105">
+              <AnimatedLogo size={36} />
+            </div>
+            <span className="font-display text-xl sm:text-2xl font-bold text-warm tracking-tight hidden sm:block">
               amajungle
             </span>
           </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
-            <button
-              onClick={() => scrollToSection('audit')}
-              className="nav-link text-warm-72 hover:text-warm text-sm font-medium"
-            >
-              Free Audit
-            </button>
-            <button
-              onClick={() => scrollToSection('demo')}
-              className="nav-link text-warm-72 hover:text-warm text-sm font-medium"
-            >
-              See Demo
-            </button>
-            <button
-              onClick={() => scrollToSection('process')}
-              className="nav-link text-warm-72 hover:text-warm text-sm font-medium"
-            >
-              How It Works
-            </button>
-            <button
-              onClick={() => scrollToSection('pricing')}
-              className="nav-link text-warm-72 hover:text-warm text-sm font-medium"
-            >
-              Pricing
-            </button>
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center gap-1">
+            {navItems.map((item) => {
+              const isActive = activeSection === item.href.replace('#', '');
+              return (
+                <button
+                  key={item.label}
+                  onClick={() => scrollToSection(item.href.replace('#', ''))}
+                  className={`nav-link px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${
+                    isActive 
+                      ? 'text-warm bg-warm/10' 
+                      : 'text-warm-72 hover:text-warm hover:bg-warm/5'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
             <Link
               to="/about"
-              className="nav-link text-warm-72 hover:text-warm text-sm font-medium"
+              className={`nav-link px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 ml-1 ${
+                location.pathname === '/about'
+                  ? 'text-warm bg-warm/10'
+                  : 'text-warm-72 hover:text-warm hover:bg-warm/5'
+              }`}
             >
               About
             </Link>
-            <CalendlyButton className="text-sm py-3 px-6">
+          </div>
+
+          {/* Desktop CTA */}
+          <div className="hidden lg:flex items-center gap-3">
+            <CalendlyButton className="btn-sm">
               Book a Call
             </CalendlyButton>
           </div>
@@ -134,17 +178,39 @@ export default function Navigation() {
           {/* Mobile Menu Button */}
           <motion.button
             whileTap={{ scale: 0.95 }}
-            className="md:hidden text-warm"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="lg:hidden relative w-10 h-10 rounded-xl bg-warm/5 flex items-center justify-center text-warm hover:bg-warm/10 transition-colors"
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isMobileMenuOpen}
           >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            <AnimatePresence mode="wait">
+              {isMobileMenuOpen ? (
+                <motion.div
+                  key="close"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <X size={20} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="menu"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Menu size={20} />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.button>
         </div>
-      </nav>
+      </motion.nav>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
@@ -152,56 +218,63 @@ export default function Navigation() {
             initial="closed"
             animate="open"
             exit="closed"
-            className="fixed inset-0 z-40 bg-jungle/98 backdrop-blur-lg md:hidden"
+            className="fixed inset-0 z-40 lg:hidden"
             role="dialog"
             aria-modal="true"
             aria-label="Mobile navigation menu"
-            onKeyDown={(e) => {
-              if (e.key === 'Escape') {
-                setIsMobileMenuOpen(false);
-              }
-            }}
           >
-            <div className="flex flex-col items-center justify-center h-full gap-6 pt-20">
-              <motion.button
+            {/* Backdrop */}
+            <motion.div 
+              className="absolute inset-0 bg-jungle/98 backdrop-blur-2xl"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            
+            {/* Menu Content */}
+            <div className="relative h-full flex flex-col pt-24 pb-8 px-6">
+              {/* Navigation Links */}
+              <div className="flex-1 flex flex-col justify-center gap-2">
+                {navItems.map((item) => (
+                  <motion.button
+                    key={item.label}
+                    variants={menuItemVariants}
+                    onClick={() => scrollToSection(item.href.replace('#', ''))}
+                    className="flex items-center justify-between w-full p-4 rounded-2xl text-left text-warm text-xl font-display font-bold hover:bg-warm/5 transition-colors group"
+                  >
+                    <span>{item.label}</span>
+                    <ChevronRight 
+                      size={20} 
+                      className="text-warm-50 group-hover:text-neon group-hover:translate-x-1 transition-all" 
+                    />
+                  </motion.button>
+                ))}
+                
+                <motion.div variants={menuItemVariants}>
+                  <Link
+                    to="/about"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center justify-between w-full p-4 rounded-2xl text-left text-warm text-xl font-display font-bold hover:bg-warm/5 transition-colors group"
+                  >
+                    <span>About</span>
+                    <ChevronRight 
+                      size={20} 
+                      className="text-warm-50 group-hover:text-neon group-hover:translate-x-1 transition-all" 
+                    />
+                  </Link>
+                </motion.div>
+              </div>
+
+              {/* Bottom CTA */}
+              <motion.div 
                 variants={menuItemVariants}
-                onClick={() => scrollToSection('audit')}
-                className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
+                className="pt-6 border-t border-warm/10"
               >
-                Free Audit
-              </motion.button>
-              <motion.button
-                variants={menuItemVariants}
-                onClick={() => scrollToSection('demo')}
-                className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
-              >
-                See Demo
-              </motion.button>
-              <motion.button
-                variants={menuItemVariants}
-                onClick={() => scrollToSection('process')}
-                className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
-              >
-                How It Works
-              </motion.button>
-              <motion.button
-                variants={menuItemVariants}
-                onClick={() => scrollToSection('pricing')}
-                className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2"
-              >
-                Pricing
-              </motion.button>
-              <motion.div variants={menuItemVariants}>
-                <Link
-                  to="/about"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-warm text-xl font-display font-bold py-3 px-6 rounded-xl hover:bg-warm/10 transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-neon focus-visible:outline-offset-2 block"
-                >
-                  About
-                </Link>
-              </motion.div>
-              <motion.div variants={menuItemVariants} onClick={() => setIsMobileMenuOpen(false)} className="mt-4">
-                <CalendlyButton>Book a Call</CalendlyButton>
+                <CalendlyButton className="w-full justify-center">
+                  Book Free Strategy Call
+                </CalendlyButton>
+                
+                <p className="text-center text-warm-50 text-sm mt-4">
+                  Free 30-minute consultation • No commitment
+                </p>
               </motion.div>
             </div>
           </motion.div>
