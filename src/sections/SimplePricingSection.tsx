@@ -29,8 +29,8 @@ const packages: Package[] = [
     icon: Zap,
     name: 'River AI Intelligence',
     tagline: 'AI-powered Amazon intelligence 24/7',
-    price: '$997',
-    originalPrice: '$1,997',
+    price: '$499',
+    originalPrice: '$997',
     badge: '50% Off Founding',
     description: 'Custom River AI agent that analyzes 10,000+ data points and delivers actionable insights via Telegram.',
     features: [
@@ -83,8 +83,8 @@ const packages: Package[] = [
     icon: Globe,
     name: 'Brand Website',
     tagline: 'Your own storefront outside Amazon',
-    price: '$1,497',
-    originalPrice: '$2,997',
+    price: '$599',
+    originalPrice: '$1,497',
     badge: 'Launch Your Brand',
     description: 'Custom website to build your brand, capture emails, and drive external traffic to Amazon.',
     features: [
