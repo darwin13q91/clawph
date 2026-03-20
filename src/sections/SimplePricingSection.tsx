@@ -221,14 +221,14 @@ export default function SimplePricingSection() {
                 variants={cardVariants}
                 whileHover={{ y: -8 }}
                 transition={{ duration: 0.3 }}
-                className={`relative flex flex-col rounded-3xl overflow-hidden ${
+                className={`relative flex flex-col rounded-3xl ${
                   pkg.popular
                     ? `ring-2 ring-neon-500 ${colors.glow}`
                     : 'border border-warm/10'
                 }`}
               >
-                {/* Badge */}
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
+                {/* Badge - positioned outside the overflow-hidden container */}
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-30">
                   <span
                     className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg ${colors.badge}`}
                   >
@@ -237,11 +237,13 @@ export default function SimplePricingSection() {
                   </span>
                 </div>
 
-                {/* Gradient Background */}
-                <div className={`absolute inset-0 bg-gradient-to-b ${colors.gradient} opacity-50`} />
+                {/* Card Inner Container with overflow-hidden for content */}
+                <div className="relative rounded-3xl overflow-hidden flex flex-col h-full bg-jungle-800/50">
+                  {/* Gradient Background */}
+                  <div className={`absolute inset-0 bg-gradient-to-b ${colors.gradient} opacity-50`} />
 
-                {/* Card Content */}
-                <div className="relative card pt-14 pb-6 px-6 sm:pt-16 sm:pb-8 sm:px-8 flex flex-col h-full">
+                  {/* Card Content */}
+                  <div className="relative card pt-14 pb-6 px-6 sm:pt-16 sm:pb-8 sm:px-8 flex flex-col h-full">
                   {/* Header */}
                   <div className="flex items-start gap-3 sm:gap-4 mb-5">
                     <div
@@ -322,7 +324,8 @@ export default function SimplePricingSection() {
                     {pkg.cta}
                   </CalendlyButton>
                 </div>
-              </motion.div>
+              </div>
+            </motion.div>
             );
           })}
         </motion.div>
