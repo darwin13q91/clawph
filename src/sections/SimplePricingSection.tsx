@@ -228,7 +228,7 @@ export default function SimplePricingSection() {
                 }`}
               >
                 {/* Badge */}
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
                   <span
                     className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg ${colors.badge}`}
                   >
