@@ -137,6 +137,3 @@ export default function HowItWorksSection() {
     </section>
   );
 }
-
-  );
-}
