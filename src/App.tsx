@@ -46,6 +46,7 @@ import InteractiveFAQ from './sections/InteractiveFAQ';
 import HowItWorksSection from './sections/HowItWorksSection';
 import SimplePricingSection from './sections/SimplePricingSection';
 import ContactSection from './sections/ContactSection';
+import VisualDemoSection from './sections/VisualDemoSection';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -186,6 +187,9 @@ function HomePage() {
     <main id="main-content" className="relative">
       {/* Pinned Hero */}
       <HeroSection />
+
+      {/* Demo Section */}
+      <VisualDemoSection />
 
       {/* Flowing Sections */}
       <LeadMagnetSection />
