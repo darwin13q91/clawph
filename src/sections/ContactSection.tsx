@@ -326,3 +326,16 @@ export default function ContactSection() {
               </button>
             </form>
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+ </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

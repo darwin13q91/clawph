@@ -218,3 +218,6 @@ function ResultCard({ icon: Icon, label, value, delay, highlight = false }: {
     </motion.div>
   );
 }
+   </motion.div>
+  );
+}
