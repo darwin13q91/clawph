@@ -18,7 +18,7 @@ const menuVariants = {
     opacity: 0,
     transition: {
       duration: 0.2,
-      ease: [0.22, 1, 0.36, 1],
+      ease: [0.22, 1, 0.36, 1] as const,
       when: 'afterChildren',
     },
   },
@@ -26,7 +26,7 @@ const menuVariants = {
     opacity: 1,
     transition: {
       duration: 0.3,
-      ease: [0.22, 1, 0.36, 1],
+      ease: [0.22, 1, 0.36, 1] as const,
       when: 'beforeChildren',
       staggerChildren: 0.08,
     },
@@ -46,7 +46,7 @@ const menuItemVariants = {
     opacity: 1,
     transition: {
       duration: 0.4,
-      ease: [0.22, 1, 0.36, 1],
+      ease: [0.22, 1, 0.36, 1] as const,
     },
   },
 };
