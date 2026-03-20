@@ -12,6 +12,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import LeadMagnetPopup from './components/LeadMagnetPopup';
 import StickyCTA from './components/StickyCTA';
 import BackgroundEffects from './components/BackgroundEffects';
+import BackgroundAnimation from './components/BackgroundAnimation';
 
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -227,6 +228,9 @@ function App() {
       <ScrollToTop />
       <ErrorBoundary>
       <div className="relative bg-jungle min-h-screen">
+        {/* Animated Particle Network Background */}
+        <BackgroundAnimation />
+        
         {/* Jungle Theme Background Effects */}
         <BackgroundEffects />
 
