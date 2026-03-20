@@ -15,32 +15,9 @@ import {
   CheckCircle2,
   ArrowRight
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import CalendlyButton from '../components/CalendlyButton';
-
-// HashLink component for smooth scrolling to sections
-function HashLink({ to, children, className }: { to: string; children: React.ReactNode; className?: string }) {
-  const navigate = useNavigate();
-
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const hash = to.replace('/#', '').replace('#', '');
-    navigate('/');
-    setTimeout(() => {
-      const element = document.getElementById(hash);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
-  };
-
-  return (
-    <a href={to} onClick={handleClick} className={className}>
-      {children}
-    </a>
-  );
-}
 
 gsap.registerPlugin(ScrollTrigger);
 
