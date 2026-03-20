@@ -169,7 +169,7 @@ export default function VisualDemoSection() {
             </div>
             <div className="rounded-2xl overflow-hidden border border-warm/10 relative">
               {/* Powered by River AI Badge */}
-              <div className="absolute top-4 right-4 z-10 bg-jungle/90 backdrop-blur-sm rounded-full px-3 py-1.5 border border-neon/30 flex items-center gap-2">
+              <div className="absolute top-4 right-4 z-10 bg-jungle/50 backdrop-blur-sm rounded-full px-3 py-1.5 border border-neon/30 flex items-center gap-2">
                 <span className="text-lg">🌊</span>
                 <span className="text-neon text-xs font-mono font-bold">Powered by River AI</span>
               </div>
@@ -180,7 +180,7 @@ export default function VisualDemoSection() {
                 loading="lazy"
               />
               {/* Compliance Badge Overlay */}
-              <div className="absolute bottom-4 left-4 right-4 bg-jungle/90 backdrop-blur-sm rounded-lg px-4 py-3 border border-neon/20">
+              <div className="absolute bottom-4 left-4 right-4 bg-jungle/50 backdrop-blur-sm rounded-lg px-4 py-3 border border-neon/20">
                 <p className="text-neon text-xs font-mono text-center">
                   ✓ Insights Only • No Seller Central Access • You Control All Actions
                 </p>
