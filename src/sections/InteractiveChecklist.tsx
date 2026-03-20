@@ -26,17 +26,17 @@ export default function InteractiveChecklist() {
   };
 
   return (
-    <section className="py-24 px-6 lg:px-[7vw] bg-jungle relative overflow-hidden">
+    <section className="py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-12 bg-jungle relative overflow-hidden">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
+        <div className="text-center mb-10 sm:mb-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon/10 border border-neon/20 mb-6"
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-neon/10 border border-neon/20 mb-4 sm:mb-6"
           >
             <Sparkles className="w-4 h-4 text-neon" />
-            <span className="text-neon text-sm font-mono">Try It Yourself</span>
+            <span className="text-neon text-xs sm:text-sm font-mono">Try It Yourself</span>
           </motion.div>
           
           <motion.h2
@@ -44,7 +44,7 @@ export default function InteractiveChecklist() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="font-display text-4xl lg:text-5xl font-bold text-warm mb-4"
+            className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-warm mb-4"
           >
             Your Automation{' '}
             <span className="text-neon">Journey</span>
@@ -55,7 +55,7 @@ export default function InteractiveChecklist() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="text-warm-72 text-lg"
+            className="text-warm-72 text-base sm:text-lg"
           >
             Click to check off your progress
           </motion.p>
@@ -66,7 +66,7 @@ export default function InteractiveChecklist() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
-          className="bg-warm/5 border border-warm/10 rounded-2xl p-8"
+          className="bg-warm/5 border border-warm/10 rounded-2xl p-6 sm:p-8"
         >
           {/* Progress Bar */}
           <div className="mb-8">

@@ -33,17 +33,17 @@ export default function InteractiveFAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="py-24 px-6 lg:px-[7vw] bg-jungle relative overflow-hidden">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
+    <section className="py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-12 bg-jungle relative overflow-hidden">
+      <div className="max-w-3xl mx-auto">
+        <div className="text-center mb-10 sm:mb-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon/10 border border-neon/20 mb-6"
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-neon/10 border border-neon/20 mb-4 sm:mb-6"
           >
             <HelpCircle className="w-4 h-4 text-neon" />
-            <span className="text-neon text-sm font-mono">FAQ</span>
+            <span className="text-neon text-xs sm:text-sm font-mono">FAQ</span>
           </motion.div>
           
           <motion.h2
@@ -51,28 +51,28 @@ export default function InteractiveFAQ() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="font-display text-4xl lg:text-5xl font-bold text-warm mb-4"
+            className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-warm mb-4"
           >
             Common{' '}
             <span className="text-neon">Questions</span>
           </motion.h2>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {faqs.map((faq, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
+              transition={{ delay: index * 0.08 }}
               className="bg-warm/5 border border-warm/10 rounded-xl overflow-hidden"
             >
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full flex items-center justify-between p-6 text-left hover:bg-warm/5 transition-colors"
+                className="w-full flex items-center justify-between p-4 sm:p-6 text-left hover:bg-warm/5 transition-colors"
               >
-                <span className="font-semibold text-warm text-lg pr-4">
+                <span className="font-semibold text-warm text-sm sm:text-base lg:text-lg pr-4">
                   {faq.question}
                 </span>
                 <motion.div
@@ -91,7 +91,7 @@ export default function InteractiveFAQ() {
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
                   >
-                    <div className="px-6 pb-6 text-warm-72 leading-relaxed">
+                    <div className="px-4 sm:px-6 pb-4 sm:pb-6 text-warm-72 text-sm sm:text-base leading-relaxed">
                       {faq.answer}
                     </div>
                   </motion.div>

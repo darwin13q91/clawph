@@ -91,14 +91,14 @@ export default function HowItWorksSection() {
     >
       <div className="max-w-4xl mx-auto px-6">
         {/* Header */}
-        <div ref={headerRef} className="text-center mb-16">
-          <span className="inline-block px-4 py-2 rounded-full bg-neon/10 text-neon text-sm font-mono mb-4">
+        <div ref={headerRef} className="text-center mb-12 sm:mb-16 px-4">
+          <span className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-neon/10 text-neon text-xs sm:text-sm font-mono mb-4">
             How It Works
           </span>
-          <h2 className="font-display text-[clamp(36px,4vw,64px)] font-black text-warm uppercase tracking-tight mb-4">
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-[clamp(36px,4vw,64px)] font-black text-warm uppercase tracking-tight mb-4">
             From Call to Live<br />in Under a Week
           </h2>
-          <p className="text-warm-72 text-lg max-w-xl mx-auto">
+          <p className="text-warm-72 text-base sm:text-lg max-w-xl mx-auto">
             No long onboarding. No confusing contracts. Just results.
           </p>
         </div>
@@ -133,6 +133,11 @@ export default function HowItWorksSection() {
             </div>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
+iv>
       </div>
     </section>
   );

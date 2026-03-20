@@ -58,16 +58,16 @@ export default function BeforeAfterSlider() {
   ];
 
   return (
-    <section className="py-24 px-6 lg:px-[7vw] bg-jungle relative overflow-hidden">
+    <section className="py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-12 bg-jungle relative overflow-hidden">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12">
+        <div className="text-center mb-10 sm:mb-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon/10 border border-neon/20 mb-6"
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-neon/10 border border-neon/20 mb-4 sm:mb-6"
           >
-            <span className="text-neon text-sm font-mono">Interactive Comparison</span>
+            <span className="text-neon text-xs sm:text-sm font-mono">Interactive Comparison</span>
           </motion.div>
           
           <motion.h2
@@ -75,7 +75,7 @@ export default function BeforeAfterSlider() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="font-display text-4xl lg:text-5xl font-bold text-warm mb-4"
+            className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-warm mb-4"
           >
             Before vs{' '}
             <span className="text-neon">After Automation</span>
@@ -86,7 +86,7 @@ export default function BeforeAfterSlider() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="text-warm-72 text-lg max-w-2xl mx-auto"
+            className="text-warm-72 text-base sm:text-lg max-w-2xl mx-auto px-4 sm:px-0"
           >
             Drag the slider to see the transformation
           </motion.p>
@@ -97,53 +97,53 @@ export default function BeforeAfterSlider() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
-          className="relative rounded-2xl overflow-hidden border border-warm/10"
-          style={{ height: '500px' }}
+          className="relative rounded-2xl overflow-hidden border border-warm/10 shadow-2xl"
+          style={{ height: 'min(500px, 70vh)' }}
           ref={containerRef}
         >
           {/* Before Side */}
-          <div className="absolute inset-0 bg-red-950/30 p-8">
+          <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 to-jungle-dark/40 p-6 sm:p-8">
             <div className="h-full flex flex-col">
-              <h3 className="font-display text-2xl font-bold text-red-400 mb-6">
+              <h3 className="font-display text-xl sm:text-2xl font-bold text-red-400 mb-4 sm:mb-6">
                 ❌ Manual Grind
               </h3>
-              <ul className="space-y-4 flex-1">
+              <ul className="space-y-3 sm:space-y-4 flex-1 overflow-y-auto">
                 {beforeTasks.map((task, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <X className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-                    <span className="text-warm/80">{task}</span>
+                    <span className="text-warm/80 text-sm sm:text-base">{task}</span>
                   </li>
                 ))}
               </ul>
-              <div className="mt-6 p-4 bg-red-950/50 rounded-lg border border-red-500/30">
-                <p className="text-red-400 font-bold">60+ hours/week</p>
-                <p className="text-warm/60 text-sm">Reactive, stressed, no time to grow</p>
+              <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-red-950/30 rounded-lg border border-red-500/20">
+                <p className="text-red-400 font-bold text-sm sm:text-base">60+ hours/week</p>
+                <p className="text-warm/60 text-xs sm:text-sm">Reactive, stressed, no time to grow</p>
               </div>
             </div>
           </div>
 
           {/* After Side (Clipped) */}
           <div
-            className="absolute inset-0 bg-jungle p-8"
+            className="absolute inset-0 bg-gradient-to-br from-jungle to-jungle-light p-6 sm:p-8"
             style={{
               clipPath: `inset(0 ${100 - sliderPosition}% 0 0)`,
             }}
           >
             <div className="h-full flex flex-col">
-              <h3 className="font-display text-2xl font-bold text-neon mb-6">
+              <h3 className="font-display text-xl sm:text-2xl font-bold text-neon mb-4 sm:mb-6">
                 ✅ Automated
               </h3>
-              <ul className="space-y-4 flex-1">
+              <ul className="space-y-3 sm:space-y-4 flex-1 overflow-y-auto">
                 {afterTasks.map((task, i) => (
                   <li key={i} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-neon flex-shrink-0 mt-0.5" />
-                    <span className="text-warm">{task}</span>
+                    <span className="text-warm text-sm sm:text-base">{task}</span>
                   </li>
                 ))}
               </ul>
-              <div className="mt-6 p-4 bg-neon/10 rounded-lg border border-neon/30">
-                <p className="text-neon font-bold">40 hours/week</p>
-                <p className="text-warm/60 text-sm">Proactive, strategic, scaling fast</p>
+              <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-neon/10 rounded-lg border border-neon/30">
+                <p className="text-neon font-bold text-sm sm:text-base">40 hours/week</p>
+                <p className="text-warm/60 text-xs sm:text-sm">Proactive, strategic, scaling fast</p>
               </div>
             </div>
           </div>

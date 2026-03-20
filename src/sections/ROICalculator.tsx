@@ -13,20 +13,20 @@ export default function ROICalculator() {
   const roi = ((yearlySavings - 12000) / 12000) * 100; // Assuming $12k automation cost
 
   return (
-    <section className="py-24 px-6 lg:px-[7vw] bg-jungle relative overflow-hidden">
+    <section className="py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-12 bg-jungle relative overflow-hidden">
       {/* Background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neon/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] bg-neon/5 rounded-full blur-[100px] pointer-events-none" />
       
       <div className="max-w-4xl mx-auto relative z-10">
-        <div className="text-center mb-12">
+        <div className="text-center mb-10 sm:mb-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon/10 border border-neon/20 mb-6"
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-neon/10 border border-neon/20 mb-4 sm:mb-6"
           >
             <Calculator className="w-4 h-4 text-neon" />
-            <span className="text-neon text-sm font-mono">Interactive Calculator</span>
+            <span className="text-neon text-xs sm:text-sm font-mono">Interactive Calculator</span>
           </motion.div>
           
           <motion.h2
@@ -34,7 +34,7 @@ export default function ROICalculator() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="font-display text-4xl lg:text-5xl font-bold text-warm mb-4"
+            className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-warm mb-4"
           >
             Calculate Your{' '}
             <span className="text-neon">Time Savings</span>
@@ -45,7 +45,7 @@ export default function ROICalculator() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="text-warm-72 text-lg max-w-2xl mx-auto"
+            className="text-warm-72 text-base sm:text-lg max-w-2xl mx-auto px-4 sm:px-0"
           >
             See how much time and money you'll save by automating your Amazon business
           </motion.p>
@@ -56,7 +56,7 @@ export default function ROICalculator() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
-          className="bg-warm/5 border border-warm/10 rounded-2xl p-8 backdrop-blur-sm"
+          className="bg-warm/5 border border-warm/10 rounded-2xl p-6 sm:p-8 backdrop-blur-sm mx-4 sm:mx-0"
         >
           {/* Input Section */}
           <div className="grid md:grid-cols-2 gap-8 mb-8">

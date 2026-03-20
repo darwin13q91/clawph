@@ -228,53 +228,53 @@ export default function SimplePricingSection() {
                 </div>
 
                 {/* Card Content */}
-                <div className="card-jungle p-6 lg:p-8 flex flex-col h-full">
+                <div className="card-jungle p-5 sm:p-6 lg:p-8 flex flex-col h-full">
                   {/* Header */}
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className={`w-12 h-12 rounded-2xl ${colors.bg} flex items-center justify-center flex-shrink-0`}>
-                      <pkg.icon className={colors.text} size={24} />
+                  <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl ${colors.bg} flex items-center justify-center flex-shrink-0`}>
+                      <pkg.icon className={colors.text} size={20} />
                     </div>
-                    <div>
-                      <h3 className="font-display text-xl lg:text-2xl font-bold text-warm uppercase">
+                    <div className="min-w-0">
+                      <h3 className="font-display text-lg sm:text-xl lg:text-2xl font-bold text-warm uppercase leading-tight">
                         {pkg.name}
                       </h3>
-                      <p className={`text-sm ${colors.text}`}>{pkg.tagline}</p>
+                      <p className={`text-xs sm:text-sm ${colors.text} mt-0.5`}>{pkg.tagline}</p>
                     </div>
                   </div>
 
                   {/* Price */}
-                  <div className="mb-6">
-                    <div className="flex items-baseline gap-3">
-                      <span className={`font-mono text-4xl lg:text-5xl font-bold ${colors.text}`}>
+                  <div className="mb-4 sm:mb-6">
+                    <div className="flex items-baseline gap-2 sm:gap-3 flex-wrap">
+                      <span className={`font-mono text-3xl sm:text-4xl lg:text-5xl font-bold ${colors.text}`}>
                         {pkg.price}
                       </span>
-                      <span className="text-warm/40 line-through text-sm">
+                      <span className="text-warm/40 line-through text-xs sm:text-sm">
                         {pkg.originalPrice}
                       </span>
                     </div>
-                    <p className="text-warm-72 text-sm mt-2">{pkg.description}</p>
+                    <p className="text-warm-72 text-xs sm:text-sm mt-2">{pkg.description}</p>
                   </div>
 
                   {/* Features */}
-                  <ul className="space-y-3 mb-6 flex-grow">
+                  <ul className="space-y-2 sm:space-y-3 mb-4 sm:mb-6 flex-grow">
                     {pkg.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-3">
+                      <li key={feature} className="flex items-start gap-2 sm:gap-3">
                         <div className={`w-5 h-5 rounded-full ${colors.bg} flex items-center justify-center flex-shrink-0 mt-0.5`}>
                           <Check className={colors.text} size={12} strokeWidth={3} />
                         </div>
-                        <span className="text-warm-72 text-sm">{feature}</span>
+                        <span className="text-warm-72 text-xs sm:text-sm leading-relaxed">{feature}</span>
                       </li>
                     ))}
                   </ul>
 
                   {/* Maintenance (if applicable) */}
                   {pkg.maintenance && (
-                    <div className="mb-6 p-4 rounded-2xl bg-warm/5 border border-warm/10">
+                    <div className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-warm/5 border border-warm/10">
                       <p className="text-warm-50 text-xs uppercase tracking-wide mb-2">
                         Optional Maintenance
                       </p>
-                      <div className="flex items-baseline gap-2 mb-3">
-                        <span className={`font-mono text-xl font-bold ${colors.text}`}>{pkg.maintenance.price}</span>
+                      <div className="flex items-baseline gap-2 mb-2 sm:mb-3">
+                        <span className={`font-mono text-lg sm:text-xl font-bold ${colors.text}`}>{pkg.maintenance.price}</span>
                         <span className="text-warm/50 text-xs">cancel anytime</span>
                       </div>
                       <ul className="space-y-1">
@@ -289,14 +289,14 @@ export default function SimplePricingSection() {
                   )}
 
                   {/* Best For */}
-                  <div className="p-4 rounded-2xl bg-warm/5 mb-6">
+                  <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-warm/5 mb-4 sm:mb-6">
                     <p className="text-warm-50 text-xs uppercase tracking-wide mb-1">Best For</p>
-                    <p className="text-warm text-sm">{pkg.bestFor}</p>
+                    <p className="text-warm text-xs sm:text-sm">{pkg.bestFor}</p>
                   </div>
 
                   {/* CTA */}
                   <CalendlyButton 
-                    className="w-full justify-center"
+                    className="w-full justify-center text-sm sm:text-base"
                     variant={pkg.popular ? 'primary' : 'secondary'}
                   >
                     {pkg.cta}
@@ -308,12 +308,12 @@ export default function SimplePricingSection() {
         </div>
 
         {/* Bottom Note */}
-        <div className="mt-16 text-center">
-          <div className="inline-flex flex-col sm:flex-row items-center gap-4 p-6 rounded-2xl bg-warm/5 border border-warm/10">
-            <p className="text-warm-72">
+        <div className="mt-12 sm:mt-16 text-center px-4">
+          <div className="inline-flex flex-col sm:flex-row items-center gap-3 sm:gap-4 p-4 sm:p-6 rounded-2xl bg-warm/5 border border-warm/10">
+            <p className="text-warm-72 text-sm sm:text-base">
               Not sure which is right for you?
             </p>
-            <CalendlyButton variant="ghost" className="whitespace-nowrap">
+            <CalendlyButton variant="ghost" className="whitespace-nowrap text-sm">
               <span className="flex items-center gap-2">
                 Book Free Consultation
                 <ArrowRight size={16} />

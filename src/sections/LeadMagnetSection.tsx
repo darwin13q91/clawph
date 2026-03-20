@@ -157,7 +157,7 @@ export default function LeadMagnetSection() {
             </div>
 
             {/* Social Proof (Even if small) */}
-            <div className="mt-10 p-4 rounded-2xl bg-warm/5 border border-warm/10">
+            <div className="mt-8 sm:mt-10 p-4 sm:p-5 rounded-2xl bg-warm/5 border border-warm/10">
               <p className="text-warm-72 text-sm italic mb-2">
                 "The audit found 3 issues I never knew existed. Fixed them and saw a 15% bump in conversions within 2 weeks."
               </p>
@@ -168,7 +168,7 @@ export default function LeadMagnetSection() {
           </div>
 
           {/* Right - Form */}
-          <div className="card-jungle p-8 lg:p-10">
+          <div className="card-jungle p-6 sm:p-8 lg:p-10">
             {!submitted ? (
               <>
                 <h3 className="font-display text-xl font-bold text-warm uppercase mb-2">
@@ -251,6 +251,10 @@ export default function LeadMagnetSection() {
           </div>
         </div>
       </div>
+    </section>
+  );
+}
+  </div>
     </section>
   );
 }

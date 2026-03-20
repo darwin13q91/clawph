@@ -185,14 +185,14 @@ export default function HeroSection() {
             </p>
 
             {/* Pain Points */}
-            <div className="hero-content flex flex-wrap items-center justify-center gap-3 mb-8">
+            <div className="hero-content flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-6 sm:mb-8 px-2 sm:px-0">
               {painPoints.map((point, i) => (
                 <div
                   key={i}
-                  className="hero-pain-point flex items-center gap-2 px-4 py-2 rounded-full bg-warm/5 border border-warm/10 text-warm-72 text-sm"
+                  className="hero-pain-point flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-warm/5 border border-warm/10 text-warm-72 text-xs sm:text-sm"
                 >
-                  <point.icon size={14} className="text-neon" />
-                  <span>{point.text}</span>
+                  <point.icon size={14} className="text-neon flex-shrink-0" />
+                  <span className="text-left">{point.text}</span>
                 </div>
               ))}
             </div>
@@ -215,13 +215,13 @@ export default function HeroSection() {
             </div>
 
             {/* Trust Badges */}
-            <div className="hero-trust flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+            <div className="hero-trust flex flex-wrap items-center justify-center gap-3 sm:gap-6 px-4">
               {trustBadges.map((badge, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <div className={`w-2 h-2 rounded-full ${
+                <div key={i} className="flex items-center gap-1.5 sm:gap-2">
+                  <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full flex-shrink-0 ${
                     badge.color === 'neon' ? 'bg-neon' : 'bg-amazon'
                   }`} />
-                  <span className="text-warm text-sm font-medium">{badge.label}</span>
+                  <span className="text-warm text-xs sm:text-sm font-medium">{badge.label}</span>
                 </div>
               ))}
             </div>
@@ -244,6 +244,9 @@ export default function HeroSection() {
           </div>
         </div>
       </div>
+    </section>
+  );
+}    </div>
     </section>
   );
 }

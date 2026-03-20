@@ -122,19 +122,18 @@ export default function ContactSection() {
     <section
       ref={sectionRef}
       id="contact"
-      className="relative z-60 py-24 lg:py-32"
-      style={{ background: 'linear-gradient(135deg, #6E2E8C 0%, #5c2575 100%)' }}
+      className="relative z-60 py-20 sm:py-24 lg:py-32 bg-jungle-light"
     >
       {/* Background texture */}
       <div 
-        className="absolute inset-0 opacity-20"
+        className="absolute inset-0 opacity-10"
         style={{
           backgroundImage: `url('/images/violet_flower_bg.jpg')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       />
-      <div className="absolute inset-0 bg-violet/80" />
+      <div className="absolute inset-0 bg-gradient-to-br from-jungle-light/90 via-jungle/95 to-jungle-dark/90" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6">
         <div ref={contentRef} className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
@@ -197,9 +196,9 @@ export default function ContactSection() {
             className="card-jungle p-8 lg:p-10"
             style={{ background: 'rgba(11, 58, 44, 0.95)' }}
           >
-            <div className="flex items-center gap-3 mb-6">
-              <MessageSquare className="text-neon" size={24} />
-              <h3 className="font-display text-xl font-bold text-warm uppercase">
+            <div className="flex items-center gap-3 mb-4 sm:mb-6">
+              <MessageSquare className="text-neon" size={20} />
+              <h3 className="font-display text-lg sm:text-xl font-bold text-warm uppercase">
                 Send a Message
               </h3>
             </div>
