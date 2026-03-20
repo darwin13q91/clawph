@@ -690,6 +690,27 @@
     background-size: 16px;
     padding-right: var(--space-10);
   }
+
+  /* Select dropdown options styling for dark theme */
+  .select option {
+    background: var(--jungle-800);
+    color: var(--warm-100);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .select option:hover,
+  .select option:focus,
+  .select option:checked,
+  .select option:active {
+    background: var(--jungle-700);
+    color: var(--warm-100);
+  }
+
+  /* Firefox specific option styling */
+  .select optgroup {
+    background: var(--jungle-800);
+    color: var(--warm-100);
+  }
   
   .textarea {
     @apply input;
