@@ -331,11 +331,3 @@ export default function ContactSection() {
     </section>
   );
 }
- </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
