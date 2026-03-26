@@ -142,7 +142,11 @@ export default function Navigation() {
   return (
     <>
       {/* Skip to content link */}
-      <a href="#main-content" className="skip-link">
+      <a
+        href="#main-content"
+        className="skip-link"
+        style={{ position: 'absolute', top: '-100%', left: 'var(--space-4)', zIndex: 10000 }}
+      >
         Skip to main content
       </a>
 
