@@ -169,10 +169,10 @@ export default function SimplePricingSection() {
     <section
       ref={sectionRef}
       id="pricing"
-      className="relative z-10 bg-jungle-800/80 backdrop-blur-sm section-xl overflow-hidden"
+      className="relative z-20 bg-jungle-800/80 backdrop-blur-sm section-xl"
     >
       {/* Background */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div
           className="absolute inset-0 opacity-5"
           style={{
@@ -228,7 +228,7 @@ export default function SimplePricingSection() {
                     : 'border border-warm/10 hover:border-neon/30'
                 }`}
               >
-                {/* Badge - positioned outside the overflow-hidden container */}
+                {/* Badge - positioned at top of card */}
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-30">
                   <span
                     className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg ${colors.badge}`}
@@ -238,8 +238,8 @@ export default function SimplePricingSection() {
                   </span>
                 </div>
 
-                {/* Card Inner Container with overflow-hidden for content */}
-                <div className="relative rounded-3xl overflow-hidden flex flex-col h-full bg-jungle-800/50">
+                {/* Card Inner Container */}
+                <div className="relative rounded-3xl flex flex-col h-full bg-jungle-800/50 overflow-hidden">
                   {/* Gradient Background */}
                   <div className={`absolute inset-0 bg-gradient-to-b ${colors.gradient} opacity-50`} />
 
