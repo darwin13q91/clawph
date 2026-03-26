@@ -137,7 +137,7 @@ export default function LeadMagnetSection() {
             </h2>
 
             <p className="text-warm-400 text-lg leading-relaxed mb-8">
-              Send us your store URL and we\'ll review your listings and send you a written analysis with actionable recommendations within 1 hour.
+              We'll review your listings and send actionable recommendations — in your inbox within 1 hour. No strings attached.
             </p>
 
             <div className="space-y-4 mb-10">
@@ -225,9 +225,11 @@ export default function LeadMagnetSection() {
                       />
                     </div>
 
-                    <button
+                    <motion.button
                       type="submit"
                       disabled={isSubmitting}
+                      whileHover={{ scale: 1.01, boxShadow: "0 0 25px rgba(207, 255, 0, 0.25)" }}
+                      whileTap={{ scale: 0.98 }}
                       className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isSubmitting ? (
@@ -238,10 +240,10 @@ export default function LeadMagnetSection() {
                       ) : (
                         <>
                           <span>Get My Free Audit</span>
-                          <ArrowRight size={18} aria-hidden="true" />
+                          <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                         </>
                       )}
-                    </button>
+                    </motion.button>
                   </form>
 
                   <p className="text-warm-400 text-xs text-center mt-6">

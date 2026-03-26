@@ -1,4 +1,5 @@
 import { useRef, useLayoutEffect } from 'react';
+import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MessageSquare, TrendingUp, Clock, Shield } from 'lucide-react';
@@ -192,21 +193,26 @@ export default function VisualDemoSection() {
           </div>
         </div>
 
-        {/* Stats Grid */}
+        {/* Stats Grid - Enhanced with hover effects */}
         <div ref={statsRef} className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-          {benefits.map((benefit) => (
-            <div
+          {benefits.map((benefit, i) => (
+            <motion.div
               key={benefit.label}
-              className="card-jungle p-6 text-center card-hover"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              whileHover={{ y: -4, boxShadow: "0 10px 30px rgba(207, 255, 0, 0.1)" }}
+              className="card-jungle p-6 text-center card-hover cursor-default"
             >
-              <div className="w-12 h-12 rounded-full bg-neon/10 flex items-center justify-center mx-auto mb-4">
+              <div className="w-12 h-12 rounded-full bg-neon/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-neon/20 transition-colors">
                 <benefit.icon className="text-neon" size={24} />
               </div>
               <div className="font-mono text-3xl lg:text-4xl font-bold text-neon mb-2">
                 {benefit.value}
               </div>
               <div className="text-warm-72 text-sm">{benefit.label}</div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

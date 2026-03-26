@@ -55,7 +55,8 @@ export default function WhyAmajungleSection() {
                 hidden: { opacity: 0, y: 20 },
                 visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
               }}
-              className="flex items-center gap-3 px-5 py-3 rounded-xl bg-neon/5 border border-neon/15"
+              whileHover={{ scale: 1.03, borderColor: 'rgba(207, 255, 0, 0.4)' }}
+              className="flex items-center gap-3 px-5 py-3 rounded-xl bg-neon/5 border border-neon/15 hover:bg-neon/10 transition-all"
             >
               <item.icon className="text-neon flex-shrink-0" size={18} aria-hidden="true" />
               <span className="text-warm text-sm font-medium text-left">{item.text}</span>
