@@ -100,7 +100,7 @@ export default function HeroSection() {
       {/* Content */}
       <motion.div
         style={{ opacity, scale, y }}
-        className="relative z-10 w-full container-base pt-32 pb-20"
+        className="relative z-10 w-full container-base pt-24 sm:pt-32 pb-16 sm:pb-20"
       >
         <motion.div
           variants={containerVariants}
@@ -150,10 +150,10 @@ export default function HeroSection() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.6 + i * 0.1, duration: 0.5 }}
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-warm/5 border border-warm/10 text-warm-400 text-xs sm:text-sm"
+                className="flex items-center gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-full bg-warm/5 border border-warm/10 text-warm-400 text-[11px] sm:text-xs"
               >
-                <point.icon size={14} className="text-neon flex-shrink-0" aria-hidden="true" />
-                <span className="text-left">{point.text}</span>
+                <point.icon size={12} className="text-neon flex-shrink-0" aria-hidden="true" />
+                <span className="text-left whitespace-nowrap">{point.text}</span>
               </motion.div>
             ))}
           </motion.div>
@@ -181,17 +181,17 @@ export default function HeroSection() {
           {/* Trust Badges */}
           <motion.div
             variants={itemVariants}
-            className="flex flex-wrap items-center justify-center gap-4 sm:gap-8"
+            className="flex flex-wrap items-center justify-center gap-2 sm:gap-6 px-2"
           >
             {trustBadges.map((badge, i) => (
-              <div key={i} className="flex items-center gap-2">
+              <div key={i} className="flex items-center gap-1.5 sm:gap-2">
                 <div
-                  className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                  className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full flex-shrink-0 ${
                     badge.color === 'neon' ? 'bg-neon-500' : 'bg-amazon-orange'
                   }`}
                   aria-hidden="true"
                 />
-                <span className="text-warm text-xs sm:text-sm font-medium">{badge.label}</span>
+                <span className="text-warm text-[10px] sm:text-xs font-medium whitespace-nowrap">{badge.label}</span>
               </div>
             ))}
           </motion.div>
