@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Menu, X, ChevronRight, Search, Eye, Workflow, Tag, Info } from 'lucide-react';
+import { Menu, X, ChevronRight, Search, Workflow, Tag, Info } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import CalendlyButton from './CalendlyButton';
@@ -14,7 +14,6 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Free Audit', href: '#contact', icon: Search },
-  { label: 'See Demo', href: '#demo', icon: Eye },
   { label: 'How It Works', href: '#process', icon: Workflow },
   { label: 'Pricing', href: '#pricing', icon: Tag },
 ];

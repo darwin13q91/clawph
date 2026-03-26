@@ -131,7 +131,14 @@ export default function ContactSection() {
       setIsSubmitted(true);
       setFormData(initialFormData);
     } catch {
-      toast.error('Something went wrong. Please email us directly at hello@amajungle.com');
+      toast.error(
+        <span>
+          Something went wrong.{' '}
+          <a href="mailto:ops@amajungle.com" className="underline hover:text-neon-400">
+            Email us at ops@amajungle.com
+          </a>
+        </span>
+      );
     } finally {
       setIsSubmitting(false);
     }

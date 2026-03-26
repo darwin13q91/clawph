@@ -61,8 +61,8 @@ const packages: Package[] = [
     icon: TrendingUp,
     name: 'River Amazon Growth',
     tagline: 'Strategic guidance for scaling',
-    price: 'Custom',
-    priceSubtext: 'based on size',
+    price: 'From $999',
+    priceSubtext: '/mo',
     badge: 'Most Popular',
     description: 'River-powered strategic guidance for listings, PPC, inventory, and growth acceleration.',
     features: [

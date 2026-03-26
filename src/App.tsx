@@ -48,6 +48,7 @@ import HowItWorksSection from './sections/HowItWorksSection';
 import SimplePricingSection from './sections/SimplePricingSection';
 import ContactSection from './sections/ContactSection';
 import VisualDemoSection from './sections/VisualDemoSection';
+import WhyAmajungleSection from './sections/WhyAmajungleSection';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -199,6 +200,7 @@ function HomePage() {
       <InteractiveChecklist />
       <HowItWorksSection />
       <SimplePricingSection />
+      <WhyAmajungleSection />
       <InteractiveFAQ />
       <ContactSection />
       
