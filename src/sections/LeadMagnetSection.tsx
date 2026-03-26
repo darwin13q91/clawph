@@ -137,8 +137,7 @@ export default function LeadMagnetSection() {
             </h2>
 
             <p className="text-warm-400 text-lg leading-relaxed mb-8">
-              Send us your store URL and we\'ll deliver a detailed written audit showing
-              exactly what\'s hurting your sales and how to fix it.
+              Send us your store URL and we\'ll review your listings and send you a written analysis with actionable recommendations within 1 hour.
             </p>
 
             <div className="space-y-4 mb-10">
@@ -186,9 +185,9 @@ export default function LeadMagnetSection() {
                 <>
                   <div className="mb-6">
                     <h3 className="font-display text-xl font-bold text-warm uppercase mb-2">
-                      Request Your Free Audit
+                      Request Your Free Analysis
                     </h3>
-                    <p className="text-warm-400 text-sm">We\'ll deliver your written audit within 1 hour.</p>
+                    <p className="text-warm-400 text-sm">We\'ll send you a written analysis within 1 hour.</p>
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-5">
@@ -262,7 +261,7 @@ export default function LeadMagnetSection() {
                     Audit Requested!
                   </h3>
                   <p className="text-warm-400 mb-6">
-                    Check your inbox for confirmation. Your audit report will arrive within 1 hour.
+                    Check your inbox for confirmation. Your written analysis will arrive within 1 hour.
                   </p>
                   <p className="text-neon text-sm font-mono">
                     While you wait, book a free call to discuss your goals →

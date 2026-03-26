@@ -26,11 +26,11 @@ const faqs: FAQ[] = [
   },
   {
     question: 'Is my Amazon account safe?',
-    answer: 'Yes. We use official Amazon APIs where available. For Seller Central automation, we use secure browser automation with rotating IPs. We never store your password — you control access. River, our AI, follows Amazon\'s Terms of Service guidelines.',
+    answer: 'Yes. We use official Amazon SP-APIs to access your data — the same APIs that legitimate tools like Helium 10 and Jungle Scout use. We never log into your Seller Central account, use browser automation, or store your passwords. River AI analyzes your data and gives you recommendations. You decide what to implement. Your account stays 100% under your control.',
   },
   {
     question: 'What\'s the 30-day guarantee?',
-    answer: 'If your automation doesn\'t work as promised within 30 days, you get a full refund. No questions asked. We only win when you win.',
+    answer: 'If you\'re not satisfied with the results within 30 days, you get a full refund. No questions asked. We only win when you win.',
   },
 ];
 

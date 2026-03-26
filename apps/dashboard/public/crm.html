@@ -25,25 +25,25 @@
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
-            padding: var(--space-5) var(--space-6);
+            padding: var(--space-3) var(--space-4);
         }
 
         /* Header adjustments for CRM */
         .dashboard-header {
             flex-shrink: 0;
-            margin-bottom: var(--space-5);
+            margin-bottom: var(--space-3);
         }
 
         /* Stats section */
         .crm-stats-section {
             flex-shrink: 0;
-            margin-bottom: var(--space-5);
+            margin-bottom: var(--space-3);
         }
 
         /* Tabs section */
         .crm-tabs-section {
             flex-shrink: 0;
-            margin-bottom: var(--space-4);
+            margin-bottom: var(--space-3);
         }
 
         /* Content area - fills remaining space */
@@ -72,11 +72,13 @@
             max-width: 320px;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius);
+            border-radius: var(--radius-2xl);
             display: flex;
             flex-direction: column;
             min-height: 0;
             height: 100%;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
         .pipeline-column:hover {
@@ -84,10 +86,10 @@
         }
 
         .pipeline-header {
-            padding: var(--space-4);
+            padding: var(--space-3) var(--space-4);
             border-bottom: 1px solid var(--border-color);
             background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-card) 100%);
-            border-radius: var(--radius) var(--radius) 0 0;
+            border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
             flex-shrink: 0;
         }
 
@@ -148,7 +150,7 @@
         .pipeline-card {
             background: var(--bg-elevated);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
+            border-radius: var(--radius-lg);
             padding: var(--space-3);
             margin-bottom: var(--space-3);
             cursor: grab;
@@ -201,12 +203,13 @@
             padding: var(--space-3);
             background: transparent;
             border: 2px dashed var(--border-accent);
-            border-radius: var(--radius-sm);
+            border-radius: var(--radius-lg);
             color: var(--text-muted);
             font-size: var(--text-base);
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
+            min-height: 44px;
         }
 
         .pipeline-add-card:hover {
@@ -228,7 +231,7 @@
             gap: var(--space-2);
             overflow-x: auto;
             padding-bottom: var(--space-4);
-            margin-bottom: var(--space-4);
+            margin-bottom: var(--space-2);
         }
 
         .pipeline-mobile-filter {
@@ -259,7 +262,7 @@
         .pipeline-mobile-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius);
+            border-radius: var(--radius-xl);
             padding: var(--space-4);
         }
 
@@ -267,22 +270,26 @@
         .crm-contacts-table {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius);
+            border-radius: var(--radius-2xl);
             overflow: hidden;
             flex: 1;
             display: flex;
             flex-direction: column;
             min-height: 0;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
         .crm-table-toolbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: var(--space-4) var(--space-5);
+            padding: var(--space-3) var(--space-4);
             border-bottom: 1px solid var(--border-color);
             background: var(--bg-elevated);
             flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: var(--space-3);
         }
 
         .crm-table-filters { 
@@ -293,12 +300,13 @@
         .crm-table-filter {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
+            border-radius: var(--radius-lg);
             padding: var(--space-2) var(--space-3);
             color: var(--text-secondary);
-            font-size: var(--text-base);
+            font-size: var(--text-sm);
             cursor: pointer;
             transition: var(--transition);
+            min-height: 44px;
         }
 
         .crm-table-filter:hover { 
@@ -378,9 +386,9 @@
         }
 
         .crm-table-action {
-            width: 30px;
-            height: 30px;
-            border-radius: var(--radius-sm);
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius);
             border: 1px solid var(--border-color);
             background: var(--bg-card);
             color: var(--text-muted);
@@ -408,7 +416,7 @@
         .contact-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius);
+            border-radius: var(--radius-xl);
             padding: var(--space-4);
             margin-bottom: var(--space-3);
         }
@@ -434,11 +442,11 @@
             font-family: var(--font-mono); 
         }
 
-        /* Activity Grid */
+        /* Activity Grid - synced with 8888 */
         .crm-activity-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: var(--space-5);
+            gap: var(--space-3);
             flex: 1;
             min-height: 0;
             overflow: hidden;
@@ -447,20 +455,24 @@
         .crm-activity {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius);
+            border-radius: var(--radius-2xl);
             display: flex;
             flex-direction: column;
             min-height: 0;
             overflow: hidden;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
         .crm-activity-header {
-            padding: var(--space-4) var(--space-5);
+            padding: var(--space-3) var(--space-4);
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: var(--space-3);
         }
 
         .crm-activity-title {
@@ -516,50 +528,7 @@
             color: var(--text-muted); 
         }
 
-        /* Mobile Bottom Navigation */
-        .mobile-nav {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 64px;
-            background: var(--bg-card);
-            border-top: 1px solid var(--border-color);
-            z-index: 100;
-            padding: 0 var(--space-4);
-        }
-
-        .mobile-nav-items {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            height: 100%;
-        }
-
-        .mobile-nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            padding: var(--space-2) var(--space-4);
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: var(--text-xs);
-            font-weight: 500;
-            transition: var(--transition);
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-family: inherit;
-        }
-
-        .mobile-nav-item.active { 
-            color: var(--neon); 
-        }
-        .mobile-nav-item .icon { 
-            font-size: 20px; 
-        }
+        /* Mobile Bottom Navigation - Styles moved to dashboard.css */
 
         /* View visibility */
         .view {
@@ -575,16 +544,62 @@
             animation: fadeIn 0.3s ease-out;
         }
 
-        /* Responsive */
+        /* Responsive - synced with 8888 */
         @media (max-width: 1199px) {
             .crm-activity-grid {
                 grid-template-columns: 1fr;
             }
         }
 
+        @media (max-width: 1024px) {
+            .crm-pipeline {
+                gap: var(--space-3);
+            }
+            
+            .pipeline-column {
+                min-width: 220px;
+            }
+        }
+
         @media (max-width: 767px) {
             .dashboard-main {
-                padding: 70px var(--space-4) 80px;
+                padding: 72px var(--space-4) var(--space-4);
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                align-items: stretch;
+                padding: var(--space-4);
+                gap: var(--space-3);
+                border-radius: var(--radius-xl);
+            }
+
+            .dashboard-header-left {
+                min-width: auto;
+            }
+
+            .dashboard-title {
+                font-size: var(--text-xl);
+                line-height: 1.2;
+            }
+
+            .dashboard-subtitle {
+                font-size: var(--text-xs);
+            }
+
+            .dashboard-header-actions {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+                gap: var(--space-2);
+            }
+
+            .crm-stats-section {
+                margin-bottom: var(--space-2);
+            }
+
+            .crm-tabs-section {
+                margin-bottom: var(--space-3);
             }
 
             .crm-pipeline { 
@@ -603,9 +618,32 @@
             }
             .crm-activity-grid {
                 grid-template-columns: 1fr;
+                gap: var(--space-2);
             }
-            .mobile-nav { 
-                display: block; 
+
+            /* Pipeline mobile adjustments */
+            .pipeline-mobile-card {
+                border-radius: var(--radius-lg);
+            }
+
+            /* Table scroll on mobile */
+            .crm-table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .crm-table-container .table {
+                min-width: 600px;
+            }
+
+            /* Touch-friendly buttons */
+            .btn {
+                min-height: 48px;
+            }
+
+            .crm-table-action {
+                width: 44px;
+                height: 44px;
             }
 
             /* Show correct view on mobile */
@@ -617,10 +655,91 @@
                 display: flex !important;
                 flex-direction: column;
             }
+
+            /* Activity card adjustments */
+            .crm-activity {
+                border-radius: var(--radius-xl);
+            }
+        }
+
+        /* Sortable column headers */
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+        th.sortable:hover {
+            color: var(--neon);
+        }
+        .sort-icon {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        /* Status filter pills */
+        .status-pill {
+            border-radius: var(--radius-full) !important;
+            min-height: 44px;
+            min-width: 60px;
+            transition: var(--transition);
+        }
+        .status-pill.active {
+            background: var(--neon) !important;
+            border-color: var(--neon) !important;
+            color: var(--bg-primary) !important;
+        }
+
+        /* Activity freshness dot */
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        .activity-freshness-dot {
+            display: inline-block;
+        }
+
+        @media (max-width: 479px) {
+            .dashboard-main {
+                padding: 68px var(--space-3) var(--space-3);
+            }
+
+            .dashboard-header {
+                padding: var(--space-3);
+                border-radius: var(--radius-lg);
+            }
+
+            .dashboard-title {
+                font-size: var(--text-lg);
+            }
+
+            .pipeline-column {
+                min-width: 200px;
+            }
+
+            .pipeline-mobile-card {
+                padding: var(--space-3);
+                border-radius: var(--radius-lg);
+            }
+
+            .contact-card {
+                padding: var(--space-3);
+                border-radius: var(--radius-lg);
+            }
+
+            .crm-activity {
+                border-radius: var(--radius-lg);
+            }
+
+            .crm-activity-header {
+                padding: var(--space-3);
+            }
+
+            .crm-activity-item {
+                padding: var(--space-2);
+            }
         }
     </style>
 </head>
-<body>
+<body class="has-bottom-nav">
     <!-- Mobile Menu Toggle -->
     <button class="mobile-menu-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">☰</button>
     
@@ -703,10 +822,11 @@
 
         <!-- Main Content -->
         <main class="dashboard-main">
-            <!-- Header -->
+            <!-- Header - synced with 8888 -->
             <header class="dashboard-header">
                 <div class="dashboard-header-left">
                     <h1 class="dashboard-title">Customer <span>Management</span></h1>
+                    <p class="dashboard-subtitle">Track leads, manage contacts, close deals</p>
                 </div>
                 <div class="dashboard-header-actions">
                     <div class="search-box">
@@ -722,24 +842,28 @@
                 </div>
             </header>
 
-            <!-- Stats Cards -->
+            <!-- Stats Cards - synced with 8888 structure (value first, then label) -->
             <div class="crm-stats-section">
                 <div class="grid grid-4">
                     <div class="stat-card animate-slide-up">
-                        <div class="stat-label">Total Contacts</div>
                         <div class="stat-value neon" id="stat-total-contacts">0</div>
+                        <div class="stat-label">Total Contacts</div>
+                        <div class="stat-change positive" id="stat-contacts-change">+0 this week</div>
                     </div>
                     <div class="stat-card animate-slide-up" style="animation-delay: 0.1s;">
-                        <div class="stat-label">Conversion Rate</div>
                         <div class="stat-value success" id="stat-conversion-rate">0%</div>
+                        <div class="stat-label">Conversion Rate</div>
+                        <div class="stat-timestamp">Last 30 days</div>
                     </div>
                     <div class="stat-card animate-slide-up" style="animation-delay: 0.2s;">
-                        <div class="stat-label">Pipeline Value</div>
                         <div class="stat-value violet" id="stat-pipeline-value">$0</div>
+                        <div class="stat-label">Pipeline Value</div>
+                        <div class="stat-change positive" id="stat-pipeline-change">Active deals</div>
                     </div>
                     <div class="stat-card animate-slide-up" style="animation-delay: 0.3s;">
-                        <div class="stat-label">Active Deals</div>
                         <div class="stat-value info" id="stat-active-deals">0</div>
+                        <div class="stat-label">Active Deals</div>
+                        <div class="stat-timestamp">In progress</div>
                     </div>
                 </div>
             </div>
@@ -881,29 +1005,29 @@
                     <!-- Desktop Table -->
                     <div class="crm-contacts-table">
                         <div class="crm-table-toolbar">
-                            <div class="crm-table-filters">
-                                <select class="crm-table-filter" id="contact-status-filter" onchange="filterContacts(this.value)">
-                                    <option value="all">All Status</option>
-                                    <option value="lead">Lead</option>
-                                    <option value="qualified">Qualified</option>
-                                    <option value="customer">Customer</option>
-                                    <option value="churned">Churned</option>
-                                </select>
+                            <div class="crm-table-filters" id="status-filter-pills">
+                                <button class="crm-table-filter status-pill active" data-status="all" onclick="toggleStatusFilter('all')">All</button>
+                                <button class="crm-table-filter status-pill" data-status="lead" onclick="toggleStatusFilter('lead')">Lead</button>
+                                <button class="crm-table-filter status-pill" data-status="qualified" onclick="toggleStatusFilter('qualified')">Qualified</button>
+                                <button class="crm-table-filter status-pill" data-status="customer" onclick="toggleStatusFilter('customer')">Customer</button>
+                                <button class="crm-table-filter status-pill" data-status="churned" onclick="toggleStatusFilter('churned')">Churned</button>
                             </div>
-                            <div style="font-size: var(--text-base); color: var(--text-muted);">
+                            <div style="font-size: var(--text-sm); color: var(--text-muted);">
                                 Showing <strong id="contacts-showing">0</strong> contacts
                             </div>
                         </div>
+                        
+                        <div class="table-scroll-indicator">Swipe to see more →</div>
                         
                         <div class="crm-table-container">
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th>Contact</th>
-                                        <th>Status</th>
-                                        <th>Company</th>
+                                        <th class="sortable" data-sort="name" onclick="sortContacts('name')">Contact <span class="sort-icon" id="sort-name"></span></th>
+                                        <th class="sortable" data-sort="status" onclick="sortContacts('status')">Status <span class="sort-icon" id="sort-status"></span></th>
+                                        <th class="sortable" data-sort="company" onclick="sortContacts('company')">Company <span class="sort-icon" id="sort-company"></span></th>
                                         <th>Source</th>
-                                        <th>Last Contact</th>
+                                        <th class="sortable" data-sort="lastContact" onclick="sortContacts('lastContact')">Last Contact <span class="sort-icon" id="sort-lastContact"></span></th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -922,7 +1046,11 @@
                         <div class="crm-activity">
                             <div class="crm-activity-header">
                                 <div class="crm-activity-title">📋 Recent Activity</div>
-                                <button class="btn btn-secondary btn-sm" onclick="fetchCRMActivity()">🔄 Refresh</button>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <span class="activity-freshness-dot" id="activity-freshness-dot" style="display:none;"></span>
+                                    <span style="font-size:var(--text-xs);color:var(--text-muted);" id="activity-last-updated"></span>
+                                    <button class="btn btn-secondary btn-sm" onclick="fetchCRMActivity()">🔄 Refresh</button>
+                                </div>
                             </div>
                             <div class="crm-activity-list" id="activity-list"></div>
                         </div>
@@ -962,21 +1090,21 @@
     </div>
 
     <!-- Mobile Bottom Navigation -->
-    <nav class="mobile-nav">
-        <div class="mobile-nav-items">
-            <a href="/" class="mobile-nav-item">
+    <nav class="mobile-bottom-nav">
+        <div class="mobile-bottom-nav-items">
+            <a href="/" class="mobile-bottom-nav-item">
                 <span class="icon">📊</span>
                 Dashboard
             </a>
-            <button class="mobile-nav-item active" onclick="switchTab('pipeline')">
+            <button class="mobile-bottom-nav-item active" onclick="switchTab('pipeline')">
                 <span class="icon">🎯</span>
                 Pipeline
             </button>
-            <button class="mobile-nav-item" onclick="switchTab('contacts')">
+            <button class="mobile-bottom-nav-item" onclick="switchTab('contacts')">
                 <span class="icon">📇</span>
                 Contacts
             </button>
-            <button class="mobile-nav-item" onclick="showAddContactModal()">
+            <button class="mobile-bottom-nav-item" onclick="showAddContactModal()">
                 <span class="icon">➕</span>
                 Add
             </button>
@@ -1038,8 +1166,8 @@
                     <input type="text" class="form-input" id="deal-title" placeholder="Deal title">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Value ($)</label>
-                    <input type="number" class="form-input" id="deal-value" placeholder="0">
+                    <label class="form-label">Value ($) *</label>
+                    <input type="number" class="form-input" id="deal-value" placeholder="0" required min="1">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Stage</label>
@@ -1067,7 +1195,10 @@
             activities: [],
             currentTab: 'pipeline',
             mobilePipelineFilter: 'all',
-            filters: { status: 'all', search: '' }
+            filters: { status: 'all', search: '' },
+            sortConfig: { key: 'name', direction: 'asc' },
+            activeStatuses: ['all'],
+            activityLastFetched: null
         };
 
         // Mobile Sidebar Toggle
@@ -1088,14 +1219,14 @@
             });
 
             // Update mobile nav
-            document.querySelectorAll('.mobile-nav-item').forEach(item => {
+            document.querySelectorAll('.mobile-bottom-nav-item').forEach(item => {
                 item.classList.remove('active');
             });
             if (tab === 'pipeline') {
-                const plNav = document.querySelector('.mobile-nav-item:nth-child(2)');
+                const plNav = document.querySelector('.mobile-bottom-nav-item:nth-child(2)');
                 if (plNav) plNav.classList.add('active');
             } else if (tab === 'contacts') {
-                const ctNav = document.querySelector('.mobile-nav-item:nth-child(3)');
+                const ctNav = document.querySelector('.mobile-bottom-nav-item:nth-child(3)');
                 if (ctNav) ctNav.classList.add('active');
             }
 
@@ -1137,13 +1268,24 @@
         async function fetchContacts() {
             try {
                 const params = new URLSearchParams();
-                if (crmState.filters.status !== 'all') params.append('status', crmState.filters.status);
+                // Only append status if it's a real filter value (not 'all')
+                if (crmState.filters.status && crmState.filters.status !== 'all') {
+                    params.append('status', crmState.filters.status);
+                }
                 if (crmState.filters.search) params.append('search', crmState.filters.search);
 
                 const res = await fetch('/api/crm/contacts?' + params.toString());
                 if (!res.ok) throw new Error('Failed');
                 const data = await res.json();
-                crmState.contacts = data.contacts || [];
+                // Apply multi-status OR filter client-side
+                const allContacts = data.contacts || [];
+                if (crmState.activeStatuses.includes('all')) {
+                    crmState.contacts = allContacts;
+                } else {
+                    crmState.contacts = allContacts.filter(c =>
+                        crmState.activeStatuses.includes(c.status)
+                    );
+                }
                 
                 if (crmState.currentTab === 'contacts') {
                     renderContacts();
@@ -1335,7 +1477,10 @@
 
                 if (!tbody) return;
 
-                if (showingEl) showingEl.textContent = crmState.contacts.length;
+                if (showingEl) {
+                    const totalEl = document.querySelector('[data-total-contacts]');
+                    showingEl.textContent = crmState.contacts.length;
+                }
 
                 if (!crmState.contacts || crmState.contacts.length === 0) {
                     tbody.innerHTML = `
@@ -1348,7 +1493,8 @@
                     return;
                 }
 
-                tbody.innerHTML = crmState.contacts.map(contact => {
+                const sortedContacts = getSortedContacts(crmState.contacts);
+                tbody.innerHTML = sortedContacts.map(contact => {
                     const name = contact.name || 'Unknown';
                     const initials = name !== 'Unknown' 
                         ? name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() 
@@ -1403,7 +1549,8 @@
                 return;
             }
 
-            container.innerHTML = crmState.contacts.map(contact => {
+            const sortedContacts = getSortedContacts(crmState.contacts);
+            container.innerHTML = sortedContacts.map(contact => {
                 const name = contact.name || 'Unknown';
                 const initials = name !== 'Unknown'
                     ? name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
@@ -1475,6 +1622,116 @@
             fetchContacts();
         }
 
+        // Sortable column headers
+        function sortContacts(key) {
+            const current = crmState.sortConfig;
+            if (current.key === key) {
+                crmState.sortConfig.direction = current.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                crmState.sortConfig = { key, direction: 'asc' };
+            }
+            updateSortIndicators();
+            renderContacts();
+        }
+
+        function updateSortIndicators() {
+            document.querySelectorAll('.sort-icon').forEach(el => el.textContent = '');
+            const { key, direction } = crmState.sortConfig;
+            const el = document.getElementById(`sort-${key}`);
+            if (el) el.textContent = direction === 'asc' ? ' ▲' : ' ▼';
+        }
+
+        function getSortedContacts(contacts) {
+            const { key, direction } = crmState.sortConfig;
+            const sorted = [...contacts].sort((a, b) => {
+                let aVal, bVal;
+                if (key === 'name') { aVal = (a.name || '').toLowerCase(); bVal = (b.name || '').toLowerCase(); }
+                else if (key === 'status') { aVal = a.status || ''; bVal = b.status || ''; }
+                else if (key === 'company') { aVal = (a.company || '').toLowerCase(); bVal = (b.company || '').toLowerCase(); }
+                else if (key === 'lastContact') {
+                    aVal = a.last_interaction_date ? new Date(a.last_interaction_date).getTime() : 0;
+                    bVal = b.last_interaction_date ? new Date(b.last_interaction_date).getTime() : 0;
+                } else { return 0; }
+                if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+            return sorted;
+        }
+
+        // Status filter pills (multi-select OR logic)
+        function toggleStatusFilter(status) {
+            const pills = document.querySelectorAll('.status-pill');
+            if (status === 'all') {
+                crmState.activeStatuses = ['all'];
+                pills.forEach(p => p.classList.toggle('active', p.dataset.status === 'all'));
+            } else {
+                // Remove 'all' if selecting a specific status
+                crmState.activeStatuses = crmState.activeStatuses.filter(s => s !== 'all');
+                const idx = crmState.activeStatuses.indexOf(status);
+                if (idx >= 0) {
+                    crmState.activeStatuses.splice(idx, 1);
+                } else {
+                    crmState.activeStatuses.push(status);
+                }
+                // If none selected, fall back to all
+                if (crmState.activeStatuses.length === 0) {
+                    crmState.activeStatuses = ['all'];
+                }
+                pills.forEach(p => {
+                    if (p.dataset.status === 'all') {
+                        p.classList.toggle('active', crmState.activeStatuses.includes('all'));
+                    } else {
+                        p.classList.toggle('active', crmState.activeStatuses.includes(p.dataset.status));
+                    }
+                });
+            }
+            applyStatusFilter();
+        }
+
+        function applyStatusFilter() {
+            if (crmState.activeStatuses.includes('all')) {
+                crmState.filters.status = 'all';
+            } else {
+                crmState.filters.status = crmState.activeStatuses.join(',');
+            }
+            fetchContacts();
+        }
+
+        // Activity freshness indicator
+        function updateActivityFreshness() {
+            const dot = document.getElementById('activity-freshness-dot');
+            const text = document.getElementById('activity-last-updated');
+            if (!crmState.activityLastFetched) return;
+            const seconds = Math.floor((Date.now() - crmState.activityLastFetched) / 1000);
+            const minutes = Math.floor(seconds / 60);
+            if (text) {
+                if (minutes < 1) text.textContent = 'Updated just now';
+                else text.textContent = `Updated ${minutes}m ago`;
+            }
+            if (dot) {
+                const isFresh = seconds < 120;
+                dot.style.display = 'inline-block';
+                dot.style.width = '8px';
+                dot.style.height = '8px';
+                dot.style.borderRadius = '50%';
+                dot.style.background = isFresh ? 'var(--status-online)' : 'var(--text-muted)';
+                if (isFresh) {
+                    dot.style.animation = 'pulse-dot 1.5s ease-in-out infinite';
+                } else {
+                    dot.style.animation = 'none';
+                }
+            }
+        }
+
+        // Override renderActivity to track freshness
+        const _renderActivity = renderActivity;
+        renderActivity = function() {
+            _renderActivity();
+            crmState.activityLastFetched = Date.now();
+            updateActivityFreshness();
+        };
+
         function showAddContactModal() {
             document.getElementById('modal-add-contact').classList.add('active');
         }
@@ -1533,6 +1790,12 @@
 
             if (!data.contact_id || !data.title) {
                 alert('Please select contact and enter title');
+                return;
+            }
+
+            if (!data.value || data.value <= 0) {
+                alert('Please enter a valid deal value greater than $0');
+                document.getElementById('deal-value').focus();
                 return;
             }
 
@@ -1597,11 +1860,18 @@
             await Promise.all([fetchCRMStats(), fetchContacts(), fetchDeals(), fetchCRMActivity()]);
             switchTab('pipeline');
 
+            // Activity freshness updater (every 30s update the "X ago" text)
+            setInterval(() => {
+                if (crmState.currentTab === 'activity') {
+                    updateActivityFreshness();
+                    fetchCRMActivity();
+                }
+            }, 60000);
+
             setInterval(() => {
                 fetchCRMStats();
                 if (crmState.currentTab === 'contacts') fetchContacts();
                 if (crmState.currentTab === 'pipeline') fetchDeals();
-                if (crmState.currentTab === 'activity') fetchCRMActivity();
             }, 30000);
         }
 
@@ -1615,5 +1885,56 @@
         });
     </script>
     <script src="background-animation.js"></script>
+</body>
+</html>
+n.js"></script>
+</body>
+</html>
+.js"></script>
+</body>
+</html>
+ overlay.classList.remove('active');
+            });
+        });
+    </script>
+    <script src="background-animation.js"></script>
+</body>
+</html>
+/script>
+    <script src="background-animation.js"></script>
+</body>
+</html>
+n.js"></script>
+</body>
+</html>
+.js"></script>
+</body>
+</html>
+ overlay.classList.remove('active');
+            });
+        });
+    </script>
+    <script src="background-animation.js"></script>
+</body>
+</html>
+.js"></script>
+</body>
+</html>
+ });
+    </script>
+    <script src="background-animation.js"></script>
+</body>
+</html>
+.js"></script>
+</body>
+</html>
+;
+            });
+        });
+    </script>
+    <script src="background-animation.js"></script>
+</body>
+</html>
+.js"></script>
 </body>
 </html>
