@@ -13,7 +13,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: 'Free Audit', href: '#audit', icon: Search },
+  { label: 'Free Audit', href: '#contact', icon: Search },
   { label: 'See Demo', href: '#demo', icon: Eye },
   { label: 'How It Works', href: '#process', icon: Workflow },
   { label: 'Pricing', href: '#pricing', icon: Tag },
@@ -80,7 +80,7 @@ export default function Navigation() {
       
       // Update active section
       if (isHomePage) {
-        const sections = ['audit', 'demo', 'process', 'pricing', 'faq', 'contact'];
+        const sections = ['demo', 'process', 'pricing', 'faq', 'contact'];
         for (const section of sections) {
           const element = document.getElementById(section);
           if (element) {

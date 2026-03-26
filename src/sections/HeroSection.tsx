@@ -115,7 +115,7 @@ export default function HeroSection() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-500" />
               </span>
-              <span className="text-neon text-sm font-mono">First 10 clients — 50% off founding pricing</span>
+              <span className="text-neon text-sm font-mono">30-Day Money-Back Guarantee — No Questions Asked</span>
             </div>
           </motion.div>
 
