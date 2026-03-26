@@ -13,20 +13,28 @@ const faqs: FAQ[] = [
     answer: 'We provide AI-powered analysis and recommendations for Amazon sellers. River AI audits your listings, identifies optimization opportunities, and creates actionable growth plans. We advise on listing optimization, PPC strategy, inventory monitoring, and competitive positioning. You decide what to implement and when.',
   },
   {
-    question: 'How long does implementation take?',
-    answer: 'Simple automations (single task): 48 hours. Complex multi-step workflows: 5-7 days. Enterprise solutions with integrations: 2-3 weeks. We always provide a timeline before starting.',
+    question: 'How is this different from hiring a VA?',
+    answer: 'A VA does repetitive tasks manually. River AI analyzes thousands of data points and tells you exactly what to fix and why — in seconds, not hours. VAs get tired, make mistakes, and cost more over time. River never sleeps, never misses an opportunity, and gets smarter with every interaction.',
   },
   {
     question: 'Do I need technical skills to use this?',
     answer: 'No. We handle all technical setup. You interact with your AI agent through simple interfaces: Telegram notifications, email reports, or a dashboard. If you can use email, you can use our recommendations.',
   },
   {
-    question: 'What if something goes wrong?',
-    answer: 'Every automation includes safeguards and manual override. Plus, you get 30 days of support after delivery. If anything breaks, we fix it at no cost. Our Echo monitoring agent watches your automations 24/7.',
+    question: 'How long does implementation take?',
+    answer: 'Simple automations (single task): 48 hours. Complex multi-step workflows: 5-7 days. Enterprise solutions with integrations: 2-3 weeks. We always provide a timeline before starting.',
+  },
+  {
+    question: 'Do I need to sign a long-term contract?',
+    answer: 'No contracts. No commitments. Our River Amazon Growth service is month-to-month — cancel anytime with 30 days notice. River AI and Brand Website are one-time purchases you own forever. The only recurring cost is optional maintenance.',
   },
   {
     question: 'Is my Amazon account safe?',
     answer: 'Yes. We use official Amazon SP-APIs to access your data — the same APIs that legitimate tools like Helium 10 and Jungle Scout use. We never log into your Seller Central account, use browser automation, or store your passwords. River AI analyzes your data and gives you recommendations. You decide what to implement. Your account stays 100% under your control.',
+  },
+  {
+    question: 'What if something goes wrong?',
+    answer: 'Every automation includes safeguards and manual override. Plus, you get 30 days of support after delivery. If anything breaks, we fix it at no cost. Our Echo monitoring agent watches your automations 24/7.',
   },
   {
     question: 'What\'s the 30-day guarantee?',
@@ -83,7 +91,7 @@ export default function InteractiveFAQ() {
             </motion.p>
           </div>
 
-          {/* FAQ Items */}
+          {/* FAQ Items - Enhanced with better visual hierarchy */}
           <div className="space-y-3">
             {faqs.map((faq, index) => (
               <motion.div
@@ -92,7 +100,11 @@ export default function InteractiveFAQ() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.05 }}
-                className="bg-warm/5 border border-warm/10 rounded-2xl overflow-hidden hover:border-warm/20 transition-colors duration-300"
+                className={`bg-warm/5 border border-warm/10 rounded-2xl overflow-hidden transition-all duration-300 ${
+                  openIndex === index 
+                    ? 'border-neon/30 shadow-lg shadow-neon/5' 
+                    : 'hover:border-warm/20'
+                }`}
               >
                 <button
                   onClick={() => toggleQuestion(index)}
@@ -104,10 +116,11 @@ export default function InteractiveFAQ() {
                     {faq.question}
                   </span>
                   <motion.div
-                    animate={{ rotate: openIndex === index ? 180 : 0 }}
+                    animate={{ rotate: openIndex === index ? 180 : 0, scale: openIndex === index ? 1.1 : 1 }}
                     transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                    className={`flex-shrink-0 ${openIndex === index ? 'text-neon-400' : 'text-neon-500'}`}
                   >
-                    <ChevronDown className="w-5 h-5 text-neon-500 flex-shrink-0" aria-hidden="true" />
+                    <ChevronDown className="w-5 h-5" aria-hidden="true" />
                   </motion.div>
                 </button>
 
@@ -121,8 +134,10 @@ export default function InteractiveFAQ() {
                       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                       className="overflow-hidden"
                     >
-                      <div className="px-5 sm:px-6 pb-5 sm:pb-6 text-warm-400 text-sm sm:text-base leading-relaxed">
-                        {faq.answer}
+                      <div className="px-5 sm:px-6 pb-5 sm:pb-6 text-warm-400 text-sm sm:text-base leading-relaxed border-t border-warm/10">
+                        <div className="pt-4">
+                          {faq.answer}
+                        </div>
                       </div>
                     </motion.div>
                   )}

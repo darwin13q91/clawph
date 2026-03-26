@@ -176,19 +176,24 @@ export default function ContactSection() {
             </div>
 
             <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-black text-warm uppercase tracking-tight leading-[1.1] mb-6">
-              Ready to Get
-              <span className="block text-gradient mt-2">5+ Hours Back?</span>
+              Ready to Stop
+              <span className="block text-gradient mt-2">Wasting Time on Busywork?</span>
             </h2>
 
             <p className="text-warm-400 text-lg leading-relaxed mb-10 max-w-md">
-              Book a free 30-minute call. We\'ll learn about your business, identify your
+              Book a free 30-minute strategy call. We\'ll learn about your business, identify your
               biggest time-wasters, and show you exactly how we can help — no pressure,
               no pitch.
             </p>
 
-            <CalendlyButton className="mb-10">
-              Book Free 30-Min Call
-            </CalendlyButton>
+            <motion.div
+              whileHover={{ scale: 1.02, boxShadow: "0 0 30px rgba(207, 255, 0, 0.2)" }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <CalendlyButton className="mb-10">
+                Book Free Strategy Call →
+              </CalendlyButton>
+            </motion.div>
 
             <div className="space-y-5">
               {contactInfo.map((item) => (
@@ -248,7 +253,7 @@ export default function ContactSection() {
                           value={formData.name}
                           onChange={handleChange}
                           placeholder="Your name"
-                          className="input"
+                          className="input focus:ring-2 focus:ring-neon-500/50 focus:border-neon-500/50 transition-all"
                           required
                         />
                       </div>
@@ -264,7 +269,7 @@ export default function ContactSection() {
                           value={formData.email}
                           onChange={handleChange}
                           placeholder="you@company.com"
-                          className="input"
+                          className="input focus:ring-2 focus:ring-neon-500/50 focus:border-neon-500/50 transition-all"
                           required
                         />
                       </div>
@@ -344,9 +349,11 @@ export default function ContactSection() {
                       />
                     </div>
 
-                    <button
+                    <motion.button
                       type="submit"
                       disabled={isSubmitting}
+                      whileHover={{ scale: 1.01, boxShadow: "0 0 25px rgba(207, 255, 0, 0.25)" }}
+                      whileTap={{ scale: 0.98 }}
                       className="w-full btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isSubmitting ? (
@@ -357,10 +364,10 @@ export default function ContactSection() {
                       ) : (
                         <>
                           <span>Send Message</span>
-                          <Send size={18} aria-hidden="true" />
+                          <Send size={18} className="group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
                         </>
                       )}
-                    </button>
+                    </motion.button>
                   </form>
                 </>
               ) : (

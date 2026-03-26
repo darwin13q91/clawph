@@ -119,23 +119,23 @@ export default function HeroSection() {
             </div>
           </motion.div>
 
-          {/* Headline */}
+          {/* Headline - More punchy, outcome-focused */}
           <motion.h1
             variants={itemVariants}
             className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-warm uppercase tracking-tight leading-[0.95] mb-6"
           >
-            Stop Drowning in
-            <span className="block text-gradient mt-2">Amazon Busywork</span>
+            Reclaim
+            <span className="block text-gradient mt-2">10+ Hours Every Week</span>
           </motion.h1>
 
-          {/* Subheadline */}
+          {/* Subheadline - Clearer value prop */}
           <motion.p
             variants={itemVariants}
             className="text-warm-400 text-lg sm:text-xl max-w-2xl mx-auto mb-8 leading-relaxed"
           >
-            River-powered intelligence • Amazon management • Brand websites
+            AI-powered River agent handles the busywork — you focus on scaling
             <span className="block text-warm-300 text-base mt-2">
-              Everything you need to grow — from a founder who\'s been there
+              Built by an Amazon seller who got tired of the grind
             </span>
           </motion.p>
 
@@ -158,33 +158,61 @@ export default function HeroSection() {
             ))}
           </motion.div>
 
-          {/* CTAs */}
+          {/* CTAs - More compelling with social proof */}
           <motion.div
             variants={itemVariants}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10"
           >
-            <CalendlyButton size="lg">
-              Book Free 30-Min Audit
-            </CalendlyButton>
+            <motion.div
+              whileHover={{ scale: 1.03, boxShadow: "0 0 40px rgba(207, 255, 0, 0.3)" }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            >
+              <CalendlyButton size="lg">
+                Book Free 30-Min Strategy Call →
+              </CalendlyButton>
+            </motion.div>
 
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => scrollToSection('process')}
-              className="btn-secondary flex items-center gap-2"
+              onClick={() => scrollToSection('demo')}
+              className="btn-secondary flex items-center gap-2 group"
             >
-              <Play size={18} aria-hidden="true" />
-              See How It Works
+              <Play size={18} className="group-hover:scale-110 transition-transform" aria-hidden="true" />
+              <span>See It In Action</span>
             </motion.button>
           </motion.div>
+          
+          {/* Quick Social Proof Stats */}
+          <motion.div
+            variants={itemVariants}
+            className="flex flex-wrap items-center justify-center gap-6 text-warm-400 text-xs"
+          >
+            <span className="flex items-center gap-1.5">
+              <span className="text-neon font-bold">✓</span> Free audit included
+            </span>
+            <span className="hidden sm:inline text-warm-200/30">|</span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-neon font-bold">✓</span> No credit card required
+            </span>
+            <span className="hidden sm:inline text-warm-200/30">|</span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-neon font-bold">✓</span> Reply within 1 hour
+            </span>
+          </motion.div>
 
-          {/* Trust Badges */}
+          {/* Trust Badges - Enhanced with hover effects */}
           <motion.div
             variants={itemVariants}
             className="flex flex-wrap items-center justify-center gap-2 sm:gap-6 px-2"
           >
             {trustBadges.map((badge, i) => (
-              <div key={i} className="flex items-center gap-1.5 sm:gap-2">
+              <motion.div
+                key={i}
+                whileHover={{ scale: 1.05, y: -2 }}
+                className="flex items-center gap-1.5 sm:gap-2 cursor-default"
+              >
                 <div
                   className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full flex-shrink-0 ${
                     badge.color === 'neon' ? 'bg-neon-500' : 'bg-amazon-orange'
@@ -192,7 +220,7 @@ export default function HeroSection() {
                   aria-hidden="true"
                 />
                 <span className="text-warm text-[10px] sm:text-xs font-medium whitespace-nowrap">{badge.label}</span>
-              </div>
+              </motion.div>
             ))}
           </motion.div>
         </motion.div>

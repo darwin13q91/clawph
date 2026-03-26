@@ -184,7 +184,7 @@ export default function SimplePricingSection() {
       </div>
 
       <div className="container-base relative z-10">
-        {/* Header */}
+        {/* Header - More compelling with urgency */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -197,11 +197,12 @@ export default function SimplePricingSection() {
           </div>
 
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-black text-warm uppercase tracking-tight leading-[1.1] mb-5">
-            Choose Your Path
+            Choose Your Path to
+            <span className="block text-gradient mt-2">More Sales, Less Grind</span>
           </h2>
 
           <p className="text-warm-400 text-base sm:text-lg max-w-2xl mx-auto">
-            Three ways to grow. Pick what fits your biggest pain point right now.
+            One-time payment. You own it forever. Results or your money back.
           </p>
         </motion.div>
 
@@ -219,12 +220,12 @@ export default function SimplePricingSection() {
               <motion.div
                 key={pkg.id}
                 variants={cardVariants}
-                whileHover={{ y: -8 }}
+                whileHover={{ y: -8, boxShadow: "0 20px 40px rgba(0,0,0,0.3)" }}
                 transition={{ duration: 0.3 }}
                 className={`relative flex flex-col rounded-3xl ${
                   pkg.popular
                     ? `ring-2 ring-neon-500 ${colors.glow}`
-                    : 'border border-warm/10'
+                    : 'border border-warm/10 hover:border-neon/30'
                 }`}
               >
                 {/* Badge - positioned outside the overflow-hidden container */}
@@ -316,14 +317,20 @@ export default function SimplePricingSection() {
                     <p className="text-warm text-xs sm:text-sm">{pkg.bestFor}</p>
                   </div>
 
-                  {/* CTA */}
-                  <CalendlyButton
-                    className="w-full justify-center text-sm sm:text-base gap-2"
-                    variant={pkg.popular ? 'primary' : 'secondary'}
+                  {/* CTA - Enhanced with glow effect */}
+                  <motion.div
+                    whileHover={{ scale: pkg.popular ? 1.02 : 1.01 }}
+                    whileTap={{ scale: 0.98 }}
+                    className={pkg.popular ? "rounded-xl shadow-lg shadow-neon/20" : ""}
                   >
-                    {pkg.cta}
-                    <ArrowRight size={16} aria-hidden="true" />
-                  </CalendlyButton>
+                    <CalendlyButton
+                      className="w-full justify-center text-sm sm:text-base gap-2"
+                      variant={pkg.popular ? 'primary' : 'secondary'}
+                    >
+                      {pkg.cta}
+                      <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+                    </CalendlyButton>
+                  </motion.div>
                 </div>
               </div>
             </motion.div>
