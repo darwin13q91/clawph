@@ -126,17 +126,40 @@ export default function CalendlyButton({
                 </motion.button>
               </div>
               
-              {/* Calendly Widget */}
-              <div className="w-full h-[calc(85vh-80px)]">
-                <iframe
-                  src="https://calendly.com/ops-amajungle/30min?embed_type=Inline&hide_landing_page_details=1&hide_gdpr_banner=1"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 'none' }}
-                  title="Schedule a call with amajungle"
-                  className="bg-jungle"
-                  loading="lazy"
-                />
+              {/* Calendly Booking */}
+              <div className="w-full h-[calc(85vh-80px)] flex flex-col items-center justify-center p-8 lg:p-12 bg-jungle-dark/30">
+                {/* Calendar Icon */}
+                <div className="w-20 h-20 rounded-2xl bg-neon/10 flex items-center justify-center mb-6">
+                  <Calendar className="text-neon" size={40} />
+                </div>
+                
+                {/* Message */}
+                <h4 className="font-display text-2xl lg:text-3xl font-bold text-warm text-center mb-3">
+                  Ready to Grow Your Amazon Business?
+                </h4>
+                <p className="text-warm-72 text-center text-lg mb-8 max-w-md">
+                  Click the button below to book your free 30-minute strategy call. 
+                  Pick a time that works for you — we'll take care of the rest.
+                </p>
+                
+                {/* Book Now Button */}
+                <a
+                  href="https://calendly.com/ops-amajungle/30min"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-neon text-jungle font-bold text-lg rounded-full hover:opacity-90 transition-all duration-300 shadow-lg shadow-neon/25"
+                >
+                  <Calendar size={22} />
+                  Book Now on Calendly
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </a>
+                
+                {/* Trust note */}
+                <p className="text-warm-50 text-sm mt-6 text-center">
+                  30-minute call · No commitment · Expert Amazon strategies
+                </p>
               </div>
             </motion.div>
           </div>
