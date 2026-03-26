@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Play, ArrowDown, Clock, Shield, Zap } from 'lucide-react';
 import CalendlyButton from '../components/CalendlyButton';
@@ -44,6 +44,21 @@ export default function HeroSection() {
     target: sectionRef,
     offset: ['start start', 'end start'],
   });
+
+  /* A/B Test: Hero Headline — Variant A/B */
+  const [variant, setVariant] = useState<'A' | 'B' | null>(null);
+
+  useEffect(() => {
+    let assigned = localStorage.getItem('hero_headline_variant') as 'A' | 'B' | null;
+    if (!assigned) {
+      assigned = Math.random() < 0.5 ? 'A' : 'B';
+      localStorage.setItem('hero_headline_variant', assigned);
+    }
+    setVariant(assigned);
+
+    const headlines = { A: 'Reclaim 10+ Hours Every Week', B: 'Stop Drowning in Amazon Busywork' };
+    console.log(`[A/B Test] Hero variant: ${assigned} — "${headlines[assigned]}"`);
+  }, []);
 
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
@@ -124,8 +139,17 @@ export default function HeroSection() {
             variants={itemVariants}
             className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-warm uppercase tracking-tight leading-[0.95] mb-6"
           >
-            Reclaim
-            <span className="block text-gradient mt-2">10+ Hours Every Week</span>
+            {variant === 'B' ? (
+              <>
+                Stop Drowning in
+                <span className="block text-gradient mt-2">Amazon Busywork</span>
+              </>
+            ) : (
+              <>
+                Reclaim
+                <span className="block text-gradient mt-2">10+ Hours Every Week</span>
+              </>
+            )}
           </motion.h1>
 
           {/* Subheadline - Clearer value prop */}
