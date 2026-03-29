@@ -46,7 +46,6 @@ import BeforeAfterSlider from './sections/BeforeAfterSlider';
 import InteractiveChecklist from './sections/InteractiveChecklist';
 import InteractiveFAQ from './sections/InteractiveFAQ';
 import HowItWorksSection from './sections/HowItWorksSection';
-import SimplePricingSection from './sections/SimplePricingSection';
 import ContactSection from './sections/ContactSection';
 import VisualDemoSection from './sections/VisualDemoSection';
 import WhyAmajungleSection from './sections/WhyAmajungleSection';
@@ -212,7 +211,6 @@ function HomePage() {
       <BeforeAfterSlider />
       <InteractiveChecklist />
       <HowItWorksSection />
-      <SimplePricingSection />
       <WhyAmajungleSection />
       <InteractiveFAQ />
       <ContactSection />
