@@ -318,7 +318,7 @@ export default function AboutPage() {
                   {/* TODO: Replace with actual founder photo */}
                   <div className="w-12 h-12 rounded-full bg-neon-500/20 border border-neon/30 flex items-center justify-center overflow-hidden">
                     <img 
-                      src="/images/founder-photo.jpg" 
+                      src="/images/founder.png" 
                       alt="Allysa Kate Estardo"
                       className="w-full h-full object-cover"
                       onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling && ((e.currentTarget.nextSibling as HTMLElement).style.display = 'flex'); }}

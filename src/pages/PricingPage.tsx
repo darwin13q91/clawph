@@ -8,7 +8,6 @@ import {
   X,
   Shield,
   ChevronDown,
-  Star,
 } from 'lucide-react';
 import CalendlyButton from '../components/CalendlyButton';
 
@@ -35,15 +34,6 @@ interface ComparisonRow {
   feature: string;
   amazonGrowth: boolean | string;
   aiAutomation: boolean | string;
-}
-
-interface Testimonial {
-  quote: string;
-  author: string;
-  role: string;
-  revenue: string;
-  initials: string;
-  avatarBg: 'neon' | 'violet';
 }
 
 interface FAQItem {
@@ -112,36 +102,6 @@ const COMPARISON_ROWS: ComparisonRow[] = [
   { feature: '5 custom workflows', amazonGrowth: false, aiAutomation: true },
   { feature: 'Infrastructure ownership', amazonGrowth: false, aiAutomation: true },
   { feature: '30-day guarantee', amazonGrowth: true, aiAutomation: true },
-];
-
-const TESTIMONIALS: Testimonial[] = [
-  {
-    quote:
-      "Within 2 weeks of the Amazon Growth plan, our PPC ACOS dropped 18% and we had a clear roadmap for Q2. This is what good consulting looks like.",
-    author: 'Marcus T.',
-    role: 'Private Label Seller',
-    revenue: '$45K/mo revenue',
-    initials: 'MT',
-    avatarBg: 'neon',
-  },
-  {
-    quote:
-      "The AI agent literally messaged me at 2am about a pricing opportunity I'd have missed. That's the kind of coverage I needed.",
-    author: 'Sarah K.',
-    role: 'Aggregator Account Manager',
-    revenue: 'manages $800K/mo',
-    initials: 'SK',
-    avatarBg: 'violet',
-  },
-  {
-    quote:
-      "I was skeptical about the one-time price. 6 months later I've saved 200+ hours and the system still works without me.",
-    author: 'James R.',
-    role: 'Multi-marketplace Seller',
-    revenue: 'US + UK + EU',
-    initials: 'JR',
-    avatarBg: 'neon',
-  },
 ];
 
 const FAQ_ITEMS: FAQItem[] = [
@@ -406,47 +366,6 @@ function ComparisonTable() {
   );
 }
 
-function TestimonialCard({ t, index }: { t: Testimonial; index: number }) {
-  const isNeon = t.avatarBg === 'neon';
-  return (
-    <motion.div
-      variants={fadeUpVariants}
-      custom={0.2 + index * 0.15}
-      whileHover={{ y: -4 }}
-      className="p-6 rounded-2xl bg-warm/5 border border-warm/10 hover:border-warm/20 transition-colors"
-    >
-      {/* Quote icon */}
-      <div className="text-neon-500 text-4xl font-display leading-none mb-4">"</div>
-
-      {/* Stars */}
-      <div className="flex gap-1 mb-4">
-        {[...Array(5)].map((_, i) => (
-          <Star key={i} size={14} className="text-neon-500 fill-neon-500" />
-        ))}
-      </div>
-
-      <p className="text-warm leading-relaxed mb-6 text-sm">{t.quote}</p>
-
-      {/* Author */}
-      <div className="flex items-center gap-3">
-        <div
-          className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
-            isNeon ? 'bg-neon-500/20 text-neon-500' : 'bg-violet-500/20 text-violet-400'
-          }`}
-        >
-          {t.initials}
-        </div>
-        <div>
-          <p className="text-warm font-semibold text-sm">{t.author}</p>
-          <p className="text-warm-400 text-xs">
-            {t.role} · {t.revenue}
-          </p>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
 function FAQAccordion({ items }: { items: FAQItem[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
@@ -494,7 +413,6 @@ export default function PricingPage() {
   const heroRef = useRef(null);
   const cardsRef = useRef(null);
   const comparisonRef = useRef(null);
-  const testimonialsRef = useRef(null);
   const guaranteeRef = useRef(null);
   const faqRef = useRef(null);
   const finalCtaRef = useRef(null);
@@ -502,7 +420,6 @@ export default function PricingPage() {
   const heroInView = useInView(heroRef, { once: true, margin: '-100px' });
   const cardsInView = useInView(cardsRef, { once: true, margin: '-100px' });
   const comparisonInView = useInView(comparisonRef, { once: true, margin: '-100px' });
-  const testimonialsInView = useInView(testimonialsRef, { once: true, margin: '-100px' });
   const guaranteeInView = useInView(guaranteeRef, { once: true, margin: '-100px' });
   const faqInView = useInView(faqRef, { once: true, margin: '-100px' });
   const finalCtaInView = useInView(finalCtaRef, { once: true, margin: '-100px' });
@@ -601,34 +518,7 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* ── SECTION 4: Testimonials ── */}
-      <section ref={testimonialsRef} id="testimonials" className="section-xl bg-jungle-900/30">
-        <div className="container-base">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={testimonialsInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-12"
-          >
-            <h2 className="font-display text-3xl lg:text-4xl font-black text-warm uppercase tracking-tight">
-              What Clients Say
-            </h2>
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            animate={testimonialsInView ? 'visible' : 'hidden'}
-            variants={containerVariants}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto"
-          >
-            {TESTIMONIALS.map((t, i) => (
-              <TestimonialCard key={t.author} t={t} index={i} />
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ── SECTION 5: Guarantee ── */}
+      {/* ── SECTION 4: Guarantee ── */}
       <section ref={guaranteeRef} id="guarantee" className="section-xl">
         <div className="container-base">
           <motion.div
