@@ -19,18 +19,6 @@ export default function CalendlyButton({
 }: CalendlyButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
-
   // Handle escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
