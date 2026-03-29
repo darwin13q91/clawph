@@ -93,13 +93,13 @@ export default function CalendlyButton({
             >
               {/* Close button overlay */}
               <motion.button
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsOpen(false)}
                 aria-label="Close scheduling dialog"
-                className="absolute top-4 right-4 z-10 w-10 h-10 rounded-xl bg-warm/10 backdrop-blur-sm flex items-center justify-center text-warm hover:bg-warm/20 transition-colors duration-300"
+                className="absolute top-4 right-4 z-10 w-12 h-12 rounded-full bg-jungle-800 text-white border-2 border-neon/50 shadow-lg flex items-center justify-center hover:bg-jungle-700 transition-colors duration-300"
               >
-                <X size={20} />
+                <X size={24} />
               </motion.button>
               
               {/* Calendly Inline Widget */}
