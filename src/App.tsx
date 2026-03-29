@@ -15,6 +15,7 @@ import BackgroundEffects from './components/BackgroundEffects';
 import BackgroundAnimation from './components/BackgroundAnimation';
 
 const AboutPage = lazy(() => import('./pages/AboutPage'));
+const PricingPage = lazy(() => import('./pages/PricingPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 // Page transition variants
@@ -115,6 +116,18 @@ function AnimatedRoutes() {
           >
             <Navigation />
             <AboutPage />
+            <Footer />
+          </motion.div>
+        } />
+        <Route path="/pricing" element={
+          <motion.div
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            <Navigation />
+            <PricingPage />
             <Footer />
           </motion.div>
         } />

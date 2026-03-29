@@ -15,7 +15,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { label: 'Free Audit', href: '#contact', icon: Search },
   { label: 'How It Works', href: '#process', icon: Workflow },
-  { label: 'Pricing', href: '#pricing', icon: Tag },
+  { label: 'Pricing', href: '/pricing', icon: Tag },
 ];
 
 // Animation variants
