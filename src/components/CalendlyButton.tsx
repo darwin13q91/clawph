@@ -98,7 +98,7 @@ export default function CalendlyButton({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="relative flex flex-col w-full max-w-5xl h-[90vh] bg-jungle rounded-3xl overflow-hidden shadow-2xl border border-warm/10"
+              className="relative flex flex-col w-full max-w-5xl h-[90vh] bg-white rounded-3xl overflow-hidden shadow-2xl"
               role="dialog"
               aria-modal="true"
               aria-label="Schedule a strategy call with amajungle"
