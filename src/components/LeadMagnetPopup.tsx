@@ -38,7 +38,7 @@ const REVENUE_OPTIONS = [
 ];
 
 export default function LeadMagnetPopup({
-  delayMs = 30000,
+  delayMs = 60000,  // 60 seconds — exit intent is primary trigger
   exitIntent = true,
   cookieName = 'amajungle_leadmagnet_closed',
   cookieDays = 7,

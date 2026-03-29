@@ -1140,12 +1140,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(207, 255, 0, 0.15);
+  background: rgba(207, 255, 0, 0.08);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(207, 255, 0, 0.25);
+  background: rgba(207, 255, 0, 0.15);
 }
 
 /* Firefox */

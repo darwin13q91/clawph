@@ -20,7 +20,7 @@ interface Package {
   };
   bestFor: string;
   cta: string;
-  color: 'neon' | 'amazon' | 'violet';
+  color: 'neon';
   popular?: boolean;
 }
 
@@ -76,7 +76,7 @@ const packages: Package[] = [
     ],
     bestFor: 'Sellers doing $10K+/mo wanting to scale',
     cta: 'Book Growth Strategy Call',
-    color: 'amazon',
+    color: 'neon',
     popular: true,
   },
   {
@@ -108,7 +108,7 @@ const packages: Package[] = [
     },
     bestFor: 'Sellers ready to build a brand beyond Amazon',
     cta: 'Book Website Discovery Call',
-    color: 'violet',
+    color: 'neon',
   },
 ];
 
@@ -120,22 +120,6 @@ const colorClasses = {
     badge: 'bg-neon-500 text-jungle-900',
     glow: 'shadow-[0_0_30px_rgba(207,255,0,0.15)]',
     gradient: 'from-neon-500/10 to-transparent',
-  },
-  amazon: {
-    text: 'text-amazon-orange',
-    bg: 'bg-amazon-orange/20',
-    border: 'border-amazon-orange/30',
-    badge: 'bg-amazon-orange text-amazon-dark',
-    glow: 'shadow-[0_0_30px_rgba(255,153,0,0.15)]',
-    gradient: 'from-amazon-orange/10 to-transparent',
-  },
-  violet: {
-    text: 'text-violet-400',
-    bg: 'bg-violet-500/20',
-    border: 'border-violet-500/30',
-    badge: 'bg-violet-500 text-warm-100',
-    glow: 'shadow-[0_0_30px_rgba(110,46,140,0.15)]',
-    gradient: 'from-violet-500/10 to-transparent',
   },
 };
 

@@ -102,46 +102,62 @@ export default function ContactSection() {
 
     setIsSubmitting(true);
 
-    try {
-      const subject = `New Lead: ${formData.service} - ${formData.name} from ${formData.company || 'N/A'}`;
+    const subject = `New Lead: ${formData.service} - ${formData.name} from ${formData.company || 'N/A'}`;
 
-      const response = await fetch(API_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          to_email: formData.email,
-          subject: subject,
-          from_name: formData.name,
-          service: formData.service,
-          client_name: formData.name,
-          client_email: formData.email,
-          client_phone: formData.phone || 'Not provided',
-          client_company: formData.company || 'Not provided',
-          client_message: formData.message || 'No additional message provided',
-        }),
-      });
+    const payload = {
+      to_email: formData.email,
+      subject: subject,
+      from_name: formData.name,
+      service: formData.service,
+      client_name: formData.name,
+      client_email: formData.email,
+      client_phone: formData.phone || 'Not provided',
+      client_company: formData.company || 'Not provided',
+      client_message: formData.message || 'No additional message provided',
+    };
 
-      if (!response.ok) {
-        throw new Error('Failed to send email');
+    // Retry queue with exponential backoff (3 retries)
+    const maxRetries = 3;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const response = await fetch(API_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server responded with ${response.status}`);
+        }
+
+        // Success
+        toast.success('Message sent! We\'ll reply within 1 hour.');
+        setIsSubmitted(true);
+        setFormData(initialFormData);
+        setIsSubmitting(false);
+        return;
+      } catch (err) {
+        // If this wasn't the last attempt, wait before retrying
+        if (attempt < maxRetries - 1) {
+          const delayMs = Math.pow(2, attempt) * 1000; // 1s, 2s, 4s
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+        }
       }
-
-      toast.success('Message sent! We\'ll reply within 1 hour.');
-      setIsSubmitted(true);
-      setFormData(initialFormData);
-    } catch {
-      toast.error(
-        <span>
-          Something went wrong.{' '}
-          <a href="mailto:ops@amajungle.com" className="underline hover:text-neon-400">
-            Email us at ops@amajungle.com
-          </a>
-        </span>
-      );
-    } finally {
-      setIsSubmitting(false);
     }
+
+    // All retries exhausted
+    toast.error(
+      <span>
+        Could not send message. Please{' '}
+        <a href="mailto:ops@amajungle.com" className="underline hover:text-neon-400">
+          email us at ops@amajungle.com
+        </a>{' '}
+        or try again later.
+      </span>
+    );
+    setIsSubmitting(false);
   };
 
   return (
@@ -243,7 +259,7 @@ export default function ContactSection() {
                   <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <div>
-                        <label htmlFor="name" className="block text-warm text-sm font-medium mb-2">
+                        <label htmlFor="name" className="block text-warm-100 text-sm font-medium mb-2">
                           Name *
                         </label>
                         <input
@@ -259,7 +275,7 @@ export default function ContactSection() {
                       </div>
 
                       <div>
-                        <label htmlFor="email" className="block text-warm text-sm font-medium mb-2">
+                        <label htmlFor="email" className="block text-warm-100 text-sm font-medium mb-2">
                           Email *
                         </label>
                         <input
@@ -277,7 +293,7 @@ export default function ContactSection() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <div>
-                        <label htmlFor="phone" className="block text-warm text-sm font-medium mb-2">
+                        <label htmlFor="phone" className="block text-warm-100 text-sm font-medium mb-2">
                           Phone
                         </label>
                         <input
@@ -292,7 +308,7 @@ export default function ContactSection() {
                       </div>
 
                       <div>
-                        <label htmlFor="company" className="block text-warm text-sm font-medium mb-2">
+                        <label htmlFor="company" className="block text-warm-100 text-sm font-medium mb-2">
                           Company
                         </label>
                         <input
@@ -308,7 +324,7 @@ export default function ContactSection() {
                     </div>
 
                     <div>
-                      <label htmlFor="service" className="block text-warm text-sm font-medium mb-2">
+                      <label htmlFor="service" className="block text-warm-100 text-sm font-medium mb-2">
                         Service Interested In *
                       </label>
                       <div className="relative">
@@ -335,7 +351,7 @@ export default function ContactSection() {
                     </div>
 
                     <div>
-                      <label htmlFor="message" className="block text-warm text-sm font-medium mb-2">
+                      <label htmlFor="message" className="block text-warm-100 text-sm font-medium mb-2">
                         Tell us more about what you need (optional)
                       </label>
                       <textarea

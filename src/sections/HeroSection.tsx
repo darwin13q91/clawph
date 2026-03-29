@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 import { Play, ArrowDown, Clock, Shield, Zap } from 'lucide-react';
 import CalendlyButton from '../components/CalendlyButton';
 
@@ -7,12 +7,6 @@ const painPoints = [
   { icon: Clock, text: 'Spending 10+ hours/week on repetitive tasks' },
   { icon: Zap, text: 'PPC campaigns bleeding money with no ROI' },
   { icon: Shield, text: 'Listings that don\'t convert or rank' },
-];
-
-const trustBadges = [
-  { label: '30-Day Money-Back Guarantee', color: 'neon' as const },
-  { label: 'Amazon TOS Compliant', color: 'amazon' as const },
-  { label: 'Secure Checkout', color: 'neon' as const },
 ];
 
 const containerVariants = {
@@ -55,14 +49,14 @@ export default function HeroSection() {
       localStorage.setItem('hero_headline_variant', assigned);
     }
     setVariant(assigned);
-
-    const headlines = { A: 'Reclaim 10+ Hours Every Week', B: 'Stop Drowning in Amazon Busywork' };
-    console.log(`[A/B Test] Hero variant: ${assigned} — "${headlines[assigned]}"`);
+    // A/B test variant assigned silently — no console.log for production cleanliness
   }, []);
 
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
   const y = useTransform(scrollYProgress, [0, 0.5], [0, 100]);
+
+  const prefersReducedMotion = useReducedMotion();
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -85,32 +79,36 @@ export default function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-t from-jungle-800 via-transparent to-transparent" />
       </div>
 
-      {/* Animated Gradient Orbs */}
-      <motion.div
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-        className="absolute top-1/4 -right-32 w-96 h-96 bg-neon-500/20 rounded-full blur-[120px]"
-      />
-      <motion.div
-        animate={{
-          scale: [1, 1.1, 1],
-          opacity: [0.2, 0.4, 0.2],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: 'easeInOut',
-          delay: 2,
-        }}
-        className="absolute -bottom-32 -left-32 w-96 h-96 bg-violet-500/20 rounded-full blur-[120px]"
-      />
+      {/* Animated Gradient Orbs — hidden for users who prefer reduced motion */}
+      {!prefersReducedMotion && (
+        <>
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+            className="absolute top-1/4 -right-32 w-96 h-96 bg-neon-500/20 rounded-full blur-[120px]"
+          />
+          <motion.div
+            animate={{
+              scale: [1, 1.1, 1],
+              opacity: [0.2, 0.4, 0.2],
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: 'easeInOut',
+              delay: 2,
+            }}
+            className="absolute -bottom-32 -left-32 w-96 h-96 bg-violet-500/20 rounded-full blur-[120px]"
+          />
+        </>
+      )}
 
       {/* Content */}
       <motion.div
@@ -123,16 +121,7 @@ export default function HeroSection() {
           animate="visible"
           className="max-w-4xl mx-auto text-center"
         >
-          {/* Badge */}
-          <motion.div variants={itemVariants}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-500/10 border border-neon-500/20 mb-8">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-500" />
-              </span>
-              <span className="text-neon text-sm font-mono">30-Day Money-Back Guarantee — No Questions Asked</span>
-            </div>
-          </motion.div>
+          {/* Badge - Removed to reduce visual clutter competing with CTA */}
 
           {/* Headline - More punchy, outcome-focused */}
           <motion.h1
@@ -163,36 +152,36 @@ export default function HeroSection() {
             </span>
           </motion.p>
 
-          {/* Pain Points */}
+          {/* Pain Points - Reduced to 3 max, visually subordinate to CTA */}
           <motion.div
             variants={itemVariants}
-            className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-8 px-2 sm:px-0"
+            className="flex flex-wrap items-center justify-center gap-3 mb-10 px-2 sm:px-0"
           >
-            {painPoints.map((point, i) => (
-              <motion.div
+            {painPoints.slice(0, 3).map((point, i) => (
+              <div
                 key={i}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.6 + i * 0.1, duration: 0.5 }}
-                className="flex items-center gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-full bg-warm/5 border border-warm/10 text-warm-400 text-[11px] sm:text-xs"
+                className="text-warm/50 text-xs"
               >
-                <point.icon size={12} className="text-neon flex-shrink-0" aria-hidden="true" />
-                <span className="text-left whitespace-nowrap">{point.text}</span>
-              </motion.div>
+                <span className="text-neon/60">•</span> {point.text.replace(/^(Spending| PPC| Listings)/, '')}
+              </div>
             ))}
           </motion.div>
 
-          {/* CTAs - More compelling with social proof */}
+          {/* CTAs - Hero CTA with dominant glow effect */}
           <motion.div
             variants={itemVariants}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8"
           >
             <motion.div
-              whileHover={{ scale: 1.03, boxShadow: "0 0 40px rgba(207, 255, 0, 0.3)" }}
+              whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              className="relative"
             >
-              <CalendlyButton size="lg">
+              {/* Glow ring behind button */}
+              <div className="absolute -inset-2 bg-neon-500/20 rounded-full blur-xl" aria-hidden="true" />
+              <div className="absolute -inset-1 bg-neon-500/10 rounded-full blur-2xl" aria-hidden="true" />
+              <CalendlyButton size="lg" className="relative z-10 shadow-[0_0_30px_rgba(207,255,0,0.4)]">
                 Book Free 30-Min Strategy Call →
               </CalendlyButton>
             </motion.div>
@@ -206,6 +195,19 @@ export default function HeroSection() {
               <Play size={18} className="group-hover:scale-110 transition-transform" aria-hidden="true" />
               <span>See It In Action</span>
             </motion.button>
+
+            {/* Meet River - Secondary CTA */}
+            <motion.a
+              href="#pricing"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToSection('pricing');
+              }}
+              whileHover={{ scale: 1.02 }}
+              className="text-neon/70 hover:text-neon text-sm font-medium flex items-center gap-1.5 transition-colors group"
+            >
+              <span>Meet River AI →</span>
+            </motion.a>
           </motion.div>
           
           {/* Quick Social Proof Stats */}
@@ -226,26 +228,16 @@ export default function HeroSection() {
             </span>
           </motion.div>
 
-          {/* Trust Badges - Enhanced with hover effects */}
+          {/* Trust Badges - Minimal, subordinate to CTA */}
           <motion.div
             variants={itemVariants}
-            className="flex flex-wrap items-center justify-center gap-2 sm:gap-6 px-2"
+            className="flex flex-wrap items-center justify-center gap-4 text-warm/40 text-[10px] sm:text-xs"
           >
-            {trustBadges.map((badge, i) => (
-              <motion.div
-                key={i}
-                whileHover={{ scale: 1.05, y: -2 }}
-                className="flex items-center gap-1.5 sm:gap-2 cursor-default"
-              >
-                <div
-                  className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full flex-shrink-0 ${
-                    badge.color === 'neon' ? 'bg-neon-500' : 'bg-amazon-orange'
-                  }`}
-                  aria-hidden="true"
-                />
-                <span className="text-warm text-[10px] sm:text-xs font-medium whitespace-nowrap">{badge.label}</span>
-              </motion.div>
-            ))}
+            <span>✓ 30-Day Money-Back</span>
+            <span className="hidden sm:inline">•</span>
+            <span>✓ Amazon TOS Compliant</span>
+            <span className="hidden sm:inline">•</span>
+            <span>✓ Reply in 1 Hour</span>
           </motion.div>
         </motion.div>
 

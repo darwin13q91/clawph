@@ -162,7 +162,7 @@ export default function Footer() {
               <p className="text-warm-400 text-xs uppercase tracking-wide mb-3">Follow Us</p>
               <div className="flex items-center gap-3">
                 <a
-                  href="https://linkedin.com"
+                  href="https://linkedin.com/in/amznby-services/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-xl bg-warm/5 border border-warm/10 flex items-center justify-center text-warm-400 hover:text-neon hover:bg-neon/10 hover:border-neon/30 transition-all"
@@ -171,11 +171,11 @@ export default function Footer() {
                   <Linkedin size={18} aria-hidden="true" />
                 </a>
                 <a
-                  href="https://twitter.com"
+                  href="https://www.facebook.com/amznbyServices"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-xl bg-warm/5 border border-warm/10 flex items-center justify-center text-warm-400 hover:text-neon hover:bg-neon/10 hover:border-neon/30 transition-all"
-                  aria-label="Twitter"
+                  aria-label="Facebook"
                 >
                   <Twitter size={18} aria-hidden="true" />
                 </a>

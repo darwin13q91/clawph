@@ -245,9 +245,9 @@ function App() {
           />
         </AnimatePresence>
 
-        {/* Lead Magnet Popup - Exit Intent & Timer */}
+        {/* Lead Magnet Popup - Exit Intent is primary trigger, timer secondary (60s) */}
         <LeadMagnetPopup 
-          delayMs={30000}  // Show after 30 seconds
+          delayMs={60000}  // Show after 60 seconds (exit intent is primary)
           exitIntent={true} // Also show on exit intent
           cookieDays={7}   // Don't show again for 7 days if dismissed
         />

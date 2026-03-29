@@ -315,12 +315,19 @@ export default function AboutPage() {
                   who automated the busywork and focused on strategy."
                 </blockquote>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-neon-500/20 flex items-center justify-center">
-                    <span className="text-neon-500 font-bold text-lg">A</span>
+                  {/* TODO: Replace with actual founder photo */}
+                  <div className="w-12 h-12 rounded-full bg-neon-500/20 border border-neon/30 flex items-center justify-center overflow-hidden">
+                    <img 
+                      src="/images/founder-photo.jpg" 
+                      alt="Allysa Kate Estardo"
+                      className="w-full h-full object-cover"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextSibling && ((e.currentTarget.nextSibling as HTMLElement).style.display = 'flex'); }}
+                    />
+                    <span className="hidden w-full h-full items-center justify-center text-neon-500 font-bold text-lg">A</span>
                   </div>
                   <div>
-                    <p className="text-warm font-semibold">Founder, amajungle</p>
-                    <p className="text-warm-400 text-sm">10 Years in Amazon Operations</p>
+                    <p className="text-warm font-semibold">Allysa Kate Estardo</p>
+                    <p className="text-warm-400 text-sm">Founder, amajungle</p>
                   </div>
                 </div>
               </div>

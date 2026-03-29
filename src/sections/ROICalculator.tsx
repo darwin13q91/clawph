@@ -10,7 +10,10 @@ export default function ROICalculator() {
   const weeklySavings = hoursPerWeek * hourlyRate;
   const monthlySavings = weeklySavings * 4;
   const yearlySavings = weeklySavings * 52;
-  const roi = ((yearlySavings - 12000) / 12000) * 100; // Assuming $12k automation cost
+  // Fixed: Use actual product cost ($749 avg of $499-$999) instead of $12,000
+  const productCost = 749;
+  const roi = ((yearlySavings - productCost) / productCost) * 100;
+  const paybackDays = Math.round(productCost / (weeklySavings / 7));
 
   return (
     <section className="py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-12 bg-jungle/80 backdrop-blur-sm relative overflow-hidden">
@@ -165,7 +168,10 @@ export default function ROICalculator() {
                     {roi > 0 ? '+' : ''}{roi.toFixed(0)}%
                   </p>
                   <p className="text-warm-72 text-sm mt-2">
-                    First-year ROI based on typical automation investment
+                    Based on River AI one-time setup ($499–$999)
+                  </p>
+                  <p className="text-neon/80 text-sm mt-1">
+                    Pays for itself in ~{paybackDays} days
                   </p>
                 </motion.div>
 
