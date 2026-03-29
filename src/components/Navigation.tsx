@@ -10,12 +10,13 @@ interface NavItem {
   href: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   isExternal?: boolean;
+  isRoute?: boolean;
 }
 
 const navItems: NavItem[] = [
   { label: 'Free Audit', href: '#contact', icon: Search },
   { label: 'How It Works', href: '#process', icon: Workflow },
-  { label: 'Pricing', href: '/pricing', icon: Tag },
+  { label: 'Pricing', href: '/pricing', icon: Tag, isRoute: true },
 ];
 
 // Animation variants
@@ -115,7 +116,12 @@ export default function Navigation() {
     };
   }, [isMobileMenuOpen]);
 
-  const scrollToSection = useCallback((id: string) => {
+  const scrollToSection = useCallback((id: string, isRoute?: boolean) => {
+    if (isRoute) {
+      navigate(id);
+      setIsMobileMenuOpen(false);
+      return;
+    }
     if (!isHomePage) {
       navigate('/');
       setTimeout(() => {
@@ -191,10 +197,11 @@ export default function Navigation() {
           <div className="hidden lg:flex items-center gap-1">
             {navItems.map((item) => {
               const isActive = activeSection === item.href.replace('#', '');
+              const isRoute = item.isRoute || item.href.startsWith('/');
               return (
                 <button
                   key={item.label}
-                  onClick={() => scrollToSection(item.href.replace('#', ''))}
+                  onClick={() => scrollToSection(item.href.replace('#', ''), isRoute)}
                   className={`nav-link px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${
                     isActive 
                       ? 'text-warm bg-warm/10' 
@@ -315,27 +322,30 @@ export default function Navigation() {
               {/* Navigation Links */}
               <nav className="flex-1 flex flex-col justify-center px-4 py-8">
                 <div className="space-y-2">
-                  {navItems.map((item, index) => (
-                    <motion.button
-                      key={item.label}
-                      variants={menuItemVariants}
-                      onClick={() => scrollToSection(item.href.replace('#', ''))}
-                      className="w-full flex items-center justify-between p-4 rounded-2xl text-left text-warm text-xl font-display font-bold hover:bg-warm/5 transition-colors group"
-                      style={{ animationDelay: `${index * 0.05}s` }}
-                    >
-                      <span className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 transition-colors">
-                          <item.icon size={20} className="text-neon" aria-hidden="true" />
-                        </div>
-                        {item.label}
-                      </span>
-                      <ChevronRight 
-                        size={20} 
-                        className="text-warm-400 group-hover:text-neon group-hover:translate-x-1 transition-all" 
-                        aria-hidden="true"
-                      />
-                    </motion.button>
-                  ))}
+                  {navItems.map((item, index) => {
+                    const isRoute = item.isRoute || item.href.startsWith('/');
+                    return (
+                      <motion.button
+                        key={item.label}
+                        variants={menuItemVariants}
+                        onClick={() => scrollToSection(item.href.replace('#', ''), isRoute)}
+                        className="w-full flex items-center justify-between p-4 rounded-2xl text-left text-warm text-xl font-display font-bold hover:bg-warm/5 transition-colors group"
+                        style={{ animationDelay: `${index * 0.05}s` }}
+                      >
+                        <span className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-neon/10 border border-neon/20 flex items-center justify-center group-hover:bg-neon/20 transition-colors">
+                            <item.icon size={20} className="text-neon" aria-hidden="true" />
+                          </div>
+                          {item.label}
+                        </span>
+                        <ChevronRight 
+                          size={20} 
+                          className="text-warm-400 group-hover:text-neon group-hover:translate-x-1 transition-all" 
+                          aria-hidden="true"
+                        />
+                      </motion.button>
+                    );
+                  })}
                   
                   <motion.div variants={menuItemVariants}>
                     <Link

@@ -115,12 +115,12 @@ export default function CalendlyButton({
               </motion.button>
               
               {/* Calendly Inline Widget */}
-              <div className="flex-1 min-h-0 overflow-y-auto">
+              <div className="flex-1 min-h-0 overflow-y-auto bg-white">
                 <iframe
                   src="https://calendly.com/ops-amajungle/30min?embed_type=Inline&hide_landing_page_details=1&hide_gdpr_banner=1&background_color=ffffff&text_color=1a1a2e&primary_color=00AA5B"
-                  className="w-full h-[600px] block bg-white"
+                  className="w-full h-full block bg-white"
                   title="Schedule a call with amajungle"
-                  style={{ border: 'none' }}
+                  style={{ border: 'none', minHeight: '700px' }}
                   loading="lazy"
                 />
               </div>
