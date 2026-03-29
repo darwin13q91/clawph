@@ -1,5 +1,4 @@
 import { useRef, useLayoutEffect } from 'react';
-import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { MessageSquare, TrendingUp, Clock, Shield } from 'lucide-react';
@@ -97,7 +96,7 @@ export default function VisualDemoSection() {
     <section
       ref={sectionRef}
       id="demo"
-      className="relative z-10 bg-jungle/80 backdrop-blur-sm py-24 lg:py-32 overflow-hidden"
+      className="relative z-10 bg-jungle/80 backdrop-blur-sm py-24 lg:py-32 overflow-hidden pb-24"
     >
       {/* Background glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-neon/5 rounded-full blur-3xl pointer-events-none" />
@@ -111,8 +110,8 @@ export default function VisualDemoSection() {
           <h2 className="font-display text-[clamp(32px,4vw,56px)] font-black text-warm uppercase tracking-tight mb-4">
             From Chaos to <span className="text-neon">Calm</span>
           </h2>
-          <p className="text-warm-72 text-lg max-w-2xl mx-auto">
-            See how our AI intelligence transforms your daily workflow from overwhelming manual tasks to clear, actionable insights. <strong className="text-warm">We analyze. You decide. You execute.</strong>
+          <p className="text-warm-72 text-lg max-w-2xl mx-auto bg-jungle/60 backdrop-blur-sm px-4 py-2 rounded-lg">
+            See how our AI intelligence transforms your daily workflow from overwhelming manual tasks to clear, actionable insights. <strong className="text-neon">We analyze. You decide. You execute.</strong>
           </p>
         </div>
 
@@ -193,26 +192,21 @@ export default function VisualDemoSection() {
           </div>
         </div>
 
-        {/* Stats Grid - Enhanced with hover effects */}
+        {/* Stats Grid */}
         <div ref={statsRef} className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-          {benefits.map((benefit, i) => (
-            <motion.div
+          {benefits.map((benefit) => (
+            <div
               key={benefit.label}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              whileHover={{ y: -4, boxShadow: "0 10px 30px rgba(207, 255, 0, 0.1)" }}
-              className="card-jungle p-6 text-center card-hover cursor-default"
+              className="card-jungle p-6 text-center card-hover"
             >
-              <div className="w-12 h-12 rounded-full bg-neon/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-neon/20 transition-colors">
+              <div className="w-12 h-12 rounded-full bg-neon/10 flex items-center justify-center mx-auto mb-4">
                 <benefit.icon className="text-neon" size={24} />
               </div>
               <div className="font-mono text-3xl lg:text-4xl font-bold text-neon mb-2">
                 {benefit.value}
               </div>
               <div className="text-warm-72 text-sm">{benefit.label}</div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

@@ -58,7 +58,7 @@ export default function BeforeAfterSlider() {
   ];
 
   return (
-    <section className="py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-12 bg-jungle/80 backdrop-blur-sm relative overflow-hidden">
+    <section className="py-20 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-12 bg-jungle/80 backdrop-blur-sm relative overflow-hidden pb-24">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-10 sm:mb-12">
           <motion.div
@@ -104,9 +104,8 @@ export default function BeforeAfterSlider() {
           {/* Before Side */}
           <div className="absolute inset-0 bg-gradient-to-br from-red-950/30 to-jungle-dark/50 p-6 sm:p-8 lg:p-10">
             <div className="h-full flex flex-col">
-              <h3 className="font-display text-xl sm:text-2xl font-bold text-red-400 mb-4 sm:mb-6 flex items-center gap-2">
-                <X className="w-5 h-5" aria-hidden="true" />
-                <span>Manual Grind</span>
+              <h3 className="font-display text-xl sm:text-2xl font-bold text-red-400 mb-4 sm:mb-6">
+                ❌ Manual Grind
               </h3>
               <ul className="space-y-3 sm:space-y-4 flex-1 overflow-y-auto">
                 {beforeTasks.map((task, i) => (
@@ -131,9 +130,8 @@ export default function BeforeAfterSlider() {
             }}
           >
             <div className="h-full flex flex-col">
-              <h3 className="font-display text-xl sm:text-2xl font-bold text-neon mb-4 sm:mb-6 flex items-center gap-2">
-                <Check className="w-5 h-5" aria-hidden="true" />
-                <span>With AmaJungle</span>
+              <h3 className="font-display text-xl sm:text-2xl font-bold text-neon mb-4 sm:mb-6">
+                ✅ With AmaJungle
               </h3>
               <ul className="space-y-3 sm:space-y-4 flex-1 overflow-y-auto">
                 {afterTasks.map((task, i) => (
@@ -165,11 +163,9 @@ export default function BeforeAfterSlider() {
             </div>
           </div>
 
-          {/* Labels - Subtle hint without amateur placeholder */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-sm px-4 py-1.5 rounded-full text-xs text-white/60 flex items-center gap-2">
-            <span>Before</span>
-            <span className="w-8 h-px bg-white/30" />
-            <span>After</span>
+          {/* Labels */}
+          <div className="absolute top-4 left-4 bg-black/50 px-3 py-1 rounded-full text-sm text-white">
+            Drag →
           </div>
         </motion.div>
       </div>
