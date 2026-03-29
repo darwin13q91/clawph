@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, X, Sparkles } from 'lucide-react';
+import { Calendar, X } from 'lucide-react';
 
 interface CalendlyButtonProps {
   children?: React.ReactNode;
@@ -98,69 +98,32 @@ export default function CalendlyButton({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="relative w-full max-w-5xl h-[85vh] bg-jungle rounded-3xl overflow-hidden shadow-2xl border border-warm/10"
+              className="relative w-full max-w-5xl h-[90vh] bg-jungle rounded-3xl overflow-hidden shadow-2xl border border-warm/10"
               role="dialog"
               aria-modal="true"
               aria-label="Schedule a strategy call with amajungle"
             >
-              {/* Header */}
-              <div className="flex items-center justify-between p-4 lg:p-6 border-b border-warm/10 bg-jungle-dark/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-neon/20 flex items-center justify-center">
-                    <Sparkles className="text-neon" size={20} />
-                  </div>
-                  <div>
-                    <h3 className="font-display text-lg font-bold text-warm">Book Your Strategy Call</h3>
-                    <p className="text-warm-72 text-sm">Free 30-minute Amazon consultation</p>
-                  </div>
-                </div>
-                
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsOpen(false)}
-                  aria-label="Close scheduling dialog"
-                  className="w-10 h-10 rounded-xl bg-warm/5 flex items-center justify-center text-warm-72 hover:bg-warm/10 hover:text-warm transition-colors duration-300"
-                >
-                  <X size={20} />
-                </motion.button>
-              </div>
+              {/* Close button overlay */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsOpen(false)}
+                aria-label="Close scheduling dialog"
+                className="absolute top-4 right-4 z-10 w-10 h-10 rounded-xl bg-warm/10 backdrop-blur-sm flex items-center justify-center text-warm hover:bg-warm/20 transition-colors duration-300"
+              >
+                <X size={20} />
+              </motion.button>
               
-              {/* Calendly Booking */}
-              <div className="w-full h-[calc(85vh-80px)] flex flex-col items-center justify-center p-8 lg:p-12 bg-jungle-dark/30">
-                {/* Calendar Icon */}
-                <div className="w-20 h-20 rounded-2xl bg-neon/10 flex items-center justify-center mb-6">
-                  <Calendar className="text-neon" size={40} />
-                </div>
-                
-                {/* Message */}
-                <h4 className="font-display text-2xl lg:text-3xl font-bold text-warm text-center mb-3">
-                  Ready to Grow Your Amazon Business?
-                </h4>
-                <p className="text-warm-72 text-center text-lg mb-8 max-w-md">
-                  Click the button below to book your free 30-minute strategy call. 
-                  Pick a time that works for you — we'll take care of the rest.
-                </p>
-                
-                {/* Book Now Button */}
-                <a
-                  href="https://calendly.com/ops-amajungle/30min"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-neon text-jungle font-bold text-lg rounded-full hover:opacity-90 transition-all duration-300 shadow-lg shadow-neon/25"
-                >
-                  <Calendar size={22} />
-                  Book Now on Calendly
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </a>
-                
-                {/* Trust note */}
-                <p className="text-warm-50 text-sm mt-6 text-center">
-                  30-minute call · No commitment · Expert Amazon strategies
-                </p>
-              </div>
+              {/* Calendly Inline Widget */}
+              <iframe
+                src="https://calendly.com/ops-amajungle/30min?embed_type=Inline&hide_landing_page_details=1&hide_gdpr_banner=1&background_color=0b3a2c&text_color=F6F7EB&primary_color=00FF00"
+                width="100%"
+                height="100%"
+                style={{ border: 'none' }}
+                title="Schedule a call with amajungle"
+                className="bg-jungle"
+                loading="lazy"
+              />
             </motion.div>
           </div>
         )}
