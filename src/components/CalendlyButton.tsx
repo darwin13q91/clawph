@@ -116,12 +116,12 @@ export default function CalendlyButton({
               
               {/* Calendly Inline Widget */}
               <iframe
-                src="https://calendly.com/ops-amajungle/30min?embed_type=Inline&hide_landing_page_details=1&hide_gdpr_banner=1&background_color=0b3a2c&text_color=F6F7EB&primary_color=00FF00"
+                src="https://calendly.com/ops-amajungle/30min?embed_type=Inline&hide_landing_page_details=1&hide_gdpr_banner=1&background_color=ffffff&text_color=1a1a2e&primary_color=00AA5B"
                 width="100%"
                 height="100%"
-                style={{ border: 'none' }}
                 title="Schedule a call with amajungle"
-                className="bg-jungle"
+                style={{ border: 'none', display: 'block' }}
+                className="bg-white"
                 loading="lazy"
               />
             </motion.div>
