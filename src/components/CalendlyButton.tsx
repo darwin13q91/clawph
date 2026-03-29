@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, X } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Calendar } from 'lucide-react';
+
+const CALENDLY_URL = 'https://calendly.com/ops-amajungle/30min?embed_domain=amajungle.com&embed_type=PopupText';
 
 interface CalendlyButtonProps {
   children?: React.ReactNode;
@@ -17,23 +18,6 @@ export default function CalendlyButton({
   size = 'md',
   showIcon = true,
 }: CalendlyButtonProps) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  // Handle escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        setIsOpen(false);
-      }
-    };
-    
-    if (isOpen) {
-      window.addEventListener('keydown', handleEscape);
-    }
-    
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, [isOpen]);
-
   const getButtonClasses = () => {
     const baseClasses = 'inline-flex items-center justify-center gap-2 font-semibold rounded-full transition-all duration-300';
     
@@ -52,70 +36,23 @@ export default function CalendlyButton({
     return `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`;
   };
 
-  return (
-    <>
-      {/* Button */}
-      <motion.button
-        whileTap={{ scale: 0.98 }}
-        onClick={() => setIsOpen(true)}
-        className={getButtonClasses()}
-      >
-        {showIcon && <Calendar size={size === 'sm' ? 16 : 18} />}
-        {children}
-      </motion.button>
+  const openCalendly = () => {
+    // Open Calendly in a popup window - Calendly handles the UI natively
+    window.open(
+      CALENDLY_URL,
+      'calendlyPopup',
+      'width=900,height=700,scrollbars=yes,resizable=yes'
+    );
+  };
 
-      {/* Modal */}
-      <AnimatePresence>
-        {isOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="absolute inset-0 bg-jungle/95 backdrop-blur-xl"
-              onClick={() => setIsOpen(false)}
-              role="presentation"
-              aria-hidden="true"
-            />
-            
-            {/* Modal Container */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="relative flex flex-col w-full max-w-5xl h-[90vh] bg-white rounded-3xl overflow-hidden shadow-2xl"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Schedule a strategy call with amajungle"
-            >
-              {/* Close button — FIXED at top of modal, always visible regardless of iframe scroll */}
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsOpen(false)}
-                aria-label="Close scheduling dialog"
-                className="absolute top-4 right-4 z-10 w-12 h-12 rounded-full bg-jungle-800 text-white border-2 border-neon/50 shadow-lg flex items-center justify-center hover:bg-jungle-700 transition-colors duration-300"
-              >
-                <X size={24} />
-              </motion.button>
-              
-              {/* Calendly Inline Widget */}
-              <div className="flex-1 min-h-0 overflow-y-auto bg-white">
-                <iframe
-                  src="https://calendly.com/ops-amajungle/30min?embed_type=Inline&hide_landing_page_details=1&hide_gdpr_banner=1&background_color=ffffff&text_color=1a1a2e&primary_color=00AA5B"
-                  className="w-full block bg-white"
-                  title="Schedule a call with amajungle"
-                  style={{ border: 'none', minHeight: '700px', display: 'block' }}
-                  loading="lazy"
-                />
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </>
+  return (
+    <motion.button
+      whileTap={{ scale: 0.98 }}
+      onClick={openCalendly}
+      className={getButtonClasses()}
+    >
+      {showIcon && <Calendar size={size === 'sm' ? 16 : 18} />}
+      {children}
+    </motion.button>
   );
 }
