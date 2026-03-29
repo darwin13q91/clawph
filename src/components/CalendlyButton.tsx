@@ -91,7 +91,7 @@ export default function CalendlyButton({
               aria-modal="true"
               aria-label="Schedule a strategy call with amajungle"
             >
-              {/* Close button overlay */}
+              {/* Close button — FIXED at top of modal, always visible regardless of iframe scroll */}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
@@ -106,9 +106,9 @@ export default function CalendlyButton({
               <div className="flex-1 min-h-0 overflow-y-auto bg-white">
                 <iframe
                   src="https://calendly.com/ops-amajungle/30min?embed_type=Inline&hide_landing_page_details=1&hide_gdpr_banner=1&background_color=ffffff&text_color=1a1a2e&primary_color=00AA5B"
-                  className="w-full h-full block bg-white"
+                  className="w-full block bg-white"
                   title="Schedule a call with amajungle"
-                  style={{ border: 'none', minHeight: '700px' }}
+                  style={{ border: 'none', minHeight: '700px', display: 'block' }}
                   loading="lazy"
                 />
               </div>
