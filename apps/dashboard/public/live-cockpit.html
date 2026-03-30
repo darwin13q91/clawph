@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Amajungle Live — AI Agent Fleet</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070710;
+      --card-bg: #0d0d1a;
+      --card-border: #1e1e1e;
+      --text: #e0e0e0;
+      --text-muted: #666;
+      --jungle: #2d5a27;
+      --neon: #CFFF00;
+      --neon-dim: rgba(207, 255, 0, 0.15);
+      --glow-base: rgba(207, 255, 0, 0.06);
+      --scanline: rgba(207, 255, 0, 0.025);
+      --river: #3B82F6;
+      --atlas: #8B5CF6;
+      --piper: #10B981;
+      --echo: #F59E0B;
+      --scout: #EC4899;
+      --cfo: #06B6D4;
+      --pixel: #F97316;
+      --trader: #84CC16;
+      --allysa: #B06CDB;
+      --shady: #6B7280;
+      --online: #22C55E;
+      --idle: #6B7280;
+      --error: #EF4444;
+      --animation-duration-multiplier: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      :root { --animation-duration-multiplier: 0; }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── PHASE 1: BACKGROUND GRID AMBIANCE ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      /* Layer A: Primary neon grid */
+      background-image:
+        linear-gradient(rgba(207,255,0,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(207,255,0,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.3;
+      animation: gridPulse 8s ease-in-out infinite;
+    }
+
+    /* Layer B: Fine drift grid */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image:
+        linear-gradient(rgba(207,255,0,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(207,255,0,0.06) 1px, transparent 1px);
+      background-size: 300px 300px;
+      animation: gridDrift 40s linear infinite;
+    }
+
+    @keyframes gridPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.55; }
+    }
+    @keyframes gridDrift {
+      0% { background-position: 0 0; }
+      100% { background-position: 300px 300px; }
+    }
+
+    /* Layer C: Radial ambient glow */
+    .ambient-glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background: radial-gradient(ellipse 80% 50% at 50% 30%, rgba(45,90,39,0.25) 0%, transparent 70%);
+      animation: ambientPulse 12s ease-in-out infinite;
+    }
+    @keyframes ambientPulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    .wrapper { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 24px; }
+
+    /* ── PHASE 2: THEATRICAL HEADER ── */
+
+    /* Header scan-line sweep */
+    header {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 36px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    header::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(207,255,0,0.4), transparent);
+      animation: scanline calc(8s * var(--animation-duration-multiplier)) ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes scanline {
+      0% { transform: translateY(0); opacity: 0; }
+      5% { opacity: 1; }
+      95% { opacity: 1; }
+      100% { transform: translateY(80px); opacity: 0; }
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--neon-dim);
+      border: 1px solid var(--neon);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 0 12px rgba(207,255,0,0.3), 0 0 24px rgba(207,255,0,0.1);
+      animation: logoBreath calc(4s * var(--animation-duration-multiplier)) ease-in-out infinite;
+    }
+    @keyframes logoBreath {
+      0%, 100% {
+        box-shadow: 0 0 12px rgba(207,255,0,0.3), 0 0 24px rgba(207,255,0,0.1);
+        border-color: var(--neon);
+      }
+      50% {
+        box-shadow: 0 0 20px rgba(207,255,0,0.5), 0 0 40px rgba(207,255,0,0.2), 0 0 60px rgba(207,255,0,0.05);
+        border-color: var(--neon);
+      }
+    }
+
+    .logo-text {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--neon);
+      letter-spacing: -0.5px;
+    }
+    .logo-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(239,68,68,0.15);
+      border: 1px solid #EF4444;
+      border-radius: 100px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #EF4444;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 0 12px rgba(239,68,68,0.3);
+      animation: liveBadgePulse calc(3s * var(--animation-duration-multiplier)) ease-in-out infinite;
+    }
+    @keyframes liveBadgePulse {
+      0%, 100% { box-shadow: 0 0 12px rgba(239,68,68,0.3); }
+      50% { box-shadow: 0 0 20px rgba(239,68,68,0.5), 0 0 40px rgba(239,68,68,0.1); }
+    }
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: #EF4444;
+      border-radius: 50%;
+      animation: pulse calc(1.5s * var(--animation-duration-multiplier)) ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+    .fleet-clock {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      text-shadow: 0 0 8px rgba(207,255,0,0.4);
+      position: relative;
+      overflow: hidden;
+    }
+    .fleet-clock::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(180deg, transparent 40%, rgba(207,255,0,0.08) 50%, transparent 60%);
+      animation: clockScan calc(10s * var(--animation-duration-multiplier)) linear infinite;
+      pointer-events: none;
+    }
+    @keyframes clockScan {
+      0% { transform: translateY(-100%); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(100%); opacity: 0; }
+    }
+    .activity-count {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ── AGENT GRID ── */
+    .section-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .agent-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+
+    /* ── PHASE 3: PER-AGENT IDLE ANIMATIONS ── */
+
+    .agent-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, box-shadow 0.5s;
+      --card-index: 0;
+      animation: idleBase calc(4s * var(--animation-duration-multiplier)) ease-in-out infinite;
+      animation-delay: calc(var(--card-index, 0) * 0.3s * var(--animation-duration-multiplier));
+    }
+    @keyframes idleBase {
+      0%, 100% { box-shadow: 0 0 0px rgba(var(--agent-color-rgb, 107,114,128), 0); }
+      50% { box-shadow: 0 0 20px rgba(var(--agent-color-rgb, 107,114,128), 0.15); }
+    }
+
+    .agent-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--agent-color, var(--idle));
+      opacity: 0.6;
+    }
+
+    /* ── Active state override ── */
+    .agent-card.status-online {
+      animation-play-state: paused;
+      animation: activePulse 0.6s ease-out forwards !important;
+    }
+    @keyframes activePulse {
+      0% { box-shadow: 0 0 0px rgba(var(--agent-color-rgb, 107,114,128), 0); }
+      40% { box-shadow: 0 0 40px rgba(var(--agent-color-rgb, 107,114,128), 0.6), 0 0 80px rgba(var(--agent-color-rgb, 107,114,128), 0.2); }
+      100% { box-shadow: 0 0 20px rgba(var(--agent-color-rgb, 107,114,128), 0.35); }
+    }
+    .agent-card.status-online::before { opacity: 1; }
+    .agent-card.status-online { border-color: var(--agent-color, var(--idle)); }
+
+    .agent-card.status-error {
+      animation-play-state: paused;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(var(--agent-color-rgb, 107,114,128), 0.2);
+      border: 1px solid var(--agent-color, var(--idle));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .agent-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .agent-role {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--idle);
+    }
+    .agent-card.status-online .status-dot { background: var(--online); }
+    .agent-card.status-error .status-dot { background: var(--error); }
+    .status-label {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .last-seen {
+      font-size: 9px;
+      color: #333;
+      margin-top: 4px;
+    }
+
+    /* ══════════════════════════════════════
+       ALLYSA — Orbiting dots
+    ══════════════════════════════════════ */
+    #card-allysa .avatar::before,
+    #card-allysa .avatar::after {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--allysa);
+      opacity: 0.6;
+      top: 50%;
+      left: 50%;
+      animation: allysaOrbit calc(6s * var(--animation-duration-multiplier)) linear infinite;
+    }
+    #card-allysa .avatar::after {
+      animation-duration: calc(8s * var(--animation-duration-multiplier));
+      animation-direction: reverse;
+    }
+    @keyframes allysaOrbit {
+      0% { transform: rotate(0deg) translateX(22px) translateY(-22px) scale(1); opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { transform: rotate(360deg) translateX(22px) translateY(-22px) scale(1); opacity: 0.6; }
+    }
+    #card-allysa {
+      animation: allysaCard calc(4s * var(--animation-duration-multiplier)) ease-in-out infinite,
+                 allysaGlow calc(3s * var(--animation-duration-multiplier)) ease-in-out infinite;
+    }
+    @keyframes allysaCard {
+      0%, 100% { box-shadow: 0 0 0px rgba(176,108,219,0); }
+      50% { box-shadow: 0 0 25px rgba(176,108,219,0.25), 0 0 50px rgba(176,108,219,0.1); }
+    }
+    @keyframes allysaGlow {
+      0%, 100% { border-color: var(--card-border); }
+      50% { border-color: rgba(176,108,219,0.5); }
+    }
+
+    /* ══════════════════════════════════════
+       RIVER — Wave flow
+    ══════════════════════════════════════ */
+    #card-river {
+      animation: riverFlow calc(5s * var(--animation-duration-multiplier)) ease-in-out infinite;
+    }
+    @keyframes riverFlow {
+      0%, 100% {
+        box-shadow: 0 0 15px rgba(59,130,246,0.2), inset 0 -3px 0 rgba(59,130,246,0.1);
+        transform: translateY(0);
+      }
+      30% {
+        box-shadow: 0 0 30px rgba(59,130,246,0.35), inset 0 -3px 0 rgba(59,130,246,0.2);
+        transform: translateY(-2px);
+      }
+      70% {
+        box-shadow: 0 0 20px rgba(59,130,246,0.25), inset 0 2px 0 rgba(59,130,246,0.1);
+        transform: translateY(-1px);
+      }
+    }
+
+    /* ══════════════════════════════════════
+       ATLAS — Crosshair sweep
+    ══════════════════════════════════════ */
+    #card-atlas .avatar::after {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border: 1px solid rgba(139,92,246,0.3);
+      border-radius: 8px;
+      animation: atlasSweep calc(12s * var(--animation-duration-multiplier)) linear infinite;
+    }
+    @keyframes atlasSweep {
+      0% { transform: rotate(0deg); opacity: 0.4; }
+      25% { opacity: 0.8; }
+      50% { transform: rotate(180deg); opacity: 0.4; }
+      75% { opacity: 0.8; }
+      100% { transform: rotate(360deg); opacity: 0.4; }
+    }
+    #card-atlas {
+      animation: atlasBreath calc(6s * var(--animation-duration-multiplier)) ease-in-out infinite;
+    }
+    @keyframes atlasBreath {
+      0%, 100% { box-shadow: 0 0 12px rgba(139,92,246,0.2); }
+      50% { box-shadow: 0 0 24px rgba(139,92,246,0.35), 0 0 48px rgba(139,92,246,0.1); }
+    }
+
+    /* ══════════════════════════════════════
+       PIPER — Rising ember + ripple
+    ══════════════════════════════════════ */
+    #card-piper {
+      animation: piperWarm calc(4s * var(--animation-duration-multiplier)) ease-in-out infinite;
+    }
+    @keyframes piperWarm {
+      0%, 100% {
+        box-shadow: 0 0 10px rgba(16,185,129,0.15), 0 -4px 12px rgba(16,185,129,0.1);
+      }
+      50% {
+        box-shadow: 0 0 25px rgba(16,185,129,0.3), 0 -8px 20px rgba(16,185,129,0.15);
+      }
+    }
+    #card-piper .avatar {
+      animation: piperRipple calc(4s * var(--animation-duration-multiplier)) ease-out infinite;
+    }
+    @keyframes piperRipple {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.05); }
+      60% { transform: scale(1); }
+      80% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+
+    /* ══════════════════════════════════════
+       ECHO — Amber alert pulse
+    ══════════════════════════════════════ */
+    #card-echo {
+      animation: echoAlert calc(5s * var(--animation-duration-multiplier)) ease-in-out infinite;
+    }
+    @keyframes echoAlert {
+      0%, 100% {
+        box-shadow: 0 0 8px rgba(245,158,11,0.1);
+        transform: scale(1);
+      }
+      15% {
+        box-shadow: 0 0 20px rgba(245,158,11,0.4), 0 0 40px rgba(245,158,11,0.1);
+        transform: scale(1.015);
+      }
+      30% {
+        box-shadow: 0 0 10px rgba(245,158,11,0.15);
+        transform: scale(1);
+      }
+      60% {
+        box-shadow: 0 0 16px rgba(245,158,11,0.3);
+        transform: scale(1.01);
+      }
+    }
+
+    /* ══════════════════════════════════════
+       SCOUT — Scan line sweep
+    ══════════════════════════════════════ */
+    #card-scout {
+      position: relative;
+      overflow: hidden;
+      animation: scoutPulse calc(6s * var(--animation-duration-multiplier)) ease-in-out infinite;
+    }
+    @keyframes scoutPulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(236,72,153,0.15); }
+      50% { box-shadow: 0 0 22px rgba(236,72,153,0.3); }
+    }
+    #card-scout::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: -60%;
+      width: 60%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(236,72,153,0.8), transparent);
+      transform: translateY(-50%);
+      animation: scoutScan calc(6s * var(--animation-duration-multiplier)) ease-in-out infinite;
+    }
+    @keyframes scoutScan {
+      0% { left: -60%; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { left: 160%; opacity: 0; }
+    }
+
+    /* ══════════════════════════════════════
+       TRADER — Ticker bar
+    ══════════════════════════════════════ */
+    #card-trader {
+      position: relative;
+      overflow: hidden;
+      animation: traderPulse calc(4s * var(--animation-duration-multiplier)) ease-in-out infinite;
+    }
+    @keyframes traderPulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(132,204,22,0.15); }
+      50% { box-shadow: 0 0 20px rgba(132,204,22,0.3), 0 0 40px rgba(132,204,22,0.08); }
+    }
+    #card-trader::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg,
+        rgba(132,204,22,0.8) 0%,
+        rgba(132,204,22,0.4) 20%,
+        rgba(132,204,22,0.9) 40%,
+        rgba(132,204,22,0.3) 60%,
+        rgba(132,204,22,0.7) 80%,
+        rgba(132,204,22,0.5) 100%
+      );
+      background-size: 200% 100%;
+      animation: traderTick calc(3s * var(--animation-duration-multiplier)) steps(1) infinite;
+    }
+    @keyframes traderTick {
+      0% { background-position: 0% 0%; }
+      25% { background-position: 50% 0%; }
+      50% { background-position: 100% 0%; }
+      75% { background-position: 50% 0%; }
+      100% { background-position: 0% 0%; }
+    }
+
+    /* ══════════════════════════════════════
+       PIXEL — Prismatic shimmer
+    ══════════════════════════════════════ */
+    #card-pixel {
+      animation: pixelPrism calc(6s * var(--animation-duration-multiplier)) linear infinite,
+                 pixelBreath calc(4s * var(--animation-duration-multiplier)) ease-in-out infinite;
+    }
+    @keyframes pixelPrism {
+      0% { box-shadow: 0 0 15px rgba(249,115,22,0.3), 0 0 30px rgba(249,115,22,0.1); }
+      33% { box-shadow: 0 0 15px rgba(255,160,0,0.3), 0 0 30px rgba(255,160,0,0.1); }
+      66% { box-shadow: 0 0 15px rgba(239,68,68,0.25), 0 0 30px rgba(239,68,68,0.08); }
+      100% { box-shadow: 0 0 15px rgba(249,115,22,0.3), 0 0 30px rgba(249,115,22,0.1); }
+    }
+    @keyframes pixelBreath {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      25% { transform: scale(1.02) rotate(0.5deg); }
+      75% { transform: scale(0.99) rotate(-0.5deg); }
+    }
+    #card-pixel .avatar {
+      animation: pixelAvatar calc(5s * var(--animation-duration-multiplier)) ease-in-out infinite;
+    }
+    @keyframes pixelAvatar {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.08) rotate(5deg); }
+    }
+
+    /* ══════════════════════════════════════
+       CFO — Heartbeat line
+    ══════════════════════════════════════ */
+    #card-cfo {
+      position: relative;
+      overflow: hidden;
+      animation: cfoPulse calc(5s * var(--animation-duration-multiplier)) ease-in-out infinite;
+    }
+    @keyframes cfoPulse {
+      0%, 100% { box-shadow: 0 0 8px rgba(6,182,212,0.15); }
+      50% { box-shadow: 0 0 18px rgba(6,182,212,0.28); }
+    }
+    #card-cfo::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 10%;
+      right: 10%;
+      height: 2px;
+      border-top: 2px solid rgba(6,182,212,0.6);
+      animation: cfoHeartbeat calc(2s * var(--animation-duration-multiplier)) ease-in-out infinite;
+    }
+    @keyframes cfoHeartbeat {
+      0%, 100% { opacity: 0.3; transform: scaleX(1); }
+      10% { opacity: 1; transform: scaleX(1.02); }
+      20% { opacity: 0.3; transform: scaleX(1); }
+      30% { opacity: 0.8; transform: scaleX(0.98); }
+      40%, 100% { opacity: 0.3; transform: scaleX(1); }
+    }
+
+    /* ── FEED + STATS ── */
+    .feed-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 24px;
+    }
+    @media (max-width: 900px) {
+      .feed-layout { grid-template-columns: 1fr; }
+    }
+    .feed-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .feed-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .filter-tag {
+      font-size: 10px;
+      background: var(--neon-dim);
+      border: 1px solid var(--neon);
+      color: var(--neon);
+      padding: 3px 10px;
+      border-radius: 100px;
+    }
+    .activity-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 560px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .activity-feed::-webkit-scrollbar { width: 4px; }
+    .activity-feed::-webkit-scrollbar-track { background: transparent; }
+    .activity-feed::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+    .activity-item {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .activity-item .ai { font-size: 16px; width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .activity-item .ai.subagent { background: rgba(176,108,219,0.2); }
+    .activity-item .ai.cron { background: rgba(207,255,0,0.15); }
+    .activity-item .ai.email { background: rgba(245,158,11,0.15); }
+    .activity-item .ai.trade { background: rgba(16,185,129,0.15); }
+    .activity-item .ai.skill { background: rgba(236,72,153,0.15); }
+    .activity-item .ai.gateway { background: rgba(34,197,94,0.15); }
+    .activity-item .ai.channel { background: rgba(59,130,246,0.15); }
+    .activity-item .ai.system { background: rgba(107,114,128,0.15); }
+    .activity-body { flex: 1; min-width: 0; }
+    .activity-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .activity-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .activity-meta {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+      align-items: center;
+    }
+    .activity-source {
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.05);
+      color: var(--text-muted);
+    }
+    .activity-time {
+      font-size: 10px;
+      color: #444;
+      font-variant-numeric: tabular-nums;
+    }
+    .status-pip {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+    .status-pip.success { background: var(--online); }
+    .status-pip.error { background: var(--error); }
+    .status-pip.warning { background: var(--echo); }
+    .status-pip.info { background: var(--river); }
+
+    /* ── SIDEBAR STATS ── */
+    .feed-sidebar {}
+    .stats-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .stats-card h3 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 0;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { font-size: 12px; color: var(--text-muted); }
+    .stat-value { font-size: 13px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+    .stat-value.neon { color: var(--neon); }
+
+    /* ── AMAZON FILTER NOTE ── */
+    .amazon-filter-note {
+      background: rgba(207,255,0,0.05);
+      border: 1px solid rgba(207,255,0,0.2);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 10px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    .amazon-filter-note span { color: var(--neon); }
+
+    /* ── PHASE 5: EMPTY FEED "WAITING ROOM" ── */
+    .empty-feed {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 300px;
+    }
+    .radar-container {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin-bottom: 32px;
+    }
+    .radar {
+      width: 100%;
+      height: 100%;
+      animation: radarSpin calc(3s * var(--animation-duration-multiplier)) linear infinite;
+    }
+    .radar-arm {
+      animation: radarSweep calc(3s * var(--animation-duration-multiplier)) linear infinite;
+      transform-origin: 100px 100px;
+    }
+    @keyframes radarSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes radarSweep {
+      0% { opacity: 0.8; }
+      100% { opacity: 0.1; }
+    }
+
+    .ghost-items {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 24px;
+    }
+    .ghost-item {
+      width: 100%;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      opacity: 0;
+      animation: ghostFade calc(5s * var(--animation-duration-multiplier)) ease-in-out infinite;
+    }
+    .ghost-item:nth-child(2) { animation-delay: calc(1.5s * var(--animation-duration-multiplier)); }
+    .ghost-item:nth-child(3) { animation-delay: calc(3s * var(--animation-duration-multiplier)); }
+    @keyframes ghostFade {
+      0%, 100% { opacity: 0; }
+      10%, 30% { opacity: 0.25; }
+    }
+
+    .empty-status-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      min-height: 20px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .empty-dots {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .empty-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--neon);
+      opacity: 0.4;
+    }
+    .empty-dot:nth-child(1) { animation: dotPulse calc(2s * var(--animation-duration-multiplier)) ease-in-out infinite; }
+    .empty-dot:nth-child(2) { animation: dotPulse calc(2s * var(--animation-duration-multiplier)) ease-in-out infinite 0.3s; }
+    .empty-dot:nth-child(3) { animation: dotPulse calc(2s * var(--animation-duration-multiplier)) ease-in-out infinite 0.6s; }
+    @keyframes dotPulse {
+      0%, 100% { opacity: 0.3; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #1a1a1a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    footer p { font-size: 11px; color: #333; }
+    footer a { color: var(--neon); text-decoration: none; }
+
+    /* ── PHASE 6: MOBILE POLISH ── */
+    @media (max-width: 600px) {
+      /* Disable expensive animations */
+      body::after { animation: none; }
+      header::after { display: none; }
+      .fleet-clock::after { display: none; }
+
+      /* Grid sizing */
+      body::before {
+        background-size: 40px 40px;
+        animation: gridPulse calc(16s * var(--animation-duration-multiplier)) ease-in-out infinite;
+      }
+
+      /* Logo mobile */
+      .logo-text { font-size: 18px; }
+      .logo-sub { display: none; }
+
+      /* Card grid */
+      .agent-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      }
+
+      /* Hide pseudo-element animations on cards */
+      #card-allysa .avatar::before,
+      #card-allysa .avatar::after,
+      #card-atlas .avatar::after,
+      #card-scout::before { display: none; }
+
+      /* Disable card transform animations on mobile */
+      #card-river,
+      #card-pixel {
+        transform: none !important;
+      }
+
+      /* Hide empty feed radar + ghost items on mobile */
+      .radar-container { display: none; }
+      .ghost-items { display: none; }
+
+      /* Keep only essential glow */
+      .agent-card {
+        animation-name: idleBase;
+        animation-duration: calc(6s * var(--animation-duration-multiplier));
+      }
+
+      /* Live badge mobile */
+      .live-badge { padding: 4px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Ambient glow layer -->
+  <div class="ambient-glow"></div>
+
+<div class="wrapper">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🌿</div>
+      <div>
+        <div class="logo-text">Amajungle Live</div>
+        <div class="logo-sub">AI Agent Fleet Theater</div>
+      </div>
+    </div>
+    <div class="live-badge">
+      <div class="live-dot"></div>
+      Live
+    </div>
+    <div class="header-right">
+      <div class="fleet-clock" id="clock">--:--:--</div>
+      <div class="activity-count" id="activityCount">0 events logged</div>
+    </div>
+  </header>
+
+  <!-- Agent Fleet -->
+  <div class="section-label">Agent Fleet</div>
+  <div class="agent-grid" id="agentGrid">
+    <!-- Agent cards rendered by JS -->
+  </div>
+
+  <!-- Feed + Stats -->
+  <div class="feed-layout">
+    <div class="feed-main">
+      <div class="feed-header">
+        <div class="feed-title">Live Activity</div>
+        <div class="filter-tag">🌿 Amazon-Only</div>
+      </div>
+      <div class="amazon-filter-note">
+        Showing only <span>Amazon FBA</span>, pipeline, and revenue-related agent activity.
+        PhilGEPS scraper and non-Amazon tasks are hidden.
+      </div>
+      <div class="activity-feed" id="activityFeed">
+        <!-- Empty feed replaced by JS with radar + messages when no activity -->
+      </div>
+    </div>
+
+    <div class="feed-sidebar">
+      <div class="stats-card">
+        <h3>Fleet Stats</h3>
+        <div class="stat-row">
+          <div class="stat-label">Events (session)</div>
+          <div class="stat-value neon" id="statEvents">0</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-label">Agents online</div>
+          <div class="stat-value" id="statOnline">0</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-label">Success rate</div>
+          <div class="stat-value" id="statSuccess">—</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-label">Avg response</div>
+          <div class="stat-value" id="statLatency">—</div>
+        </div>
+      </div>
+
+      <div class="stats-card">
+        <h3>Active Campaigns</h3>
+        <div class="stat-row">
+          <div class="stat-label">Cold outreach</div>
+          <div class="stat-value" id="statCampaign">—</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-label">Follow-up day</div>
+          <div class="stat-value" id="statFollowup">—</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-label">CRM prospects</div>
+          <div class="stat-value" id="statCRM">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Amajungle AI Agent Fleet &mdash; Running on OpenClaw &copy; 2026</p>
+    <p><a href="/">← Back to dashboard</a></p>
+  </footer>
+</div>
+
+<script>
+  // ─── Reduced motion ───────────────────────────────────────────────────────
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReducedMotion) {
+    document.documentElement.style.setProperty('--animation-duration-multiplier', '0');
+  }
+
+  // ─── Color helpers ────────────────────────────────────────────────────────
+  function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+      : '107, 114, 128';
+  }
+
+  // ─── Config ───────────────────────────────────────────────────────────────
+  const AGENTS = [
+    { id: 'allysa',  name: 'Allysa',    role: 'Orchestrator',    emoji: '🧠', color: '#B06CDB' },
+    { id: 'river',   name: 'River',     role: 'Amazon Strategy',  emoji: '🌊', color: '#3B82F6' },
+    { id: 'atlas',   name: 'Atlas',     role: 'Infrastructure',   emoji: '🗺',  color: '#8B5CF6' },
+    { id: 'piper',   name: 'Piper',     role: 'Outbound Email',   emoji: '📧', color: '#10B981' },
+    { id: 'echo',    name: 'Echo',      role: 'Inbound Support',  emoji: '🔔', color: '#F59E0B' },
+    { id: 'scout',   name: 'Scout',      role: 'Research',        emoji: '🔍', color: '#EC4899' },
+    { id: 'trader',  name: 'Trader',     role: 'Trading Ops',     emoji: '📈', color: '#84CC16' },
+    { id: 'pixel',   name: 'Pixel',      role: 'UX / Design',      emoji: '🎨', color: '#F97316' },
+    { id: 'cfo',     name: 'CFO',        role: 'Financial Ops',   emoji: '💼', color: '#06B6D4' },
+  ];
+
+  const EMPTY_MESSAGES = [
+    'Fleet standing by...',
+    'Monitoring 9 agents...',
+    'Amazon pipeline ready...',
+  ];
+
+  // Amazon-only filter
+  const ALLOWED_SOURCES = ['allysa','river','atlas','piper','echo','scout','trader','pixel','cfo'];
+  const BLOCKED_KEYWORDS = /philgeps|gov\.ph|procurement|government bid|philippines procurement/i;
+  const ALLOWED_KEYWORDS = /amazon|fba|listing|ppc|seller|buy box|repric|review|fulfillment|inventory|acos|deal|lead|pipeline|email|cold|outreach|campaign|support|ticket|research|scout|atlas|pipeline|agent|funnel|crm|prospect|conversion/i;
+
+  // ─── State ────────────────────────────────────────────────────────────────
+  let eventCount = 0;
+  let successCount = 0;
+  let errorCount = 0;
+  const agentStatus = {};
+  const activities = [];
+  const MAX_FEED = 80;
+
+  // ─── Empty feed renderer ──────────────────────────────────────────────────
+  function showEmptyFeed() {
+    return `
+      <div class="empty-feed">
+        <div class="radar-container">
+          <svg class="radar" viewBox="0 0 200 200" fill="none">
+            <circle cx="100" cy="100" r="90" stroke="rgba(207,255,0,0.1)" stroke-width="1"/>
+            <circle cx="100" cy="100" r="60" stroke="rgba(207,255,0,0.08)" stroke-width="1"/>
+            <circle cx="100" cy="100" r="30" stroke="rgba(207,255,0,0.06)" stroke-width="1"/>
+            <line x1="100" y1="100" x2="100" y2="10" stroke="rgba(207,255,0,0.5)" stroke-width="1.5" class="radar-arm"/>
+            <circle cx="100" cy="100" r="3" fill="rgba(207,255,0,0.7)"/>
+          </svg>
+        </div>
+        <div class="ghost-items">
+          <div class="ghost-item"></div>
+          <div class="ghost-item"></div>
+          <div class="ghost-item"></div>
+        </div>
+        <div class="empty-status-text" id="emptyStatusText">Fleet standing by...</div>
+        <div class="empty-dots">
+          <span class="empty-dot"></span>
+          <span class="empty-dot"></span>
+          <span class="empty-dot"></span>
+        </div>
+      </div>
+    `;
+  }
+
+  // ─── Empty feed text cycling ─────────────────────────────────────────────
+  let msgIdx = 0;
+  function startEmptyTextCycle() {
+    setInterval(() => {
+      const el = document.getElementById('emptyStatusText');
+      if (el) {
+        msgIdx = (msgIdx + 1) % EMPTY_MESSAGES.length;
+        el.textContent = EMPTY_MESSAGES[msgIdx];
+      }
+    }, 4000);
+  }
+  startEmptyTextCycle();
+
+  // ─── Clock ────────────────────────────────────────────────────────────────
+  function updateClock() {
+    const now = new Date();
+    const Manila = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Manila', hour12: false });
+    document.getElementById('clock').textContent = Manila + ' PHT';
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // ─── Agent Cards ──────────────────────────────────────────────────────────
+  function renderAgentGrid() {
+    const grid = document.getElementById('agentGrid');
+    grid.innerHTML = AGENTS.map((a, i) => `
+      <div class="agent-card" id="card-${a.id}" style="--agent-color:${a.color}; --agent-color-rgb:${hexToRgb(a.color)}; --card-index:${i}">
+        <div class="avatar">${a.emoji}</div>
+        <div class="agent-name">${a.name}</div>
+        <div class="agent-role">${a.role}</div>
+        <div class="status-row">
+          <div class="status-dot" id="dot-${a.id}"></div>
+          <div class="status-label" id="label-${a.id}">Offline</div>
+        </div>
+        <div class="last-seen" id="seen-${a.id}">—</div>
+      </div>
+    `).join('');
+  }
+  renderAgentGrid();
+
+  function updateAgentCard(source, status, lastActivity) {
+    const card = document.getElementById(`card-${source}`);
+    const dot = document.getElementById(`dot-${source}`);
+    const label = document.getElementById(`label-${source}`);
+    const seen = document.getElementById(`seen-${source}`);
+    if (!card) return;
+
+    card.className = `agent-card status-${status}`;
+    dot.style.background = status === 'online' ? '#22C55E' : status === 'error' ? '#EF4444' : '#6B7280';
+    label.textContent = status === 'online' ? 'Active' : status === 'error' ? 'Error' : 'Idle';
+    if (lastActivity) {
+      const ago = Math.round((Date.now() - lastActivity) / 1000);
+      seen.textContent = ago < 60 ? `${ago}s ago` : ago < 3600 ? `${Math.round(ago/60)}m ago` : `${Math.round(ago/3600)}h ago`;
+    }
+
+    // Trigger active flash on status-online
+    if (status === 'online') {
+      card.classList.add('active-flash');
+      setTimeout(() => card.classList.remove('active-flash'), 600);
+    }
+  }
+
+  // ─── Stats ────────────────────────────────────────────────────────────────
+  function updateStats() {
+    document.getElementById('statEvents').textContent = eventCount;
+    const online = Object.values(agentStatus).filter(s => s === 'online').length;
+    document.getElementById('statOnline').textContent = `${online}/${AGENTS.length}`;
+    document.getElementById('statSuccess').textContent = eventCount > 0
+      ? Math.round((successCount / eventCount) * 100) + '%' : '—';
+    document.getElementById('activityCount').textContent = `${eventCount} events logged`;
+  }
+
+  // ─── Activity Feed ────────────────────────────────────────────────────────
+  function isAllowedActivity(entry) {
+    const source = (entry.source || '').toLowerCase();
+    if (!ALLOWED_SOURCES.includes(source)) return false;
+    if (BLOCKED_KEYWORDS.test(entry.title || '') || BLOCKED_KEYWORDS.test(entry.description || '')) return false;
+    return true;
+  }
+
+  function timeAgo(ts) {
+    const secs = Math.round((Date.now() - ts) / 1000);
+    if (secs < 5) return 'just now';
+    if (secs < 60) return `${secs}s ago`;
+    if (secs < 3600) return `${Math.round(secs/60)}m ago`;
+    return `${Math.round(secs/3600)}h ago`;
+  }
+
+  function renderActivityItem(entry) {
+    const iconMap = {
+      subagent: '🤖', cron: '⏰', email: '📧', trade: '📈',
+      skill: '🎯', gateway: '🌐', channel: '💬', system: '⚙️'
+    };
+    const icon = iconMap[entry.type] || '⚙️';
+    const pipMap = { success: 'success', error: 'error', warning: 'warning', info: 'info' };
+    const pip = pipMap[entry.status] || 'info';
+
+    return `
+      <div class="activity-item">
+        <div class="ai ${entry.type}">${icon}</div>
+        <div class="activity-body">
+          <div class="activity-title">${entry.title || 'Agent activity'}</div>
+          <div class="activity-desc">${entry.description || ''}</div>
+          <div class="activity-meta">
+            <div class="activity-source">${entry.source || 'system'}</div>
+            <div class="activity-time">${timeAgo(entry.timestamp)}</div>
+          </div>
+        </div>
+        <div class="status-pip ${pip}"></div>
+      </div>
+    `;
+  }
+
+  let feedHasContent = false;
+
+  function addActivity(entry) {
+    if (!isAllowedActivity(entry)) return;
+    if (!ALLOWED_KEYWORDS.test(entry.title + ' ' + entry.description)) return;
+
+    activities.unshift(entry);
+    if (activities.length > MAX_FEED) activities.pop();
+
+    const feed = document.getElementById('activityFeed');
+    // Replace empty state if present
+    if (!feedHasContent) {
+      feed.innerHTML = '';
+      feedHasContent = true;
+    }
+    feed.insertAdjacentHTML('afterbegin', renderActivityItem(entry));
+    if (feed.children.length > MAX_FEED) feed.lastElementChild.remove();
+
+    // Update agent card
+    const status = entry.status === 'error' ? 'error' : entry.status === 'success' ? 'online' : 'idle';
+    agentStatus[entry.source] = status;
+    updateAgentCard(entry.source, status, entry.timestamp);
+    updateStats();
+  }
+
+  // ─── SSE Connection ──────────────────────────────────────────────────────
+  function connectSSE() {
+    const es = new EventSource('/api/activity/stream');
+
+    es.onopen = () => {
+      const feed = document.getElementById('activityFeed');
+      feed.innerHTML = showEmptyFeed();
+      feedHasContent = false;
+    };
+
+    es.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        if (data.type === 'initial' && Array.isArray(data.activities)) {
+          data.activities.reverse().forEach(a => addActivity(a));
+        } else if (data.type === 'activity') {
+          addActivity(data);
+        }
+      } catch(err) {}
+    };
+
+    es.onerror = () => {
+      const feed = document.getElementById('activityFeed');
+      feed.innerHTML = `
+        <div class="empty-feed">
+          <div class="empty-status-text" style="color:#EF4444">Connection lost — retrying...</div>
+        </div>
+      `;
+      feedHasContent = false;
+      es.close();
+      setTimeout(connectSSE, 5000);
+    };
+  }
+
+  // Initialize empty state
+  document.getElementById('activityFeed').innerHTML = showEmptyFeed();
+  connectSSE();
+
+  // ─── Subagent polling ─────────────────────────────────────────────────────
+  async function pollSubagents() {
+    try {
+      const r = await fetch('/api/subagents');
+      const d = await r.json();
+      if (d.running && Array.isArray(d.running)) {
+        d.running.forEach(sa => {
+          const label = sa.label || '';
+          const matched = AGENTS.find(a => label.toLowerCase().includes(a.id));
+          if (matched) {
+            agentStatus[matched.id] = 'online';
+            updateAgentCard(matched.id, 'online', sa.startedAt);
+          }
+        });
+        updateStats();
+      }
+    } catch(e) {}
+  }
+  pollSubagents();
+  setInterval(pollSubagents, 15000);
+</script>
+</body>
+</html>
