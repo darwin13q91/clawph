@@ -74,9 +74,19 @@ export default function HeroSection() {
     >
       {/* Background Layers */}
       <div className="absolute inset-0 z-[-1]">
-        {/* Particle background visible through semi-transparent overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-jungle-950/70 via-jungle-900/60 to-jungle-800/50" />
-        <div className="absolute inset-0 bg-gradient-to-t from-jungle-800 via-transparent to-transparent" />
+        {/* Hero image — hidden for prefersReducedMotion users */}
+        {!prefersReducedMotion && (
+          <img
+            src="/amajungle-from-chaos-to-calm.jpg"
+            alt=""
+            aria-hidden="true"
+            loading="eager"
+            className="absolute inset-0 w-full h-full object-cover object-center z-[-1]"
+          />
+        )}
+        {/* Dark gradient overlay ensures 4.5:1 contrast ratio over image */}
+        <div className="absolute inset-0 bg-gradient-to-br from-jungle-950/70 via-jungle-900/60 to-jungle-800/50 z-0" />
+        <div className="absolute inset-0 bg-gradient-to-t from-jungle-800 via-transparent to-transparent z-0" />
       </div>
 
       {/* Animated Gradient Orbs — hidden for users who prefer reduced motion */}
