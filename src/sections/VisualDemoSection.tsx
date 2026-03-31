@@ -119,8 +119,8 @@ export default function VisualDemoSection() {
         <div ref={beforeAfterRef} className="mb-16">
           <div className="relative rounded-3xl overflow-hidden border border-warm/10 shadow-2xl">
             <img
-              src="/images/before-after.png"
-              alt="Before and after comparison showing the transformation from manual work to AI-powered insights"
+              src="/images/from-chaos-to-calm.jpg"
+              alt="Illustration showing transformation from chaotic physical workspace to calm digital automation"
               className="w-full h-auto"
               loading="lazy"
             />
