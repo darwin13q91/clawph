@@ -164,7 +164,7 @@ export default function PhilippinesCheckoutPanel({
       }
 
       setResult(data);
-      toast.success('PH checkout request created');
+      toast.success('Checkout request created — payment details will follow by email');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Checkout request failed');
     } finally {
@@ -321,6 +321,11 @@ export default function PhilippinesCheckoutPanel({
             />
           </div>
 
+          <div className="rounded-2xl border border-warm/10 bg-warm/5 p-4 text-sm text-warm-400">
+            Submitting this form creates your checkout request only. Your instance is not installed yet —
+            setup begins after payment is confirmed.
+          </div>
+
           <button
             type="submit"
             disabled={submitting}
@@ -368,7 +373,7 @@ export default function PhilippinesCheckoutPanel({
               </div>
             )}
             <p className="text-warm-400 text-sm">
-              {result.nextStep ?? 'Ops has the request and can continue the PH checkout flow.'}
+              {result.nextStep ?? 'Ops has your request. Payment details go out next, and installation starts after payment confirmation.'}
             </p>
           </div>
         )}

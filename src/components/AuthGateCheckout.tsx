@@ -1,13 +1,14 @@
 /**
- * AuthGateCheckout — 3-step guided checkout flow.
+ * AuthGateCheckout — 4-step guided checkout flow.
  *
  * Step 1: Plan summary shown before sign-in
  * Step 2: Google sign-in with clear explanation
- * Step 3: Checkout form with post-auth framing
+ * Step 3: Personalized preview / readiness framing
+ * Step 4: Checkout form with post-auth framing
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, LogOut, CheckCircle, Lock, ArrowRight } from 'lucide-react';
+import { Loader2, LogOut, CheckCircle, Lock, ArrowRight, Bot, CreditCard, Settings2 } from 'lucide-react';
 import { toast } from 'sonner';
 import GoogleSignIn from './GoogleSignIn';
 import PhilippinesCheckoutPanel from './PhilippinesCheckoutPanel';
@@ -30,7 +31,20 @@ const PLAN_PRICES: Record<PricingPlanId, { price: string; sub: string }> = {
   'openclaw-setup': { price: '₱57,500', sub: 'one-time' },
 };
 
-type Step = 'plan-summary' | 'sign-in' | 'checkout';
+const PLAN_PREVIEW_POINTS: Record<PricingPlanId, string[]> = {
+  'openclaw-growth': [
+    'Monthly optimization for your OpenClaw setup and workflows',
+    'Priority help refining prompts, automations, and routing',
+    'Ongoing support so the system stays useful instead of becoming expensive wallpaper',
+  ],
+  'openclaw-setup': [
+    'Initial OpenClaw installation and environment setup',
+    'Core channel, memory, and agent configuration for your use case',
+    'A guided onboarding path so you know what to use on day one',
+  ],
+};
+
+type Step = 'plan-summary' | 'sign-in' | 'preview' | 'checkout';
 
 export default function AuthGateCheckout({
   selectedPlanId,
@@ -44,6 +58,7 @@ export default function AuthGateCheckout({
   const [authenticating, setAuthenticating] = useState(false);
   const [currentStep, setCurrentStep] = useState<Step>('plan-summary');
   const googleButtonRef = useRef<HTMLDivElement>(null);
+  const flowCardRef = useRef<HTMLDivElement>(null);
 
   // Check existing session on mount
   useEffect(() => {
@@ -53,7 +68,7 @@ export default function AuthGateCheckout({
         const data = await res.json();
         if (data.authenticated && data.user) {
           setUser(data.user as AuthUser);
-          setCurrentStep('checkout');
+          setCurrentStep('preview');
         }
       } catch {
         // Session check fails silently — user starts at plan summary
@@ -78,8 +93,8 @@ export default function AuthGateCheckout({
         throw new Error(data.error ?? 'Sign-in failed');
       }
       setUser(data.user as AuthUser);
-      setCurrentStep('checkout');
-      toast.success(`Signed in as ${data.user.name}`);
+      setCurrentStep('preview');
+      toast.success('Google verified — next step: preview your setup path');
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Sign-in failed');
     } finally {
@@ -103,6 +118,10 @@ export default function AuthGateCheckout({
     }
   }, []);
 
+  useEffect(() => {
+    flowCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [currentStep]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -112,19 +131,20 @@ export default function AuthGateCheckout({
   }
 
   return (
-    <div className="space-y-4">
+    <div ref={flowCardRef} className="space-y-4">
       {/* Step indicator */}
-      <div className="flex items-center justify-center gap-2 mb-6">
-        {(['plan-summary', 'sign-in', 'checkout'] as Step[]).map((step, i) => {
+      <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
+        {(['plan-summary', 'sign-in', 'preview', 'checkout'] as Step[]).map((step, i, allSteps) => {
           const labels: Record<Step, string> = {
             'plan-summary': '1. Plan',
             'sign-in': '2. Sign in',
-            'checkout': '3. Checkout',
+            'preview': '3. Preview',
+            'checkout': '4. Checkout',
           };
+          const currentIndex = allSteps.indexOf(currentStep);
+          const stepIndex = allSteps.indexOf(step);
           const isActive = currentStep === step;
-          const isPast =
-            (step === 'plan-summary' && (currentStep === 'sign-in' || currentStep === 'checkout')) ||
-            (step === 'sign-in' && currentStep === 'checkout');
+          const isPast = stepIndex < currentIndex;
 
           return (
             <div key={step} className="flex items-center gap-2">
@@ -146,7 +166,7 @@ export default function AuthGateCheckout({
                 )}
                 {labels[step]}
               </div>
-              {i < 2 && (
+              {i < allSteps.length - 1 && (
                 <div className={`w-6 h-px ${isPast ? 'bg-neon-500/30' : 'bg-warm/10'}`} />
               )}
             </div>
@@ -191,8 +211,9 @@ export default function AuthGateCheckout({
             <div className="rounded-xl bg-jungle-900/60 border border-warm/10 p-4 mb-5">
               <p className="text-warm-400 text-xs leading-relaxed">
                 <span className="text-warm font-medium">What happens next:</span>{' '}
-                You&apos;ll be asked to sign in with Google, then fill out a short checkout form.
-                We&apos;ll confirm your request and send payment details via email within 24 hours.
+                You&apos;ll sign in with Google, complete a short checkout request, and then we&apos;ll
+                send payment details by email within 24 hours. Your OpenClaw setup starts only after
+                payment is confirmed.
               </p>
             </div>
 
@@ -223,6 +244,7 @@ export default function AuthGateCheckout({
               </p>
               <p className="text-warm-400 text-sm max-w-sm mx-auto">
                 We use Google sign-in to verify your identity and pre-fill your checkout details.
+                This step does not install anything yet — it just unlocks checkout.
               </p>
             </div>
 
@@ -250,13 +272,28 @@ export default function AuthGateCheckout({
               </div>
             </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+              <div className="rounded-xl border border-warm/10 bg-warm/5 p-3">
+                <p className="text-xs font-mono text-neon-500 mb-1">After you tap Google</p>
+                <p className="text-sm text-warm-300">1. Verify your Google account</p>
+              </div>
+              <div className="rounded-xl border border-warm/10 bg-warm/5 p-3">
+                <p className="text-xs font-mono text-neon-500 mb-1">Then</p>
+                <p className="text-sm text-warm-300">2. You&apos;ll see a quick setup preview</p>
+              </div>
+              <div className="rounded-xl border border-warm/10 bg-warm/5 p-3">
+                <p className="text-xs font-mono text-neon-500 mb-1">Later</p>
+                <p className="text-sm text-warm-300">3. Checkout comes next, installation later</p>
+              </div>
+            </div>
+
             {authenticating ? (
               <div className="flex items-center justify-center gap-2 py-4">
                 <Loader2 size={20} className="animate-spin text-neon-500" />
                 <span className="text-warm-400 text-sm">Signing you in…</span>
               </div>
             ) : (
-              <div className="max-w-sm mx-auto">
+              <div className="max-w-sm mx-auto space-y-3">
                 <GoogleSignIn
                   onSuccess={handleGoogleSuccess}
                   onError={handleGoogleError}
@@ -264,6 +301,10 @@ export default function AuthGateCheckout({
                   containerRef={googleButtonRef}
                   fallbackText="Sign in with Google"
                 />
+                <p className="text-xs text-warm-400">
+                  You&apos;ll be moved to <span className="text-warm font-medium">Step 3: Preview</span>{' '}
+                  immediately after a successful Google sign-in.
+                </p>
               </div>
             )}
 
@@ -277,7 +318,88 @@ export default function AuthGateCheckout({
           </motion.div>
         )}
 
-        {/* ── Step 3: Checkout ── */}
+        {/* ── Step 3: Preview ── */}
+        {currentStep === 'preview' && user && (
+          <motion.div
+            key="preview"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-4"
+          >
+            <div className="rounded-2xl border border-neon-500/20 bg-neon-500/5 p-5">
+              <p className="text-neon-500 text-xs font-mono uppercase tracking-[0.2em] mb-2">
+                Preview unlocked
+              </p>
+              <p className="text-warm font-semibold text-xl">Good. You&apos;re verified, {user.name.split(' ')[0]}.</p>
+              <p className="text-warm-400 text-sm mt-1 leading-relaxed">
+                Before checkout, here&apos;s the version that matters: you&apos;re not starting installation yet.
+                You&apos;re confirming what happens after payment so nobody confuses a sign-in with a deployment.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="rounded-2xl border border-warm/10 bg-warm/5 p-4">
+                <Bot size={18} className="text-neon-500 mb-3" />
+                <p className="text-warm font-semibold mb-2">What this plan includes</p>
+                <ul className="space-y-2 text-sm text-warm-400">
+                  {PLAN_PREVIEW_POINTS[selectedPlanId].map((point) => (
+                    <li key={point}>• {point}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="rounded-2xl border border-warm/10 bg-warm/5 p-4">
+                <Settings2 size={18} className="text-neon-500 mb-3" />
+                <p className="text-warm font-semibold mb-2">What happens after payment</p>
+                <ul className="space-y-2 text-sm text-warm-400">
+                  <li>• We confirm your request and setup scope</li>
+                  <li>• We schedule onboarding / installation steps</li>
+                  <li>• We begin the actual OpenClaw setup with your approved details</li>
+                </ul>
+              </div>
+
+              <div className="rounded-2xl border border-warm/10 bg-warm/5 p-4">
+                <CreditCard size={18} className="text-neon-500 mb-3" />
+                <p className="text-warm font-semibold mb-2">What checkout does now</p>
+                <ul className="space-y-2 text-sm text-warm-400">
+                  <li>• Saves your verified identity and plan choice</li>
+                  <li>• Sends payment details to your email</li>
+                  <li>• Starts the paid handoff — not the install itself</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-warm/10 bg-jungle-900/60 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <p className="text-warm font-semibold">Ready to continue?</p>
+                <p className="text-warm-400 text-sm">
+                  Next step: submit the checkout request so payment instructions can go out.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="btn btn-secondary justify-center"
+                >
+                  Sign out
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep('checkout')}
+                  className="btn btn-primary justify-center"
+                >
+                  Continue to Checkout
+                  <ArrowRight size={16} className="ml-2" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── Step 4: Checkout ── */}
         {currentStep === 'checkout' && (
           <motion.div
             key="checkout"
@@ -287,6 +409,16 @@ export default function AuthGateCheckout({
             transition={{ duration: 0.3 }}
             className="space-y-4"
           >
+            <div className="rounded-2xl border border-neon-500/20 bg-neon-500/5 p-4">
+              <p className="text-neon-500 text-xs font-mono uppercase tracking-[0.2em] mb-2">
+                Step 4 of 4
+              </p>
+              <p className="text-warm font-semibold text-lg">Submit your checkout request</p>
+              <p className="text-warm-400 text-sm mt-1">
+                You&apos;re signed in. This form creates your checkout request and triggers payment details.
+                Your OpenClaw installation starts after payment confirmation.
+              </p>
+            </div>
             {/* Verified identity banner */}
             <div className="flex items-center gap-3 p-4 rounded-2xl border border-neon-500/30 bg-neon-500/5">
               {user?.picture ? (
