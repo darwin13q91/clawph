@@ -7,7 +7,7 @@ export default function NotFoundPage() {
       <Link to="/" className="flex items-center gap-3 mb-12">
         <AnimatedLogo size={40} />
         <span className="font-display text-2xl font-bold text-warm tracking-tight">
-          amajungle
+          ClawPH
         </span>
       </Link>
 

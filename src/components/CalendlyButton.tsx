@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Calendar } from 'lucide-react';
 
-const CALENDLY_URL = 'https://calendly.com/ops-amajungle/30min?embed_domain=amajungle.com&embed_type=PopupText';
+const CALENDLY_URL = 'https://calendly.com/ops-clawph/30min?embed_domain=clawph.com&embed_type=PopupText';
 
 interface CalendlyButtonProps {
   children?: React.ReactNode;

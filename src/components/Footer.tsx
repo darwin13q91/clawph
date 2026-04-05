@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowUpRight, Mail, MapPin, Phone, Linkedin, Twitter, MessageCircle, Bot, TrendingUp, Globe, Search, Users, FileText, Shield } from 'lucide-react';
+import { ArrowUpRight, Mail, MapPin, Phone, Linkedin, Twitter, MessageCircle, Bot, Users, FileText, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import AnimatedLogo from './AnimatedLogo';
 import CalendlyButton from './CalendlyButton';
@@ -20,10 +20,9 @@ const footerLinks: FooterLinkGroup[] = [
   {
     title: 'Services',
     links: [
-      { label: 'River AI Intelligence', href: '/#pricing', icon: Bot },
-      { label: 'Amazon Growth', href: '/#pricing', icon: TrendingUp },
-      { label: 'Brand Websites', href: '/#pricing', icon: Globe },
-      { label: 'Free Audit', href: '/#audit', icon: Search },
+      { label: 'OpenClaw Setup', href: '/#pricing', icon: Bot },
+      { label: 'Growth Plan', href: '/#pricing', icon: Users },
+      { label: 'Telegram Integration', href: '/#pricing', icon: MessageCircle },
     ],
   },
   {
@@ -49,8 +48,8 @@ const contactInfo = [
   {
     icon: Mail,
     label: 'Email us',
-    value: 'hello@amajungle.com',
-    href: 'mailto:hello@amajungle.com',
+    value: 'hello@clawph.com',
+    href: 'mailto:hello@clawph.com',
   },
   {
     icon: Phone,
@@ -107,7 +106,7 @@ export default function Footer() {
             <Link 
               to="/" 
               className="flex items-center gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-500 focus-visible:ring-offset-2 focus-visible:ring-offset-jungle-900 rounded-lg w-fit"
-              aria-label="amajungle - Home"
+              aria-label="ClawPH - Home"
             >
               <motion.div 
                 whileHover={{ scale: 1.05 }}
@@ -116,13 +115,12 @@ export default function Footer() {
                 <AnimatedLogo size={40} />
               </motion.div>
               <span className="font-display text-2xl font-bold text-warm tracking-tight">
-                amajungle
+                ClawPH
               </span>
             </Link>
 
             <p className="text-warm-400 leading-relaxed mt-6 mb-8 max-w-sm">
-              AI-powered Amazon intelligence and management for sellers who want to
-              scale without drowning in busywork.
+              OpenClaw setup and support for Philippine businesses. Deploy your own 24/7 AI assistant on Telegram, Discord, or WhatsApp.
             </p>
 
             {/* Contact Info */}
@@ -270,11 +268,11 @@ export default function Footer() {
             <div className="mt-8 p-4 rounded-2xl bg-warm/5 border border-warm/10">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-neon/10 flex items-center justify-center flex-shrink-0">
-                  <span className="text-lg">🌊</span>
+                  <Bot size={20} className="text-neon" />
                 </div>
                 <div>
-                  <p className="text-warm text-sm font-medium">Powered by River AI</p>
-                  <p className="text-warm-400 text-xs">23 specialized modes</p>
+                  <p className="text-warm text-sm font-medium">Powered by OpenClaw</p>
+                  <p className="text-warm-400 text-xs">Claude, GPT, Gemini & more</p>
                 </div>
               </div>
             </div>
@@ -288,7 +286,7 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             {/* Copyright */}
             <p className="text-warm-400 text-sm">
-              © {currentYear} amajungle. All rights reserved.
+              © {currentYear} ClawPH. All rights reserved.
             </p>
 
             {/* Badges */}

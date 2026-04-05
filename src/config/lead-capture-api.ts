@@ -1,6 +1,6 @@
 /**
  * Lead Capture API Configuration
- * Using PrivateEmail API (no external dependencies)
+ * Placeholder - ClawPH email API endpoint TBD
  */
 
 // Express-like request/response types for API handlers
@@ -34,22 +34,23 @@ interface EmailApiResponse {
 }
 
 /**
- * PrivateEmail API Configuration
+ * ClawPH Email API Configuration
+ * TODO: Configure ClawPH-specific email endpoint
  */
-const EMAIL_API_URL = 'https://amajungle-email-api.vercel.app/api/send-email';
+const EMAIL_API_URL = 'https://clawph-email-api.vercel.app/api/send-email';
 
 /**
- * Send lead notification via PrivateEmail API
- * Sends lead data to hello@amajungle.com for Echo to process
+ * Send lead notification via Email API
+ * Sends lead data to hello@clawph.com for processing
  */
 export const sendLeadNotification = async (data: LeadCaptureData): Promise<EmailApiResponse> => {
   const response = await fetch(EMAIL_API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      to: 'hello@amajungle.com',
+      to: 'hello@clawph.com',
       subject: `[Lead] ${data.name} - ${data.revenue}`,
-      text: `New lead captured from amajungle.com
+      text: `New lead captured from clawph.com
 
 Name: ${data.name}
 Email: ${data.email}
@@ -71,7 +72,7 @@ ${data.utm_source ? `<p><strong>UTM Source:</strong> ${data.utm_source}</p>` : '
 ${data.utm_medium ? `<p><strong>UTM Medium:</strong> ${data.utm_medium}</p>` : ''}
 ${data.utm_campaign ? `<p><strong>UTM Campaign:</strong> ${data.utm_campaign}</p>` : ''}
 <hr>
-<p><em>This lead was captured from the Amajungle lead magnet popup.</em></p>
+<p><em>This lead was captured from the ClawPH lead magnet popup.</em></p>
 `,
     }),
   });
@@ -112,7 +113,7 @@ export const handleLeadCapture = async (req: ApiRequest, res: ApiResponse): Prom
       return;
     }
 
-    // Send notification to Echo
+    // Send notification
     await sendLeadNotification(data);
 
     // Return success

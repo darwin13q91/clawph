@@ -1,22 +1,48 @@
+/**
+ * PricingPage — ClawPH landing page, redesigned for conversion.
+ *
+ * Page structure (top to bottom):
+ *  1. Sticky header / top nav
+ *  2. Hero — who it's for / what it does / why it matters
+ *  3. How it works (3 steps)
+ *  4. Use cases — who it's for
+ *  5. Why ClawPH vs DIY / generic AI
+ *  6. Pricing cards
+ *  7. Checkout
+ *  8. Guarantee
+ *  9. FAQ
+ * 10. Final CTA
+ */
 import { useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import {
   Sparkles,
-  TrendingUp,
-  Zap,
   Check,
-  X,
-  Shield,
-  ChevronDown,
+  Bot,
+  Users,
 } from 'lucide-react';
-import CalendlyButton from '../components/CalendlyButton';
 
-// ── Types ───────────────────────────────────────────────────
+// Components
+import LandingHeader from '../components/LandingHeader';
+import TrustStrip from '../components/TrustStrip';
+import HowItWorksSection from '../components/HowItWorksSection';
+import UseCasesSection from '../components/UseCasesSection';
+import WhyClawPHSection from '../components/WhyClawPHSection';
+import GuaranteeSection from '../components/GuaranteeSection';
+import FAQSection from '../components/FAQSection';
+import AuthGateCheckout from '../components/AuthGateCheckout';
+import {
+  getLocalizedPlanPrice,
+  type PricingPlanId,
+  type SupportedCurrency,
+} from '../config/payments';
+
+// ── Types ──────────────────────────────────────────────────────────
 
 type BadgeStyle = 'popular' | 'value';
 
 interface PricingTier {
-  id: 'amazon-growth' | 'ai-automation';
+  id: 'openclaw-growth' | 'openclaw-setup';
   variant: 'primary' | 'secondary';
   icon: React.ComponentType<{ size?: number; className?: string }>;
   name: string;
@@ -30,108 +56,56 @@ interface PricingTier {
   highlightColor: 'neon' | 'violet';
 }
 
-interface ComparisonRow {
-  feature: string;
-  amazonGrowth: boolean | string;
-  aiAutomation: boolean | string;
-}
-
-interface FAQItem {
-  question: string;
-  answer: string;
-}
-
-// ── Static Data ──────────────────────────────────────────────
+// ── Static Data ────────────────────────────────────────────────────
 
 const PRICING_TIERS: PricingTier[] = [
   {
-    id: 'amazon-growth',
+    id: 'openclaw-growth',
     variant: 'primary',
-    icon: TrendingUp,
-    name: 'RIVER AMAZON GROWTH',
-    tagline: 'Strategic guidance for scaling',
-    price: '$999',
+    icon: Users,
+    name: 'ClawPH Growth',
+    tagline: 'Ongoing support & optimization',
+    price: '₱15,000',
     priceSubtext: '/mo',
-    badge: 'MOST POPULAR',
+    badge: 'Most Popular',
     badgeStyle: 'popular',
     features: [
-      'Listing optimization recommendations',
-      'PPC strategy & campaign guidance',
-      'Weekly performance reports',
-      'Inventory & pricing monitoring',
-      'Monthly 1:1 strategy call',
-      'Priority Telegram support',
-      '30-day cancellation anytime',
+      'Full OpenClaw platform management',
+      'Weekly strategy & performance reviews',
+      'Custom workflow optimization',
+      'Priority Telegram support channel',
+      'Monthly 1:1 consultation call',
+      'New feature onboarding included',
+      'Cancel anytime — 30-day notice',
     ],
-    ctaLabel: 'Book Growth Strategy Call',
+    ctaLabel: 'Start Growth Plan',
     highlightColor: 'neon',
   },
   {
-    id: 'ai-automation',
+    id: 'openclaw-setup',
     variant: 'secondary',
-    icon: Zap,
-    name: 'RIVER AI AUTOMATION',
-    tagline: 'AI-powered intelligence 24/7',
-    price: '$997',
+    icon: Bot,
+    name: 'ClawPH Setup',
+    tagline: 'One-time setup — you own it forever',
+    price: '₱57,500',
     priceSubtext: ' one-time',
-    badge: 'BEST VALUE',
+    badge: 'Best Value',
     badgeStyle: 'value',
     features: [
-      'River AI agent (23 modes)',
-      'Telegram control interface',
+      'Complete OpenClaw installation',
+      'Telegram, Discord & WhatsApp setup',
       '5 custom workflows configured',
-      '48-hour white-glove setup',
-      'Works on your infrastructure',
-      'Compliance-first recommendations',
+      '48-hour white-glove deployment',
+      'Your infrastructure, your data',
       '30-day money-back guarantee',
+      'Free 1-hour training session',
     ],
-    ctaLabel: 'Book AI Setup Call',
+    ctaLabel: 'Book Setup Call',
     highlightColor: 'violet',
   },
 ];
 
-const COMPARISON_ROWS: ComparisonRow[] = [
-  { feature: 'Listing optimization', amazonGrowth: true, aiAutomation: false },
-  { feature: 'PPC campaign guidance', amazonGrowth: true, aiAutomation: false },
-  { feature: 'Weekly performance reports', amazonGrowth: true, aiAutomation: false },
-  { feature: 'Monthly strategy call', amazonGrowth: true, aiAutomation: false },
-  { feature: 'Priority support', amazonGrowth: true, aiAutomation: false },
-  { feature: 'Cancel anytime', amazonGrowth: '30 days notice', aiAutomation: false },
-  { feature: 'AI agent (23 modes)', amazonGrowth: false, aiAutomation: true },
-  { feature: 'Telegram AI interface', amazonGrowth: false, aiAutomation: true },
-  { feature: '5 custom workflows', amazonGrowth: false, aiAutomation: true },
-  { feature: 'Infrastructure ownership', amazonGrowth: false, aiAutomation: true },
-  { feature: '30-day guarantee', amazonGrowth: true, aiAutomation: true },
-];
-
-const FAQ_ITEMS: FAQItem[] = [
-  {
-    question: "What's the difference between Amazon Growth and AI Automation?",
-    answer:
-      "Amazon Growth is strategy + hands-on management. AI Automation is a tool you own and operate. Most clients use both.",
-  },
-  {
-    question: "What if I'm doing less than $10K/month?",
-    answer:
-      "AI Automation starts at $997 and is designed for sellers at any stage. Amazon Growth works best for sellers at $10K+/mo who need strategic guidance.",
-  },
-  {
-    question: 'How does the 30-day guarantee work?',
-    answer:
-      "If your AI agent doesn't save you 5+ hours in the first 30 days, we refund 100% of your setup fee. You keep everything we built.",
-  },
-  {
-    question: 'Can I cancel Amazon Growth anytime?',
-    answer: 'Yes. 30-day notice, no penalties, no hoops. We\'re confident enough to not lock you in.',
-  },
-  {
-    question: 'What happens after I book?',
-    answer:
-      "You'll get a Calendly confirmation + a prep email. We'll assess your current setup before the call so every minute is valuable.",
-  },
-];
-
-// ── Animation Variants ─────────────────────────────────────
+// ── Animation Variants ────────────────────────────────────────────
 
 const fadeUpVariants = {
   hidden: { opacity: 0, y: 30 },
@@ -142,25 +116,22 @@ const fadeUpVariants = {
   }),
 };
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.15 },
-  },
-};
-
-// ── Sub-components ─────────────────────────────────────────
+// ── Pricing Card ──────────────────────────────────────────────────
 
 function PricingCard({
   tier,
   index,
+  currency,
+  onRequestCheckout,
 }: {
   tier: PricingTier;
   index: number;
+  currency: SupportedCurrency;
+  onRequestCheckout: (planId: PricingPlanId) => void;
 }) {
   const isPrimary = tier.variant === 'primary';
   const Icon = tier.icon;
+  const localizedPrice = getLocalizedPlanPrice(tier.id, currency);
 
   const badgeBg = isPrimary
     ? 'bg-neon-500/10 border border-neon-500/30'
@@ -173,14 +144,14 @@ function PricingCard({
 
   const priceColor = isPrimary ? 'text-neon-500' : 'text-warm';
   const glowShadow = isPrimary
-    ? 'shadow-[0_0_40px_rgba(207,255,0,0.15)]'
+    ? 'shadow-[0_0_40px_rgba(207,255,0,0.12)]'
     : 'shadow-none';
 
   return (
     <motion.div
       variants={fadeUpVariants}
-      custom={0.3 + index * 0.15}
-      whileHover={{ y: -8 }}
+      custom={0.1 + index * 0.15}
+      whileHover={{ y: -6 }}
       transition={{ duration: 0.3 }}
       className={`relative ${cardClasses} ${glowShadow}`}
     >
@@ -193,9 +164,7 @@ function PricingCard({
               <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-500" />
             </span>
           )}
-          {!isPrimary && (
-            <span className="text-violet-400 text-sm">⚡</span>
-          )}
+          {!isPrimary && <span className="text-violet-400 text-sm">⚡</span>}
           <span className={`font-mono text-xs font-bold tracking-widest ${badgeText}`}>
             {tier.badge}
           </span>
@@ -208,7 +177,7 @@ function PricingCard({
       </div>
 
       {/* Name & Tagline */}
-      <h3 className="font-display text-2xl font-black text-warm uppercase tracking-tight mb-1">
+      <h3 className="font-display text-2xl font-black text-warm tracking-tight mb-1">
         {tier.name}
       </h3>
       <p className={`text-sm font-mono mb-6 ${isPrimary ? 'text-neon-500' : 'text-violet-400'}`}>
@@ -217,10 +186,15 @@ function PricingCard({
 
       {/* Price */}
       <div className="mb-8">
-        <span className={`font-mono text-5xl font-bold ${priceColor}`}>
-          {tier.price}
-        </span>
-        <span className="text-warm-400 text-sm ml-1">{tier.priceSubtext}</span>
+        <div className="flex flex-wrap items-end gap-2">
+          <span className={`font-mono text-5xl font-bold ${priceColor}`}>
+            {localizedPrice.primary}
+          </span>
+          <span className="text-warm-400 text-sm">{localizedPrice.billingLabel}</span>
+        </div>
+        <p className="text-warm-400 text-xs mt-2 font-mono">
+          {localizedPrice.secondary}
+        </p>
       </div>
 
       {/* Features */}
@@ -229,7 +203,11 @@ function PricingCard({
           <li key={feature} className="flex items-start gap-3">
             <Check
               size={16}
-              className={isPrimary ? 'text-neon-500 flex-shrink-0 mt-0.5' : 'text-violet-400 flex-shrink-0 mt-0.5'}
+              className={
+                isPrimary
+                  ? 'text-neon-500 flex-shrink-0 mt-0.5'
+                  : 'text-violet-400 flex-shrink-0 mt-0.5'
+              }
             />
             <span className="text-warm-400 text-sm leading-relaxed">{feature}</span>
           </li>
@@ -237,200 +215,134 @@ function PricingCard({
       </ul>
 
       {/* CTA */}
-      <CalendlyButton
-        variant={isPrimary ? 'primary' : 'secondary'}
-        size="lg"
-        className="w-full justify-center"
+      <button
+        type="button"
+        onClick={() => onRequestCheckout(tier.id)}
+        className={`btn w-full justify-center ${isPrimary ? 'btn-primary' : 'btn-secondary'}`}
       >
         {tier.ctaLabel}
-      </CalendlyButton>
+      </button>
     </motion.div>
   );
 }
 
-function ComparisonTable() {
+// ── Pricing Section ───────────────────────────────────────────────
+
+function PricingSection({
+  selectedPlanId,
+  onSelectPlan,
+}: {
+  selectedPlanId: PricingPlanId;
+  onSelectPlan: (id: PricingPlanId) => void;
+}) {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-100px' });
+  const inView = useInView(ref, { once: true, margin: '-80px' });
+  const [currency, setCurrency] = useState<SupportedCurrency>('PHP');
 
   return (
-    <motion.div
-      ref={ref}
-      initial="hidden"
-      animate={inView ? 'visible' : 'hidden'}
-      variants={containerVariants}
-      className="overflow-x-auto"
-    >
-      {/* Desktop Table */}
-      <div className="hidden md:block">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-warm/10">
-              <th className="text-left py-4 px-4 font-display text-sm uppercase tracking-wider text-warm-400 font-semibold">
-                Feature
-              </th>
-              <th className="text-center py-4 px-4 font-display text-sm uppercase tracking-wider text-neon-500 font-semibold min-w-[180px]">
-                Amazon Growth
-                <span className="block text-xs font-mono text-warm-400 normal-case font-normal mt-0.5">
-                  $999/mo
-                </span>
-              </th>
-              <th className="text-center py-4 px-4 font-display text-sm uppercase tracking-wider text-violet-400 font-semibold min-w-[180px]">
-                AI Automation
-                <span className="block text-xs font-mono text-warm-400 normal-case font-normal mt-0.5">
-                  $997 one-time
-                </span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {COMPARISON_ROWS.map((row, i) => (
-              <motion.tr
-                key={row.feature}
-                variants={fadeUpVariants}
-                custom={i * 0.05}
-                className="border-b border-warm/5 hover:bg-warm/5 transition-colors"
-              >
-                <td className="py-4 px-4 text-warm-400 text-sm">{row.feature}</td>
-                <td className="text-center py-4 px-4">
-                  {typeof row.amazonGrowth === 'boolean' ? (
-                    row.amazonGrowth ? (
-                      <Check size={18} className="inline text-neon-500" />
-                    ) : (
-                      <X size={18} className="inline text-warm/30" />
-                    )
-                  ) : (
-                    <span className="text-xs font-mono text-warm-400">{row.amazonGrowth}</span>
-                  )}
-                </td>
-                <td className="text-center py-4 px-4">
-                  {typeof row.aiAutomation === 'boolean' ? (
-                    row.aiAutomation ? (
-                      <Check size={18} className="inline text-violet-400" />
-                    ) : (
-                      <X size={18} className="inline text-warm/30" />
-                    )
-                  ) : (
-                    <span className="text-xs font-mono text-warm-400">{row.aiAutomation}</span>
-                  )}
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <section id="pricing" className="py-20 lg:py-28" ref={ref}>
+      <div className="container-base">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-14"
+        >
+          <p className="text-neon-500 text-sm font-mono font-semibold tracking-widest uppercase mb-3">
+            Simple pricing
+          </p>
+          <h2 className="font-display text-3xl lg:text-5xl font-black text-warm tracking-tight leading-tight">
+            Choose your plan
+          </h2>
+          <p className="text-warm-400 text-lg mt-4 max-w-xl mx-auto">
+            No hidden fees. No contracts. Pick the plan that matches where you are.
+          </p>
+        </motion.div>
 
-      {/* Mobile: Stacked cards */}
-      <div className="md:hidden space-y-4">
-        {COMPARISON_ROWS.map((row, i) => (
-          <motion.div
-            key={row.feature}
-            variants={fadeUpVariants}
-            custom={i * 0.05}
-            className="p-4 rounded-xl bg-warm/5 border border-warm/10"
-          >
-            <p className="text-warm-400 text-sm font-medium mb-3">{row.feature}</p>
-            <div className="grid grid-cols-2 gap-3 text-center">
-              <div>
-                <p className="text-xs font-mono text-warm-400 mb-1">Amazon Growth</p>
-                <div className="flex justify-center">
-                  {typeof row.amazonGrowth === 'boolean' ? (
-                    row.amazonGrowth ? (
-                      <Check size={18} className="text-neon-500" />
-                    ) : (
-                      <X size={18} className="text-warm/30" />
-                    )
-                  ) : (
-                    <span className="text-xs font-mono text-warm-400">{row.amazonGrowth}</span>
-                  )}
-                </div>
-              </div>
-              <div>
-                <p className="text-xs font-mono text-warm-400 mb-1">AI Automation</p>
-                <div className="flex justify-center">
-                  {typeof row.aiAutomation === 'boolean' ? (
-                    row.aiAutomation ? (
-                      <Check size={18} className="text-violet-400" />
-                    ) : (
-                      <X size={18} className="text-warm/30" />
-                    )
-                  ) : (
-                    <span className="text-xs font-mono text-warm-400">{row.aiAutomation}</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </motion.div>
-  );
-}
-
-function FAQAccordion({ items }: { items: FAQItem[] }) {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  return (
-    <div className="space-y-3">
-      {items.map((item, i) => {
-        const isOpen = openIndex === i;
-        return (
-          <div
-            key={i}
-            className="rounded-xl border border-warm/10 overflow-hidden bg-warm/5"
-          >
-            <button
-              onClick={() => setOpenIndex(isOpen ? null : i)}
-              className="w-full flex items-center justify-between p-5 text-left gap-4 hover:bg-warm/5 transition-colors"
-              aria-expanded={isOpen}
-            >
-              <span className="text-warm font-medium text-sm pr-2">{item.question}</span>
-              <ChevronDown
-                size={18}
-                className={`text-warm-400 flex-shrink-0 transition-transform duration-300 ${
-                  isOpen ? 'rotate-180' : ''
+        {/* Currency toggle */}
+        <div className="flex justify-center mb-10">
+          <div className="inline-flex items-center rounded-full border border-warm/10 bg-jungle-800/80 p-1">
+            {(['PHP', 'USD'] as SupportedCurrency[]).map((option) => (
+              <button
+                key={option}
+                type="button"
+                onClick={() => setCurrency(option)}
+                className={`rounded-full px-5 py-2 text-sm font-mono transition-all ${
+                  currency === option
+                    ? 'bg-neon-500 text-jungle-900 font-bold'
+                    : 'text-warm-400 hover:text-warm'
                 }`}
-              />
-            </button>
-            <div
-              className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                isOpen ? 'max-h-96' : 'max-h-0'
-              }`}
-            >
-              <p className="px-5 pb-5 text-warm-400 text-sm leading-relaxed">
-                {item.answer}
-              </p>
-            </div>
+              >
+                {option === 'PHP' ? '₱ Philippine Pesos' : '$ USD fallback'}
+              </button>
+            ))}
           </div>
-        );
-      })}
-    </div>
+        </div>
+
+        {/* Cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 max-w-5xl mx-auto mb-12">
+          {PRICING_TIERS.map((tier, i) => (
+            <PricingCard
+              key={tier.id}
+              tier={tier}
+              index={i}
+              currency={currency}
+              onRequestCheckout={onSelectPlan}
+            />
+          ))}
+        </div>
+
+        {/* Checkout */}
+        <div className="max-w-5xl mx-auto">
+          <AuthGateCheckout selectedPlanId={selectedPlanId} currency={currency} />
+        </div>
+      </div>
+    </section>
   );
 }
 
-// ── Main Page Component ──────────────────────────────────────
+// ── Final Contact Note ────────────────────────────────────────────
+
+function FinalCTA() {
+  return (
+    <section id="final-cta" className="py-14 lg:py-16 bg-jungle-900/20">
+      <div className="container-base">
+        <div className="max-w-2xl mx-auto text-center">
+          <p className="text-warm-400 text-sm sm:text-base leading-relaxed">
+            Still unsure? Email{' '}
+            <a
+              href="mailto:hello@clawph.com"
+              className="text-warm hover:text-neon-500 transition-colors underline underline-offset-4"
+            >
+              hello@clawph.com
+            </a>
+            {' '}and we&apos;ll point you to the right next step.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Main Page ─────────────────────────────────────────────────────
 
 export default function PricingPage() {
   const heroRef = useRef(null);
-  const cardsRef = useRef(null);
-  const comparisonRef = useRef(null);
-  const guaranteeRef = useRef(null);
-  const faqRef = useRef(null);
-  const finalCtaRef = useRef(null);
+  const [selectedPlanId, setSelectedPlanId] = useState<PricingPlanId>('openclaw-growth');
 
   const heroInView = useInView(heroRef, { once: true, margin: '-100px' });
-  const cardsInView = useInView(cardsRef, { once: true, margin: '-100px' });
-  const comparisonInView = useInView(comparisonRef, { once: true, margin: '-100px' });
-  const guaranteeInView = useInView(guaranteeRef, { once: true, margin: '-100px' });
-  const faqInView = useInView(faqRef, { once: true, margin: '-100px' });
-  const finalCtaInView = useInView(finalCtaRef, { once: true, margin: '-100px' });
 
   return (
     <div className="min-h-screen bg-jungle">
+      {/* ── Sticky header ── */}
+      <LandingHeader />
+
       {/* ── SECTION 1: Hero ── */}
       <section
         ref={heroRef}
-        id="pricing-hero"
-        className="relative section-xl overflow-hidden pt-32"
+        id="hero"
+        className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden"
       >
         {/* Background radial glow */}
         <div className="absolute inset-0 pointer-events-none">
@@ -448,199 +360,68 @@ export default function PricingPage() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neon-500/10 border border-neon-500/20 mb-6">
               <Sparkles size={14} className="text-neon-500" />
               <span className="text-neon-500 text-sm font-mono">
-                Simple Pricing — No Retainers, No Surprises
+                OpenClaw in the Philippines — no server required
               </span>
             </div>
 
-            {/* H1 */}
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black text-warm uppercase tracking-tight leading-[0.95] mb-6">
-              <span className="block">Pick Your Path to</span>
-              <span className="block text-gradient mt-2">More Sales, Less Grind</span>
+            {/* H1 — answers: who it's for / what it does / why it matters */}
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black text-warm tracking-tight leading-[0.95] mb-6">
+              <span className="block">Your own 24/7 AI assistant,</span>
+              <span className="block text-gradient mt-2">deployed for Philippine businesses</span>
             </h1>
 
             {/* Subheadline */}
             <p className="text-warm-400 text-lg max-w-xl mx-auto mb-8 leading-relaxed">
-              Stop drowning in Amazon busywork. We built the systems that run without you — and
-              the strategy to grow your business.
+              ClawPH sets up your OpenClaw AI assistant on Telegram, Discord, or WhatsApp — configured for how Filipino businesses work. Runs while you sleep. Scales without hiring.
             </p>
 
-            {/* Micro social proof */}
-            <div className="flex flex-wrap items-center justify-center gap-6 text-warm-400 text-sm font-mono">
-              <span className="flex items-center gap-1.5">
-                <Check size={14} className="text-neon-500" />
-                50+ Amazon sellers onboarded
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Check size={14} className="text-neon-500" />
-                $2M+ monthly revenue managed
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Check size={14} className="text-neon-500" />
-                30-day guarantee
-              </span>
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+              <button
+                type="button"
+                onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
+                className="btn btn-primary px-8 w-full sm:w-auto justify-center"
+              >
+                View Pricing
+              </button>
+              <button
+                type="button"
+                onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+                className="btn btn-ghost px-8 w-full sm:w-auto justify-center border border-warm/20"
+              >
+                How it works
+              </button>
             </div>
+
+            {/* Trust strip */}
+            <TrustStrip variant="hero" />
           </motion.div>
         </div>
       </section>
 
-      {/* ── SECTION 2: Pricing Cards ── */}
-      <section ref={cardsRef} id="pricing-cards" className="section-xl">
-        <div className="container-base">
-          <motion.div
-            initial="hidden"
-            animate={cardsInView ? 'visible' : 'hidden'}
-            variants={containerVariants}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 max-w-5xl mx-auto"
-          >
-            {PRICING_TIERS.map((tier, i) => (
-              <PricingCard key={tier.id} tier={tier} index={i} />
-            ))}
-          </motion.div>
-        </div>
-      </section>
+      {/* ── SECTION 2: How it works ── */}
+      <HowItWorksSection />
 
-      {/* ── SECTION 3: Comparison Table ── */}
-      <section ref={comparisonRef} id="comparison" className="section-xl">
-        <div className="container-base">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={comparisonInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-12"
-          >
-            <h2 className="font-display text-3xl lg:text-4xl font-black text-warm uppercase tracking-tight">
-              Compare Plans
-            </h2>
-          </motion.div>
-          <div className="max-w-4xl mx-auto">
-            <ComparisonTable />
-          </div>
-        </div>
-      </section>
+      {/* ── SECTION 3: Use cases ── */}
+      <UseCasesSection />
 
-      {/* ── SECTION 4: Guarantee ── */}
-      <section ref={guaranteeRef} id="guarantee" className="section-xl">
-        <div className="container-base">
-          <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.98 }}
-            animate={guaranteeInView ? { opacity: 1, y: 0, scale: 1 } : {}}
-            transition={{ duration: 0.6 }}
-            className="max-w-2xl mx-auto"
-          >
-            <div className="relative p-8 lg:p-12 rounded-[2rem] bg-gradient-to-br from-neon-500/10 to-transparent border border-neon-500/30 overflow-hidden text-center">
-              {/* Decorative glow */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-neon-500/10 rounded-full blur-[80px] pointer-events-none" />
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-violet-500/20 rounded-full blur-[60px] pointer-events-none" />
+      {/* ── SECTION 4: Why ClawPH ── */}
+      <WhyClawPHSection />
 
-              <div className="relative z-10">
-                {/* Shield icon */}
-                <div className="w-16 h-16 rounded-full bg-neon-500/20 flex items-center justify-center mx-auto mb-6">
-                  <Shield className="text-neon-500" size={32} />
-                </div>
+      {/* ── SECTION 5: Pricing ── */}
+      <PricingSection
+        selectedPlanId={selectedPlanId}
+        onSelectPlan={setSelectedPlanId}
+      />
 
-                <h2 className="font-display text-3xl lg:text-4xl font-black text-warm uppercase tracking-tight mb-2">
-                  30-Day Money-Back
-                </h2>
-                <h2 className="font-display text-3xl lg:text-4xl font-black text-warm uppercase tracking-tight mb-6">
-                  Guarantee
-                </h2>
-                <p className="text-neon-500 font-mono text-sm font-bold tracking-widest mb-8">
-                  NO QUESTIONS ASKED
-                </p>
+      {/* ── SECTION 6: Guarantee ── */}
+      <GuaranteeSection />
 
-                {/* Bullets */}
-                <div className="space-y-3 mb-8 text-left max-w-sm mx-auto">
-                  {[
-                    'AI agent must save you 5+ hours/week or full refund',
-                    'You keep the workflows even if you cancel',
-                    'Free 1-hour exit call to diagnose what went wrong',
-                  ].map((item) => (
-                    <div key={item} className="flex items-start gap-3">
-                      <Check size={16} className="text-neon-500 flex-shrink-0 mt-0.5" />
-                      <span className="text-warm-400 text-sm">{item}</span>
-                    </div>
-                  ))}
-                </div>
+      {/* ── SECTION 7: FAQ ── */}
+      <FAQSection />
 
-                <p className="text-warm/60 text-sm italic">
-                  "We spent a decade in Amazon's trenches. We're confident we can help — or you
-                  don't pay."
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ── SECTION 6: FAQ ── */}
-      <section ref={faqRef} id="faq" className="section-xl bg-jungle-900/30">
-        <div className="container-base">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={faqInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-12"
-          >
-            <h2 className="font-display text-3xl lg:text-4xl font-black text-warm uppercase tracking-tight">
-              Common Questions
-            </h2>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={faqInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.15 }}
-            className="max-w-2xl mx-auto"
-          >
-            <FAQAccordion items={FAQ_ITEMS} />
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ── SECTION 7: Final CTA ── */}
-      <section ref={finalCtaRef} id="final-cta" className="section-xl">
-        <div className="container-base">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={finalCtaInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-            className="max-w-3xl mx-auto"
-          >
-            <div className="relative p-10 lg:p-16 rounded-[2rem] bg-jungle-800/80 backdrop-blur border border-warm/10 text-center overflow-hidden">
-              {/* Background glow */}
-              <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[300px] bg-neon-500/10 rounded-full blur-[150px]" />
-              </div>
-
-              <div className="relative z-10">
-                <h2 className="font-display text-2xl lg:text-4xl font-black text-warm uppercase tracking-tight mb-4">
-                  Ready to Stop Drowning
-                  <br />
-                  <span className="text-gradient">in Amazon Work?</span>
-                </h2>
-
-                <p className="text-warm-400 text-lg max-w-md mx-auto mb-8 leading-relaxed">
-                  Free 30-minute strategy call. We'll tell you exactly which plan fits — even if
-                  it's neither.
-                </p>
-
-                <div className="flex flex-col items-center gap-4">
-                  <CalendlyButton variant="primary" size="lg">
-                    Book Free Strategy Call
-                  </CalendlyButton>
-
-                  <a
-                    href="mailto:hello@amajungle.com"
-                    className="text-warm-400 hover:text-neon-500 text-sm transition-colors"
-                  >
-                    or email us at hello@amajungle.com
-                  </a>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      {/* ── SECTION 8: Final CTA ── */}
+      <FinalCTA />
     </div>
   );
 }

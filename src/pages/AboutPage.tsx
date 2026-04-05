@@ -121,9 +121,9 @@ const timeline: TimelineItem[] = [
   },
   {
     year: '2024',
-    title: 'amajungle Born',
+    title: 'ClawPH Born',
     description:
-      'Launched amajungle to bring AI-powered automation to every Amazon seller tired of drowning in busywork.',
+      'Launched ClawPH to bring AI-powered automation to every Amazon seller tired of drowning in busywork.',
   },
 ];
 
@@ -218,7 +218,7 @@ export default function AboutPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-neon-500" />
               </span>
-              <span className="text-neon text-sm font-mono">About amajungle</span>
+              <span className="text-neon text-sm font-mono">About ClawPH</span>
             </motion.div>
 
             <motion.h1
@@ -238,7 +238,7 @@ export default function AboutPage() {
               className="text-warm-400 text-lg lg:text-xl leading-relaxed max-w-2xl"
             >
               From Seller Central support tickets to managing $50M+ in revenue across three
-              continents. We built amajungle because we were tired of watching sellers drown
+              continents. We built ClawPH because we were tired of watching sellers drown
               in busywork they shouldn\'t have to do.
             </motion.p>
           </div>
@@ -327,7 +327,7 @@ export default function AboutPage() {
                   </div>
                   <div>
                     <p className="text-warm font-semibold">Allysa Kate Estardo</p>
-                    <p className="text-warm-400 text-sm">Founder, amajungle</p>
+                    <p className="text-warm-400 text-sm">Founder, ClawPH</p>
                   </div>
                 </div>
               </div>

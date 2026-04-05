@@ -1,0 +1,55 @@
+{
+  "name": "agent-{{SLUG}}",
+  "workspaceId": "{{WORKSPACE_ID}}",
+  "plan": "{{PLAN_ID}}",
+  "version": "1.0",
+  "customer": {
+    "email": "{{CUSTOMER_EMAIL}}",
+    "slug": "{{SLUG}}"
+  },
+  "gateway": {
+    "url": "{{OPENCLAW_GATEWAY_URL}}",
+    "token": "{{OPENCLAW_GATEWAY_TOKEN}}"
+  },
+  "agent": {
+    "sessionId": "{{AGENT_SESSION_ID}}",
+    "type": "client",
+    "channels": {
+      "telegram": {
+        "enabled": true,
+        "channelId": "{{TELEGRAM_CHANNEL_ID}}",
+        "botToken": "{{TELEGRAM_BOT_TOKEN}}"
+      }
+    }
+  },
+  "llm": {
+    "provider": "{{LLM_PROVIDER}}",
+    "model": "{{LLM_MODEL}}",
+    "apiKey": "{{LLM_API_KEY}}"
+  },
+  "features": {
+    "philgepsMonitor": {
+      "enabled": "{{PHILGEPS_MONITOR_ENABLED}}",
+      "keywords": [],
+      "alertChannels": ["telegram"]
+    },
+    "philscout": {
+      "enabled": "{{PHILSCOUT_ENABLED}}",
+      "region": "ph",
+      "businessTypes": []
+    },
+    "birMonitor": {
+      "enabled": "{{BIR_MONITOR_ENABLED}}"
+    }
+  },
+  "metadata": {
+    "jobId": "{{JOB_ID}}",
+    "tenantDir": "{{TENANT_RUNTIME_DIR}}",
+    "bootstrappedAt": "{{TIMESTAMP}}"
+  },
+  "notes": [
+    "Replace all {{PLACEHOLDER}} values before deployment.",
+    "This file defines the OpenClaw agent configuration for the tenant.",
+    "The agent session should be created in OpenClaw control plane first."
+  ]
+}

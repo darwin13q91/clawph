@@ -5,7 +5,7 @@
 @tailwind utilities;
 
 /* ============================================
-   AMAJUNGLE DESIGN SYSTEM v3.0
+   CLAWPH DESIGN SYSTEM v1.0
    Premium SaaS — Stripe/Linear/Vercel Quality
    WCAG 2.1 AA Compliant | Mobile-First
    ============================================ */
@@ -35,9 +35,6 @@
     --warm-200: #e8e9dc;
     --warm-300: #d4d5c8;
     --warm-400: #b5b6aa;
-    
-    --amazon-orange: #FF9900;
-    --amazon-dark: #232F3E;
     
     /* Semantic Colors */
     --background: var(--jungle-800);
@@ -419,13 +416,9 @@
   .text-violet-light { color: var(--violet-400); }
   .text-violet-dark { color: var(--violet-600); }
   
-  .text-amazon { color: var(--amazon-orange); }
-  .text-amazon-orange { color: var(--amazon-orange); }
-  
   /* Background opacity utilities */
   .bg-neon\/10 { background-color: rgba(207, 255, 0, 0.1); }
   .bg-neon\/20 { background-color: rgba(207, 255, 0, 0.2); }
-  .bg-amazon\/20 { background-color: rgba(255, 153, 0, 0.2); }
   .bg-violet\/20 { background-color: rgba(110, 46, 140, 0.2); }
   .bg-warm\/5 { background-color: rgba(246, 247, 235, 0.05); }
   .bg-warm\/10 { background-color: rgba(246, 247, 235, 0.1); }
@@ -691,11 +684,6 @@
   .badge-violet {
     background: var(--violet-500);
     color: var(--warm-100);
-  }
-  
-  .badge-amazon {
-    background: var(--amazon-orange);
-    color: var(--amazon-dark);
   }
   
   .badge-outline {

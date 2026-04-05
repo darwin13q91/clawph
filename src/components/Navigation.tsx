@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Menu, X, ChevronRight, Search, Workflow, Tag, Info } from 'lucide-react';
+import { Menu, X, ChevronRight, Workflow, Tag, Info } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import CalendlyButton from './CalendlyButton';
@@ -14,9 +14,9 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: 'Free Audit', href: '#contact', icon: Search },
   { label: 'How It Works', href: '#process', icon: Workflow },
   { label: 'Pricing', href: '/pricing', icon: Tag, isRoute: true },
+  { label: 'FAQ', href: '#faq', icon: Tag },
 ];
 
 // Animation variants
@@ -179,7 +179,7 @@ export default function Navigation() {
           <Link
             to="/"
             className="flex items-center gap-2 sm:gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-500 focus-visible:ring-offset-2 focus-visible:ring-offset-jungle-800 rounded-lg"
-            aria-label="amajungle - Home"
+            aria-label="ClawPH - Home"
           >
             <motion.div 
               whileHover={{ scale: 1.05 }}
@@ -189,7 +189,7 @@ export default function Navigation() {
               <AnimatedLogo size={36} />
             </motion.div>
             <span className="font-display text-xl sm:text-2xl font-bold text-warm tracking-tight hidden sm:block">
-              amajungle
+              ClawPH
             </span>
           </Link>
 
@@ -307,7 +307,7 @@ export default function Navigation() {
                 >
                   <AnimatedLogo size={32} />
                   <span className="font-display text-xl font-bold text-warm">
-                    amajungle
+                    ClawPH
                   </span>
                 </Link>
                 <button
