@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "nodeVersion": "22",
   "buildCommand": "npm run build",
   "installCommand": "npm install --include=dev",
   "outputDirectory": "dist",
