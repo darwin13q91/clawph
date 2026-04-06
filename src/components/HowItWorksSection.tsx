@@ -48,13 +48,13 @@ export default function HowItWorksSection() {
           className="text-center mb-14"
         >
           <p className="text-neon-500 text-sm font-mono font-semibold tracking-widest uppercase mb-3">
-            Simple process
+            How it works
           </p>
           <h2 className="font-display text-3xl lg:text-5xl font-black text-warm tracking-tight leading-tight">
-            Up and running in 48 hours
+            Three steps to your own AI assistant
           </h2>
           <p className="text-warm-400 text-lg mt-4 max-w-xl mx-auto">
-            No technical skills needed. We handle the setup — you get the AI assistant.
+            No technical skills needed. Pick a plan, install it, own it forever.
           </p>
         </motion.div>
 
