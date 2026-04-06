@@ -23,7 +23,7 @@ def should_process_email(email_data):
     is_reply = any(clean_subject.startswith(ind) for ind in reply_indicators)
     
     # Check if it's from our own domain AND contains reply threading
-    is_own_domain_reply = ('amajungle.com' in sender and 
+    is_own_domain_reply = ('clawph.com' in sender and 
                            ('new lead:' in subject_lower or 
                             'contact form' in subject_lower))
     
@@ -34,8 +34,8 @@ def should_process_email(email_data):
     is_contact_form = ('New Lead:' in subject or 
                        'Contact Form Submission' in subject)
     
-    if not is_contact_form and 'amajungle.com' in sender:
-        return False, f"SKIP_OWN_DOMAIN: Non-form email from amajungle.com"
+    if not is_contact_form and 'clawph.com' in sender:
+        return False, f"SKIP_OWN_DOMAIN: Non-form email from clawph.com"
     
     # CHECK 3: Has this email been processed recently?
     email_id = email_data.get('id')
@@ -185,66 +185,66 @@ def draft_safe_reply(sender_email, sender_name, subject, body, template_name):
 
 Thanks for reaching out!
 
-Amajungle builds custom AI agents for Amazon sellers — they handle the repetitive stuff (PPC monitoring, inventory alerts, reports, pricing) so you get 10+ hours back per week.
+ClawPH sets up OpenClaw assistants for Philippine businesses — automating follow-ups, approvals, summaries, and repetitive admin so you get real time back each week.
 
 The quickest way to see if it fits: a free 30-minute audit.
 
-Book here: https://calendly.com/ops-amajungle/30min""",
+Book here: https://calendly.com/ops-clawph/30min""",
         
         'T2_pricing': f"""Hey {first_name},
 
 Two options:
 
-AI Automation — $997 one-time
-Custom AI agent, 5 automations, Telegram control, 48-hour setup, 30-day guarantee.
+ClawPH Setup — ₱57,500 one-time
+Complete OpenClaw installation, channel setup, workflow configuration, and guided onboarding.
 
-Amazon Growth — $999/mo  
-Full management: listings, PPC, weekly reports, strategy calls. First month 50% off.
+ClawPH Growth — ₱15,000/mo  
+Ongoing optimization, priority support, weekly improvements, and hands-on system tuning.
 
 Which sounds closer to what you need?""",
         
         'T1_ai_focus': f"""Hey {first_name},
 
-Perfect! Amajungle builds AI agents that run 24/7 on your own hardware — no monthly fees, you own the system.
+Perfect! ClawPH sets up OpenClaw assistants that run 24/7 on your own server or cloud account — you keep control of the system.
 
-What the AI handles:
-• PPC monitoring and bid adjustments
-• Inventory alerts and reorder triggers  
-• Review monitoring and response drafting
-• Pricing adjustments and competitor tracking
-• Weekly performance reports
+What the AI can handle:
+• Lead follow-up and reply drafting
+• Internal summaries and reporting
+• Approval routing and ops reminders
+• SOP assistance and staff support
+• Chat-based control through Telegram, Discord, or WhatsApp
 
-Setup: 48 hours
-Investment: $997 one-time (includes 30-day guarantee)
+Setup timeline: fast tracked after approval
+Investment: ₱57,500 one-time (includes guided setup)
 
-Want to see how this works for your store? Book an audit:
-https://calendly.com/ops-amajungle/30min""",
+Want to see how this works for your business? Book a discovery call:
+https://calendly.com/ops-clawph/30min""",
         
         'T1_growth_focus': f"""Hey {first_name},
 
-Amajungle's Amazon Growth service handles the heavy lifting:
+ClawPH Growth handles the heavy lifting after setup:
 
-• Listing optimization (titles, bullets, A+ content)
-• PPC campaign management and bid optimization
-• Keyword research and rank tracking
-• Weekly performance reports and strategy calls
-• Monthly strategy reviews
+• Workflow refinement and prompt tuning
+• New automation opportunities
+• Weekly reviews and ops improvements
+• Priority support for fixes and changes
+• Ongoing system optimization
 
-Investment: $999/mo (first month 50% off — $499)
+Investment: ₱15,000/mo
 
 Want to see if we're a fit? Book a discovery call:
-https://calendly.com/ops-amajungle/30min""",
+https://calendly.com/ops-clawph/30min""",
         
         'T2_audit_offer': f"""Hey {first_name},
 
-The best way to see if this fits: a free 30-minute audit where I look at your store and show you exactly what we'd automate.
+The best way to see if this fits: a free 30-minute call where I look at your workflow and show you exactly what we'd automate.
 
 During the call, I'll:
-• Review your current listings and PPC
-• Identify your biggest time-wasters
-• Show you what an AI agent would handle
+• Review your current workflow bottlenecks
+• Identify the highest-value automations first
+• Show you what your OpenClaw assistant would handle
 
-Book here: https://calendly.com/ops-amajungle/30min
+Book here: https://calendly.com/ops-clawph/30min
 
 Or reply with 2-3 times that work for you.""",
         
@@ -252,9 +252,9 @@ Or reply with 2-3 times that work for you.""",
 
 To point you in the right direction, can you tell me:
 
-1. Are you selling on Amazon already, or just getting started?
-2. What's your biggest headache right now — PPC, inventory, reviews, or something else?
-3. Are you looking for DIY tools or done-for-you service?
+1. What kind of business are you running?
+2. What's your biggest operational headache right now?
+3. Are you looking for one-time setup or ongoing support?
 
 Once I know that, I can recommend the right solution.""",
         

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Morning Report for AmaJungle Operations
+# Morning Report for ClawPH Operations
 # Updated: Removed obsolete trading stats, added operational metrics
 
 # Force Philippines timezone for date commands
@@ -61,7 +61,7 @@ else
   PORT_8888="🔴 DOWN (8888)"
 fi
 
-# Check port 8789 (AmaJungle Dashboard)
+# Check port 8789 (ClawPH Dashboard)
 if nc -zv localhost 8789 >/dev/null 2>&1; then
   PORT_8789="🟢 UP (8789)"
 else
@@ -89,7 +89,7 @@ TODAY_QUOTE="${QUOTES[$QUOTE_INDEX]}"
 # Create report
 {
 echo "╔══════════════════════════════════════════════════════════╗"
-echo "║           🌅 GOOD MORNING, AMAJUNGLE OPS! 🌅             ║"
+echo "║           🌅 GOOD MORNING, CLAWPH OPS! 🌅             ║"
 echo "╚══════════════════════════════════════════════════════════╝"
 echo ""
 echo "📅 $DATE | ⏰ $TIME"

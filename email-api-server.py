@@ -7,12 +7,12 @@ import os
 
 app = Flask(__name__)
 
-# Configure CORS - allow requests from amajungle.com and localhost for testing
+# Configure CORS - allow requests from clawph.com and localhost for testing
 CORS(app, resources={
     r"/api/*": {
         "origins": [
-            "https://amajungle.com",
-            "https://www.amajungle.com",
+            "https://clawph.com",
+            "https://www.clawph.com",
             "http://localhost:5173",
             "http://localhost:3000",
             "http://localhost:4173"
@@ -25,9 +25,9 @@ CORS(app, resources={
 # PrivateEmail SMTP configuration
 SMTP_SERVER = "smtp.privateemail.com"
 SMTP_PORT = 465  # SSL port
-FROM_EMAIL = "hello@amajungle.com"
-FROM_NAME = "Amajungle"
-RECIPIENT_EMAIL = "hello@amajungle.com"  # Where leads are sent
+FROM_EMAIL = "hello@clawph.com"
+FROM_NAME = "ClawPH"
+RECIPIENT_EMAIL = "hello@clawph.com"  # Where leads are sent
 
 @app.route('/api/send-email', methods=['POST', 'OPTIONS'])
 def send_email():
@@ -47,7 +47,7 @@ def send_email():
         to_email = data.get('to_email')
         subject = data.get('subject')
         message_html = data.get('message', '')
-        from_name = data.get('from_name', 'Amajungle Lead')
+        from_name = data.get('from_name', 'ClawPH Lead')
         service = data.get('service', 'general')
         
         # Get additional form data if provided
@@ -62,7 +62,7 @@ def send_email():
             message_html = f"""
             <html>
             <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-                <h2 style="color: #0B3A2C;">New Lead from Amajungle Website</h2>
+                <h2 style="color: #0B3A2C;">New Lead from ClawPH</h2>
                 <table style="border-collapse: collapse; width: 100%; max-width: 600px;">
                     <tr>
                         <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: bold;">Name:</td>
@@ -90,14 +90,14 @@ def send_email():
                     </tr>
                 </table>
                 <p style="margin-top: 30px; font-size: 12px; color: #666;">
-                    This email was sent from the contact form on amajungle.com
+                    This email was sent from the contact form on clawph.com
                 </p>
             </body>
             </html>
             """
         
         # Build PLAIN TEXT version for Echo to parse
-        message_plain = f"""New Lead from Amajungle Website
+        message_plain = f"""New Lead from ClawPH
 
 Name: {client_name or from_name}
 Email: {client_email or to_email}
@@ -109,7 +109,7 @@ Message:
 {client_message or 'No additional message provided'}
 
 ---
-Sent from amajungle.com contact form
+Sent from clawph.com contact form
 """
         
         # Create email message with both HTML and plain text
@@ -158,13 +158,13 @@ Sent from amajungle.com contact form
 def health_check():
     return jsonify({
         "status": "healthy",
-        "service": "amajungle-email-api"
+        "service": "clawph-email-api"
     }), 200
 
 @app.route('/', methods=['GET'])
 def index():
     return jsonify({
-        "service": "Amajungle Email API",
+        "service": "ClawPH Email API",
         "version": "1.0.0",
         "endpoints": {
             "/api/send-email": "POST - Send email via PrivateEmail SMTP",

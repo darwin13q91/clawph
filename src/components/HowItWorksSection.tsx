@@ -9,25 +9,25 @@ import { Bot, MessageCircle, Zap } from 'lucide-react';
 const steps = [
   {
     number: '01',
-    title: 'Book your call',
+    title: 'Choose your plan',
     description:
-      'Pick a plan that fits your needs. We\'ll assess your workflow and recommend the right setup — even if neither plan is perfect.',
+      'Pick the package that fits your business needs. GCash and Maya accepted.',
     icon: Zap,
     accent: 'neon',
   },
   {
     number: '02',
-    title: 'We set everything up',
+    title: 'Install on your machine',
     description:
-      'Telegram, Discord, or WhatsApp — your AI assistant goes live in 48 hours. You message it like a colleague; it handles the work.',
+      'After checkout, receive your install link. OpenClaw goes live in minutes — no technical skills needed.',
     icon: Bot,
     accent: 'violet',
   },
   {
     number: '03',
-    title: 'It works while you sleep',
+    title: "It's yours forever",
     description:
-      'From lead follow-ups to ops automation, your AI handles the repetitive work. You scale without hiring.',
+      'Your AI assistant runs on your hardware. No subscription. No ongoing fees. Owned by you.',
     icon: MessageCircle,
     accent: 'neon',
   },

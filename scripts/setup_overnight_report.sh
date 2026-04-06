@@ -1,8 +1,8 @@
 #!/bin/bash
-# Amajungle Overnight Report Implementation
+# ClawPH Overnight Report Implementation
 # Sets up all the new features for VIP clients, followups, and analytics
 
-echo "🚀 Amajungle Overnight Report Implementation"
+echo "🚀 ClawPH Overnight Report Implementation"
 echo "============================================"
 echo ""
 

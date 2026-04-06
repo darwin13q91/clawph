@@ -49,7 +49,7 @@ EMAIL_ACCOUNTS = {
 
 def load_html_signature():
     """Load centralized HTML signature"""
-    sig_path = Path('/home/darwin/.openclaw/agents/echo/data/signature.html')
+    sig_path = Path(__file__).resolve().parent / 'clawph_signature.html'
     if sig_path.exists():
         with open(sig_path) as f:
             return f.read()
@@ -58,7 +58,7 @@ def load_html_signature():
 <table cellpadding="0" cellspacing="0" border="0" style="font-family: 'Inter', Arial, sans-serif; font-size: 14px; line-height: 1.5; color: #F6F7EB; background: #0B3A2C; padding: 20px; border-radius: 12px; max-width: 500px;">
  <tr>
  <td style="padding-right: 16px; border-right: 2px solid #CFFF00;">
- <img src="https://amajungle.com/images/logo-icon.png" alt="amajungle" width="60" height="60" style="display: block;">
+ <img src="https://clawph.com/images/logo-icon.png" alt="clawph" width="60" height="60" style="display: block;">
  </td>
  <td style="padding-left: 16px;">
  <table cellpadding="0" cellspacing="0" border="0">
@@ -69,12 +69,12 @@ def load_html_signature():
  </tr>
  <tr>
  <td style="color: #CFFF00; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
- Founder, amajungle
+ Founder, ClawPH
  </td>
  </tr>
  <tr>
  <td style="padding-top: 8px; color: #F6F7EB; opacity: 0.8; font-size: 13px;">
- AI Automation for Amazon Sellers
+ OpenClaw setup for Philippine businesses
  </td>
  </tr>
  <tr>
@@ -82,8 +82,8 @@ def load_html_signature():
  <table cellpadding="0" cellspacing="0" border="0">
  <tr>
  <td style="padding-right: 16px;">
- <a href="mailto:hello@amajungle.com" style="color: #F6F7EB; text-decoration: none; font-size: 13px;">
- 📧 hello@amajungle.com
+ <a href="mailto:hello@clawph.com" style="color: #F6F7EB; text-decoration: none; font-size: 13px;">
+ 📧 hello@clawph.com
  </a>
  </td>
  <td>
@@ -97,8 +97,8 @@ def load_html_signature():
  </tr>
  <tr>
  <td style="padding-top: 12px;">
- <a href="https://amajungle.com" style="display: inline-block; background: #CFFF00; color: #0B3A2C; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: 600; font-size: 12px; text-transform: uppercase;">
- Book Free Audit →
+ <a href="https://clawph.com" style="display: inline-block; background: #CFFF00; color: #0B3A2C; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: 600; font-size: 12px; text-transform: uppercase;">
+ Visit ClawPH →
  </a>
  </td>
  </tr>
@@ -130,7 +130,7 @@ def send_email(to_email, subject, body, from_account='hello', html_body=None, re
     # Plain text signature removed - using HTML signature only
     
     msg = MIMEMultipart("alternative")
-    msg["From"] = f"Amajungle <{email_address}>"
+    msg["From"] = f"ClawPH <{email_address}>"
     msg["To"] = to_email
     msg["Subject"] = subject
     
@@ -155,11 +155,11 @@ def send_email(to_email, subject, body, from_account='hello', html_body=None, re
     with smtplib.SMTP_SSL(account['smtp'], account['port'], context=context) as server:
         server.login(email_address, email_password)
         # CRITICAL: Use email_address ONLY for SMTP envelope (no display name)
-        # The display name "Amajungle" is already in msg["From"] header
-        # Using display name in envelope can cause Gmail/Outlook to show "hello" instead of "Amajungle"
+        # The display name "ClawPH" is already in msg["From"] header
+        # Using display name in envelope can cause Gmail/Outlook to show only the mailbox name instead of "ClawPH"
         server.sendmail(email_address, to_email, msg.as_string())
     
-    print(f"✅ Email sent from Amajungle <{email_address}> to {to_email}")
+    print(f"✅ Email sent from ClawPH <{email_address}> to {to_email}")
     return True
 
 if __name__ == "__main__":

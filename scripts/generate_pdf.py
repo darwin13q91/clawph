@@ -292,9 +292,9 @@ def generate_html_report(audit_data, report_id):
     <div class="footer">
         <h3>Ready to implement these fixes?</h3>
         <p>Schedule a free strategy call to discuss your results</p>
-        <a href="{audit_data.get('calendlyUrl', 'https://calendly.com/ops-amajungle/30min')}" class="cta">Book Your Call</a>
+        <a href="{audit_data.get('calendlyUrl', 'https://calendly.com/ops-clawph/30min')}" class="cta">Book Your Call</a>
         <p style="margin-top: 20px; font-size: 12px;">
-            hello@amajungle.com | +63 995 450 5206 | amajungle.com
+            hello@clawph.com | +63 995 450 5206 | clawph.com
         </p>
     </div>
 </body>

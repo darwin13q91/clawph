@@ -229,7 +229,7 @@ class OvernightThinker:
             "What is the one part of your current workflow that still annoys you every time it happens?",
             "If you could wave a wand and have one automation done instantly, what would it be?",
             "What do you worry about when you are not checking the dashboards?",
-            "What is your actual goal with Amajungle—lifestyle business, acquisition, or something else?",
+            "What is your actual goal with ClawPH—steady cash flow, authority, or something bigger?",
             "What part of your work do you secretly enjoy doing manually and would never automate?",
             "If a client had a terrible experience, how would you even know?",
             "What would make you feel the system is 'done' and ready for real clients?"
@@ -268,7 +268,7 @@ class OvernightThinker:
         """Generate wild/unconventional idea"""
         wild_ideas = [
             {
-                'title': 'The Amajungle Oracle',
+                'title': 'The ClawPH Oracle',
                 'description': "Give clients a random AI-generated prediction about their store's future (e.g., 'At current trajectory, you will hit 100 reviews by June 15'). Completely unscientific but memorable.",
                 'why': 'People share weird, memorable things. No one shares boring audit reports.'
             },

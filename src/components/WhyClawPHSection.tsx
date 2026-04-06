@@ -8,16 +8,16 @@ import { Check, X, Users, Bot, ShieldCheck, Clock } from 'lucide-react';
 
 const comparisonRows = [
   {
-    feature: 'Setup time',
-    clawph: '48 hours, we do it for you',
-    diy: 'Weeks of self-research + setup',
+    feature: 'Model',
+    clawph: 'One-time purchase, you own it',
+    diy: 'Subscription, you rent it',
     icon: Clock,
   },
   {
-    feature: 'Ongoing support',
-    clawph: 'Monthly reviews + priority channel',
-    diy: 'You\'re on your own',
-    icon: Users,
+    feature: 'Data storage',
+    clawph: 'On your own machine',
+    diy: 'On vendor\'s servers',
+    icon: ShieldCheck,
   },
   {
     feature: 'PH payment methods',
@@ -45,9 +45,9 @@ import { Settings } from 'lucide-react';
 const valueProps = [
   {
     icon: ShieldCheck,
-    title: 'You own your infra',
+    title: 'Owned, not rented',
     description:
-      'The OpenClaw system runs on your own server or cloud account. Your data stays yours. No vendor lock-in.',
+      'Pay once. The OpenClaw system runs on your own machine forever. No vendor can shut it down, raise prices, or read your data.',
   },
   {
     icon: Clock,
@@ -59,7 +59,7 @@ const valueProps = [
     icon: Users,
     title: 'Local PH expertise',
     description:
-      'We\'ve deployed 50+ OpenClaw systems in the Philippines. We know GCash, Maya, and how Filipino businesses operate.',
+      'Built for Philippine businesses. GCash, Maya, BIR compliance, SSS tracking — workflows that actually fit how Filipino businesses operate.',
   },
 ];
 

@@ -367,12 +367,12 @@ export default function PricingPage() {
             {/* H1 — answers: who it's for / what it does / why it matters */}
             <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-black text-warm tracking-tight leading-[0.95] mb-6">
               <span className="block">Your own 24/7 AI assistant,</span>
-              <span className="block text-gradient mt-2">deployed for Philippine businesses</span>
+              <span className="block text-gradient mt-2">installed on YOUR machine — owned forever</span>
             </h1>
 
             {/* Subheadline */}
             <p className="text-warm-400 text-lg max-w-xl mx-auto mb-8 leading-relaxed">
-              ClawPH sets up your OpenClaw AI assistant on Telegram, Discord, or WhatsApp — configured for how Filipino businesses work. Runs while you sleep. Scales without hiring.
+              ClawPH delivers OpenClaw configured for Philippine businesses. You install it on your own computer. It runs 24/7 on your hardware, your data stays with you, no subscription ever.
             </p>
 
             {/* CTAs */}
